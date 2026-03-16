@@ -1,0 +1,22 @@
+---
+description: Contexto del proyecto Para Dónde – guía de viajes Argentina
+alwaysApply: true
+---
+
+# Proyecto "Para Dónde?"
+
+- **App:** guía de viajes para Argentina. **Stack:** React + TypeScript (Vite), Ionic React, React Router, Firebase (Hosting, Analytics), Capacitor. **Firebase:** `para-donde`.
+- **Funcionalidades:** Elige tu aventura (flujo → destinos), guías temáticas, calculadora dólar tarjeta (DolarAPI).
+
+## Convenciones
+
+- **Tema:** `src/theme/theme.css` – paleta azul `#1976d2`, variables `--pd-color-*`, clase **`.pd-content`** (max-width 720px, centrado) en todas las páginas.
+- **Aventura:** datos en `src/data/aventura.ts` (`OpcionAventura` con `imageUrl?` opcional); UI en `src/pages/Aventura.tsx` (grid de cuadrantes, sessionStorage); lógica en `src/logic/motorAventura.ts`.
+- **Guías:** `src/data/guias.ts` (guías con `secciones`); render en `src/pages/GuiaTematica.tsx` (título, cuerpo, links por sección).
+- **Destinos:** `src/data/destinos.ts` para el motor de aventura.
+
+## Notas
+
+- No editar `PLAN-VIAJES-v0.md` salvo petición explícita.
+- PowerShell: encadenar con `;` en lugar de `&&`.
+- Comandos: `npm run dev`, `npm run build`, `firebase use para-donde`, `firebase deploy`.

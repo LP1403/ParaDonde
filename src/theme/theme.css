@@ -1,0 +1,114 @@
+/* Tema inspirado en Argentina.gob.ar – Para Dónde? */
+:root {
+  /* Fondos (claros, limpios) */
+  --pd-color-bg: #f5f6f7;
+  --pd-color-bg-cream: #ffffff;
+  /* Azul tipo Argentina.gob.ar */
+  --pd-color-primary: #1976d2;
+  --pd-color-primary-hover: #1565c0;
+  --pd-color-primary-soft: #e3f2fd;
+  /* Secundario */
+  --pd-color-secondary: #2e7d32;
+  /* Texto */
+  --pd-color-text: #212121;
+  --pd-color-text-muted: #5f6368;
+  /* Bordes y sombras suaves */
+  --pd-border: #dadce0;
+  --pd-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --pd-radius: 8px;
+  /* Contenido: no a lo ancho de toda la pantalla */
+  --pd-content-max-width: 720px;
+  --pd-content-padding: 1.25rem;
+}
+
+/* Wrapper para contenido: centrado y con padding */
+.pd-content {
+  max-width: var(--pd-content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--pd-content-padding);
+  padding-right: var(--pd-content-padding);
+  width: 100%;
+}
+
+/* Ionic overrides */
+ion-content {
+  --background: var(--pd-color-bg);
+}
+ion-toolbar {
+  --background: var(--pd-color-bg-cream);
+  --color: var(--pd-color-text);
+  --border-color: var(--pd-border);
+}
+ion-button {
+  --background: var(--pd-color-primary);
+  --background-hover: var(--pd-color-primary-hover);
+  --background-activated: var(--pd-color-primary-hover);
+  --color: white;
+}
+ion-button[fill="outline"] {
+  --border-color: var(--pd-color-primary);
+  --color: var(--pd-color-primary);
+}
+ion-card {
+  border-radius: var(--pd-radius);
+  box-shadow: var(--pd-shadow);
+  border: 1px solid var(--pd-border);
+}
+
+/* Aventura: cuadrícula de cuadrantes con imagen de fondo */
+.aventura-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+@media (min-width: 480px) {
+  .aventura-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+.aventura-cuadrante {
+  aspect-ratio: 1;
+  border-radius: var(--pd-radius);
+  border: 2px solid var(--pd-border);
+  background-size: cover;
+  background-position: center;
+  background-color: var(--pd-color-bg);
+  cursor: pointer;
+  padding: 0.75rem;
+  display: flex;
+  align-items: flex-end;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 120px;
+}
+.aventura-cuadrante:hover {
+  border-color: var(--pd-color-primary);
+  box-shadow: var(--pd-shadow);
+}
+.aventura-cuadrante--selected {
+  border-color: var(--pd-color-primary);
+  box-shadow: 0 0 0 2px var(--pd-color-primary-soft);
+}
+.aventura-cuadrante-label {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  line-height: 1.2;
+}
+.aventura-cuadrante:not([style*="backgroundImage"]) .aventura-cuadrante-label {
+  color: var(--pd-color-text);
+  text-shadow: none;
+}
+
+/* Enlaces en guías */
+.pd-guia-content a {
+  color: var(--pd-color-primary);
+  text-decoration: none;
+}
+.pd-guia-content a:hover {
+  text-decoration: underline;
+}
