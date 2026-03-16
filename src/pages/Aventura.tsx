@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton } from '@ionic/react';
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { arrowBack } from 'ionicons/icons';
 import { preguntasAventura } from '../data/aventura';
 
 const STORAGE_KEY = 'paradonde_aventura_respuestas';
@@ -43,6 +45,7 @@ export default function Aventura() {
 
   const valorActual = pregunta ? respuestas[pregunta.id] : undefined;
   const puedeContinuar = !!valorActual;
+  const esPrimerPaso = pasoActual === 0;
 
   useEffect(() => {
     document.title = 'Elige tu aventura – Para Dónde?';
@@ -52,6 +55,14 @@ export default function Aventura() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          {!esPrimerPaso && (
+            <IonButtons slot="start">
+              <IonButton onClick={() => navigate('/')} aria-label="Volver al inicio">
+                <IonIcon icon={arrowBack} slot="start" />
+                Volver
+              </IonButton>
+            </IonButtons>
+          )}
           <IonTitle>Elige tu aventura</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -71,6 +82,7 @@ export default function Aventura() {
                   key={op.id}
                   type="button"
                   className={`aventura-cuadrante ${valorActual === op.id ? 'aventura-cuadrante--selected' : ''}`}
+                  data-has-image={op.imageUrl ? 'true' : undefined}
                   style={{
                     backgroundImage: op.imageUrl ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})` : undefined,
                     backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
@@ -83,11 +95,13 @@ export default function Aventura() {
                 </button>
               ))}
             </div>
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem' }}>
-              <IonButton fill="outline" onClick={handleAtras}>
-                Atrás
-              </IonButton>
-              <IonButton disabled={!puedeContinuar} onClick={handleSiguiente}>
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: esPrimerPaso ? 'stretch' : undefined }}>
+              {!esPrimerPaso && (
+                <IonButton fill="outline" onClick={handleAtras}>
+                  Atrás
+                </IonButton>
+              )}
+              <IonButton disabled={!puedeContinuar} onClick={handleSiguiente} style={esPrimerPaso ? { flex: 1 } : undefined}>
                 {esUltima ? 'Ver resultados' : 'Siguiente'}
               </IonButton>
             </div>

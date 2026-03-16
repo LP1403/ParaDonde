@@ -1,10 +1,13 @@
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton } from '@ionic/react';
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonButtons } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { arrowBack } from 'ionicons/icons';
 import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
 
 export default function ResultadoAventura() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const respuestas: Record<string, string> = {};
   searchParams.forEach((v, k) => {
@@ -20,6 +23,11 @@ export default function ResultadoAventura() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton onClick={() => navigate('/aventura')} aria-label="Volver">
+              <IonIcon icon={arrowBack} />
+            </IonButton>
+          </IonButtons>
           <IonTitle>Tu resultado</IonTitle>
         </IonToolbar>
       </IonHeader>

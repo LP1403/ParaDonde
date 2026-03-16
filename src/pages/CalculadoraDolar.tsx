@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const PAGE_TITLE = 'Calculadora dólar tarjeta – Para Dónde?';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonBackButton, IonButtons, IonInput, IonItem, IonLabel } from '@ionic/react';
+import { useNavigate } from 'react-router-dom';
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonInput, IonItem, IonLabel } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { arrowBack } from 'ionicons/icons';
 
 const DOLAR_API = 'https://dolarapi.com/v1/dolares/tarjeta';
 
@@ -11,6 +14,7 @@ interface DolarTarjeta {
 }
 
 export default function CalculadoraDolar() {
+  const navigate = useNavigate();
   const [usd, setUsd] = useState<string>('');
   const [cotizacion, setCotizacion] = useState<DolarTarjeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +51,9 @@ export default function CalculadoraDolar() {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/" />
+            <IonButton onClick={() => navigate('/')} aria-label="Volver">
+              <IonIcon icon={arrowBack} />
+            </IonButton>
           </IonButtons>
           <IonTitle>Dólar tarjeta</IonTitle>
         </IonToolbar>

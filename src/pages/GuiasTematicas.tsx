@@ -1,9 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonLabel } from '@ionic/react';
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonLabel, IonButtons, IonButton } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { arrowBack } from 'ionicons/icons';
 import { guiasTematicas } from '../data/guias';
 
 export default function GuiasTematicas() {
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = 'Guías prácticas – Para Dónde?';
   }, []);
@@ -11,6 +14,11 @@ export default function GuiasTematicas() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton onClick={() => navigate('/')} aria-label="Volver">
+              <IonIcon icon={arrowBack} />
+            </IonButton>
+          </IonButtons>
           <IonTitle>Guías prácticas</IonTitle>
         </IonToolbar>
       </IonHeader>

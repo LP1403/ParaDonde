@@ -1,27 +1,37 @@
-/* Tema inspirado en Argentina.gob.ar – Para Dónde? */
+/* Tema estilo app de viajes – Para Dónde? */
 :root {
-  /* Fondos (claros, limpios) */
-  --pd-color-bg: #f5f6f7;
+  /* Fondos cálidos y suaves */
+  --pd-color-bg: #faf8f5;
+  --pd-color-bg-warm: #f5f0e8;
   --pd-color-bg-cream: #ffffff;
-  /* Azul tipo Argentina.gob.ar */
-  --pd-color-primary: #1976d2;
-  --pd-color-primary-hover: #1565c0;
-  --pd-color-primary-soft: #e3f2fd;
-  /* Secundario */
-  --pd-color-secondary: #2e7d32;
+  --pd-color-bg-card: #ffffff;
+  /* Primario: teal (naturaleza, viajes, calma) */
+  --pd-color-primary: #0d9488;
+  --pd-color-primary-hover: #0f766e;
+  --pd-color-primary-soft: #ccfbf1;
+  --pd-color-primary-muted: #5eead4;
+  /* Acento: ámbar (aventura, calor) */
+  --pd-color-accent: #d97706;
+  --pd-color-accent-hover: #b45309;
+  --pd-color-accent-soft: #fef3c7;
   /* Texto */
-  --pd-color-text: #212121;
-  --pd-color-text-muted: #5f6368;
+  --pd-color-text: #1c1917;
+  --pd-color-text-muted: #78716c;
+  --pd-color-text-on-primary: #ffffff;
   /* Bordes y sombras suaves */
-  --pd-border: #dadce0;
-  --pd-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --pd-radius: 8px;
-  /* Contenido: no a lo ancho de toda la pantalla */
+  --pd-border: #e7e5e4;
+  --pd-border-light: #f0eeec;
+  --pd-shadow: 0 1px 3px rgba(28, 25, 23, 0.06);
+  --pd-shadow-card: 0 4px 12px rgba(28, 25, 23, 0.08);
+  --pd-shadow-hover: 0 8px 24px rgba(28, 25, 23, 0.1);
+  --pd-radius: 12px;
+  --pd-radius-lg: 16px;
+  /* Contenido */
   --pd-content-max-width: 720px;
   --pd-content-padding: 1.25rem;
 }
 
-/* Wrapper para contenido: centrado y con padding */
+/* Wrapper para contenido */
 .pd-content {
   max-width: var(--pd-content-max-width);
   margin-left: auto;
@@ -38,25 +48,113 @@ ion-content {
 ion-toolbar {
   --background: var(--pd-color-bg-cream);
   --color: var(--pd-color-text);
-  --border-color: var(--pd-border);
+  --border-color: var(--pd-border-light);
 }
 ion-button {
   --background: var(--pd-color-primary);
   --background-hover: var(--pd-color-primary-hover);
   --background-activated: var(--pd-color-primary-hover);
-  --color: white;
+  --color: var(--pd-color-text-on-primary);
+  --border-radius: var(--pd-radius);
+  font-weight: 600;
 }
 ion-button[fill="outline"] {
   --border-color: var(--pd-color-primary);
   --color: var(--pd-color-primary);
 }
 ion-card {
-  border-radius: var(--pd-radius);
-  box-shadow: var(--pd-shadow);
-  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-lg);
+  box-shadow: var(--pd-shadow-card);
+  border: 1px solid var(--pd-border-light);
+  --background: var(--pd-color-bg-card);
 }
 
-/* Aventura: cuadrícula de cuadrantes con imagen de fondo */
+/* ---------- Home ---------- */
+.pd-home-hero {
+  background: linear-gradient(160deg, var(--pd-color-primary) 0%, #0f766e 50%, #115e59 100%);
+  color: var(--pd-color-text-on-primary);
+  padding: clamp(2.5rem, 8vw, 4rem) var(--pd-content-padding);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.pd-home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.8;
+}
+.pd-home-hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  position: relative;
+}
+.pd-home-hero p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.95;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+.pd-home-cards {
+  padding: 1.5rem var(--pd-content-padding) 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: var(--pd-content-max-width);
+  margin: 0 auto;
+}
+.pd-home-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--pd-color-bg-card);
+  border-radius: var(--pd-radius-lg);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--pd-border-light);
+  box-shadow: var(--pd-shadow-card);
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+.pd-home-card:hover {
+  box-shadow: var(--pd-shadow-hover);
+  border-color: var(--pd-border);
+  transform: translateY(-2px);
+}
+.pd-home-card:active {
+  transform: translateY(0);
+}
+.pd-home-card-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--pd-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+.pd-home-card--aventura .pd-home-card-icon { background: var(--pd-color-primary-soft); color: var(--pd-color-primary); }
+.pd-home-card--guias .pd-home-card-icon { background: var(--pd-color-accent-soft); color: var(--pd-color-accent); }
+.pd-home-card--dolar .pd-home-card-icon { background: #dbeafe; color: #2563eb; }
+.pd-home-card h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--pd-color-text);
+}
+.pd-home-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--pd-color-text-muted);
+  line-height: 1.4;
+}
+
+/* Aventura: cuadrícula de cuadrantes */
 .aventura-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -65,7 +163,6 @@ ion-card {
 }
 @media (min-width: 480px) {
   .aventura-grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
 }
@@ -75,7 +172,7 @@ ion-card {
   border: 2px solid var(--pd-border);
   background-size: cover;
   background-position: center;
-  background-color: var(--pd-color-bg);
+  background-color: var(--pd-color-bg-warm);
   cursor: pointer;
   padding: 0.75rem;
   display: flex;
@@ -86,22 +183,33 @@ ion-card {
 }
 .aventura-cuadrante:hover {
   border-color: var(--pd-color-primary);
-  box-shadow: var(--pd-shadow);
+  box-shadow: var(--pd-shadow-card);
 }
 .aventura-cuadrante--selected {
   border-color: var(--pd-color-primary);
   box-shadow: 0 0 0 2px var(--pd-color-primary-soft);
 }
+/* Label siempre con fondo oscuro y texto blanco cuando hay imagen (selector con url() porque React serializa background-image en el DOM) */
 .aventura-cuadrante-label {
-  color: #fff;
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff !important;
   font-weight: 600;
   font-size: 0.95rem;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   line-height: 1.2;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
-.aventura-cuadrante:not([style*="backgroundImage"]) .aventura-cuadrante-label {
-  color: var(--pd-color-text);
+/* Sin imagen: sin barra, texto oscuro (data-has-image evita depender del style serializado) */
+.aventura-cuadrante:not([data-has-image="true"]) .aventura-cuadrante-label {
+  background: transparent;
+  color: var(--pd-color-text) !important;
   text-shadow: none;
+  margin-top: 0;
 }
 
 /* Enlaces en guías */

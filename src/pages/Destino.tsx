@@ -1,10 +1,13 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonBackButton, IonButtons, IonCard, IonCardContent } from '@ionic/react';
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonCard, IonCardContent } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { arrowBack } from 'ionicons/icons';
 import { getDestinoBySlug } from '../data/destinos';
 
 export default function Destino() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
 
   useEffect(() => {
@@ -37,7 +40,9 @@ export default function Destino() {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/" />
+            <IonButton onClick={() => (window.history.length > 2 ? navigate(-1) : navigate('/'))} aria-label="Volver">
+              <IonIcon icon={arrowBack} />
+            </IonButton>
           </IonButtons>
           <IonTitle>{destino.nombre}</IonTitle>
         </IonToolbar>

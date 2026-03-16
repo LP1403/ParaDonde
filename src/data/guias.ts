@@ -163,10 +163,11 @@ Los requisitos son en general los mismos para todos los países MERCOSUR; ante d
 - Avisar al banco antes de viajar para evitar bloqueos.
 
 ## Calculadora
-- En esta web podés usar la calculadora "Gasté X USD con tarjeta → resumen en pesos" para estimar cuánto te llega a pagar en pesos.
+- En esta web podés usar la calculadora "Gasté X USD con tarjeta → resumen en pesos" para estimar cuánto te llega a pagar en pesos. (Ver enlace debajo.)
     `.trim(),
     linksOficiales: [
       { label: 'BCRA - Información cambiaria', url: 'https://www.bcra.gob.ar/' },
+      { label: 'Calculadora dólar tarjeta (esta web)', url: '/calculadora-dolar' },
     ],
   },
 ];
