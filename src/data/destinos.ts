@@ -23,6 +23,14 @@ export interface Destino {
   slug: string;
   nombre: string;
   descripcionCorta: string;
+  imageUrl?: string;
+  itinerario?: {
+    inicio: string;
+    paradas: string[];
+    fin: string;
+    distanciaTotalKm: number;
+    duracionDias: number;
+  };
   atributos: AtributosDestino;
   guia: GuiaDestino;
   reseñasExternas: ResenasExternas;
@@ -34,6 +42,14 @@ export const destinos: Destino[] = [
     slug: 'buenos-aires',
     nombre: 'Buenos Aires',
     descripcionCorta: 'Ciudad, cultura, gastronomía y vida nocturna.',
+    imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Tu ciudad de origen',
+      paradas: ['Llegada a Aeroparque/Ezeiza', 'Centro / San Telmo', 'Palermo', 'La Boca'],
+      fin: 'Regreso desde Buenos Aires',
+      distanciaTotalKm: 1500,
+      duracionDias: 4,
+    },
     atributos: {
       compania: ['solo', 'pareja', 'amigos', 'familia'],
       experiencia: ['ciudad_cultura', 'gastronomia_vino'],
@@ -56,6 +72,14 @@ export const destinos: Destino[] = [
     slug: 'bariloche',
     nombre: 'San Carlos de Bariloche',
     descripcionCorta: 'Lagos, montaña, nieve y naturaleza en Patagonia.',
+    imageUrl: 'https://images.unsplash.com/photo-1516302350523-4c918cc75af8?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Buenos Aires',
+      paradas: ['Vuelo a Bariloche', 'Circuito Chico', 'Cerro Catedral', 'Día de lagos'],
+      fin: 'Regreso desde Bariloche',
+      distanciaTotalKm: 3200,
+      duracionDias: 6,
+    },
     atributos: {
       compania: ['pareja', 'amigos', 'familia'],
       experiencia: ['montana_naturaleza', 'aventura_deporte'],
@@ -77,6 +101,14 @@ export const destinos: Destino[] = [
     slug: 'mar-del-plata',
     nombre: 'Mar del Plata',
     descripcionCorta: 'Playa, verano y familia en la costa atlántica.',
+    imageUrl: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Buenos Aires',
+      paradas: ['Ruta 2 / micro', 'Centro y playas céntricas', 'Punta Mogotes'],
+      fin: 'Regreso desde Mar del Plata',
+      distanciaTotalKm: 800,
+      duracionDias: 3,
+    },
     atributos: {
       compania: ['pareja', 'amigos', 'familia'],
       experiencia: ['playa_relax'],
@@ -98,6 +130,14 @@ export const destinos: Destino[] = [
     slug: 'cordoba',
     nombre: 'Córdoba',
     descripcionCorta: 'Sierras, peñas y naturaleza a pocas horas.',
+    imageUrl: 'https://images.unsplash.com/photo-1519817907429-3b9b2e52a46e?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Tu ciudad de origen',
+      paradas: ['Ciudad de Córdoba', 'Sierras cercanas', 'Villa Carlos Paz'],
+      fin: 'Regreso desde Córdoba',
+      distanciaTotalKm: 1200,
+      duracionDias: 4,
+    },
     atributos: {
       compania: ['solo', 'pareja', 'amigos', 'familia'],
       experiencia: ['montana_naturaleza', 'ciudad_cultura', 'gastronomia_vino'],
@@ -119,6 +159,14 @@ export const destinos: Destino[] = [
     slug: 'villa-carlos-paz',
     nombre: 'Villa Carlos Paz',
     descripcionCorta: 'Dique, sierras y turismo familiar en Córdoba.',
+    imageUrl: 'https://images.unsplash.com/photo-1521292270410-a8c53642e9d0?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Ciudad de Córdoba',
+      paradas: ['Ruta a Carlos Paz', 'Costanera y lago', 'Cerro de la Cruz'],
+      fin: 'Regreso a Córdoba',
+      distanciaTotalKm: 250,
+      duracionDias: 3,
+    },
     atributos: {
       compania: ['pareja', 'amigos', 'familia'],
       experiencia: ['montana_naturaleza', 'playa_relax'],
@@ -140,6 +188,14 @@ export const destinos: Destino[] = [
     slug: 'mendoza',
     nombre: 'Mendoza',
     descripcionCorta: 'Vino, montaña y Aconcagua.',
+    imageUrl: 'https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Tu ciudad de origen',
+      paradas: ['Ciudad de Mendoza', 'Circuito de bodegas', 'Alta montaña / Aconcagua'],
+      fin: 'Regreso desde Mendoza',
+      distanciaTotalKm: 1800,
+      duracionDias: 5,
+    },
     atributos: {
       compania: ['solo', 'pareja', 'amigos'],
       experiencia: ['gastronomia_vino', 'montana_naturaleza', 'aventura_deporte'],
@@ -161,6 +217,14 @@ export const destinos: Destino[] = [
     slug: 'puerto-iguazu',
     nombre: 'Puerto Iguazú',
     descripcionCorta: 'Cataratas del Iguazú y selva misionera.',
+    imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Buenos Aires',
+      paradas: ['Vuelo a Puerto Iguazú', 'Parque Nacional Iguazú', 'Hito Tres Fronteras'],
+      fin: 'Regreso desde Puerto Iguazú',
+      distanciaTotalKm: 2800,
+      duracionDias: 4,
+    },
     atributos: {
       compania: ['solo', 'pareja', 'amigos', 'familia'],
       experiencia: ['montana_naturaleza', 'aventura_deporte'],
@@ -183,6 +247,14 @@ export const destinos: Destino[] = [
     slug: 'salta',
     nombre: 'Salta',
     descripcionCorta: 'Norte argentino, quebradas y cultura.',
+    imageUrl: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Tu ciudad de origen',
+      paradas: ['Salta capital', 'Quebrada de Cafayate', 'Pueblos del Valle Calchaquí'],
+      fin: 'Regreso desde Salta',
+      distanciaTotalKm: 2200,
+      duracionDias: 6,
+    },
     atributos: {
       compania: ['solo', 'pareja', 'amigos', 'familia'],
       experiencia: ['ciudad_cultura', 'montana_naturaleza', 'gastronomia_vino'],
@@ -204,6 +276,14 @@ export const destinos: Destino[] = [
     slug: 'termas-rio-hondo',
     nombre: 'Termas de Río Hondo',
     descripcionCorta: 'Termas y relax en Santiago del Estero.',
+    imageUrl: 'https://images.unsplash.com/photo-1505739773434-6a4b3f1e3c44?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Tu ciudad de origen',
+      paradas: ['Llegada a Termas', 'Día de termas y spa', 'Vista al dique'],
+      fin: 'Regreso desde Termas',
+      distanciaTotalKm: 900,
+      duracionDias: 3,
+    },
     atributos: {
       compania: ['pareja', 'amigos', 'familia'],
       experiencia: ['termas_relax', 'playa_relax'],
@@ -225,6 +305,14 @@ export const destinos: Destino[] = [
     slug: 'rosario',
     nombre: 'Rosario',
     descripcionCorta: 'Ciudad del río Paraná, cultura y paseos.',
+    imageUrl: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=900&q=80',
+    itinerario: {
+      inicio: 'Buenos Aires',
+      paradas: ['Viaje a Rosario', 'Costanera del Paraná', 'Monumento a la Bandera'],
+      fin: 'Regreso desde Rosario',
+      distanciaTotalKm: 600,
+      duracionDias: 2,
+    },
     atributos: {
       compania: ['solo', 'pareja', 'amigos', 'familia'],
       experiencia: ['ciudad_cultura', 'gastronomia_vino'],

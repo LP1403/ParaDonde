@@ -1,7 +1,3 @@
-/** Picsum Photos: URLs estables que siempre cargan (seed = imagen fija por opción) */
-const P = (seed: string) =>
-  `https://picsum.photos/seed/${seed}/600/600`;
-
 export interface OpcionAventura {
   id: string;
   label: string;
@@ -20,40 +16,120 @@ export const preguntasAventura: PreguntaAventura[] = [
     id: 'compania',
     label: '¿Con quién viajás?',
     opciones: [
-      { id: 'solo', label: 'Solo/a', imageUrl: P('solo-viaje') },
-      { id: 'pareja', label: 'En pareja', imageUrl: P('pareja-viaje') },
-      { id: 'amigos', label: 'Con amigos', imageUrl: P('amigos-viaje') },
-      { id: 'familia', label: 'Con familia (con niños)', imageUrl: P('familia-viaje') },
+      {
+        id: 'solo',
+        label: 'Solo/a',
+        imageUrl:
+          'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'pareja',
+        label: 'En pareja',
+        imageUrl:
+          'https://images.unsplash.com/photo-1517840933442-d2d1a05edb84?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'amigos',
+        label: 'Con amigos',
+        imageUrl:
+          'https://images.unsplash.com/photo-1528715471579-d1bcf0ba5e83?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'familia',
+        label: 'Con familia (con niños)',
+        imageUrl:
+          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
+      },
     ],
   },
   {
     id: 'experiencia',
     label: '¿Qué tipo de experiencia buscás?',
     opciones: [
-      { id: 'playa_relax', label: 'Playa y relax', imageUrl: P('playa-relax') },
-      { id: 'montana_naturaleza', label: 'Montaña y naturaleza', imageUrl: P('montana-naturaleza') },
-      { id: 'ciudad_cultura', label: 'Ciudad y cultura', imageUrl: P('ciudad-cultura') },
-      { id: 'aventura_deporte', label: 'Aventura y deporte', imageUrl: P('aventura-deporte') },
-      { id: 'gastronomia_vino', label: 'Gastronomía y vino', imageUrl: P('gastronomia-vino') },
-      { id: 'termas_relax', label: 'Termas y relax', imageUrl: P('termas-relax') },
+      {
+        id: 'playa_relax',
+        label: 'Playa y relax',
+        imageUrl:
+          'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'montana_naturaleza',
+        label: 'Montaña y naturaleza',
+        imageUrl:
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'ciudad_cultura',
+        label: 'Ciudad y cultura',
+        imageUrl:
+          'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'aventura_deporte',
+        label: 'Aventura y deporte',
+        imageUrl:
+          'https://images.unsplash.com/photo-1500043201641-4f4e6da1cd8e?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'gastronomia_vino',
+        label: 'Gastronomía y vino',
+        imageUrl:
+          'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'termas_relax',
+        label: 'Termas y relax',
+        imageUrl:
+          'https://images.unsplash.com/photo-1505733289361-41e24b3c2e69?auto=format&fit=crop&w=800&q=80',
+      },
     ],
   },
   {
     id: 'presupuesto',
     label: '¿Presupuesto?',
     opciones: [
-      { id: 'economico', label: 'Económico', imageUrl: P('economico') },
-      { id: 'medio', label: 'Medio', imageUrl: P('medio-viaje') },
-      { id: 'sin_mirar', label: 'Sin mirar tanto', imageUrl: P('sin-mirar') },
+      {
+        id: 'economico',
+        label: 'Económico',
+        imageUrl:
+          'https://images.unsplash.com/photo-1459257831348-f0cdd359235f?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'medio',
+        label: 'Medio',
+        imageUrl:
+          'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'sin_mirar',
+        label: 'Sin mirar tanto',
+        imageUrl:
+          'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+      },
     ],
   },
   {
     id: 'dias',
     label: '¿Cuántos días tenés?',
     opciones: [
-      { id: 'fin_semana', label: 'Fin de semana', imageUrl: P('fin-semana') },
-      { id: 'una_semana', label: 'Una semana', imageUrl: P('una-semana') },
-      { id: 'dos_o_mas', label: 'Dos semanas o más', imageUrl: P('dos-semanas-mas') },
+      {
+        id: 'fin_semana',
+        label: 'Fin de semana',
+        imageUrl:
+          'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'una_semana',
+        label: 'Una semana',
+        imageUrl:
+          'https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'dos_o_mas',
+        label: 'Dos semanas o más',
+        imageUrl:
+          'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=800&q=80',
+      },
     ],
   },
 ];

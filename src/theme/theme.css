@@ -31,6 +31,29 @@
   --pd-content-padding: 1.25rem;
 }
 
+/* Tema oscuro */
+:root.pd-theme-dark {
+  --pd-color-bg: #020617;
+  --pd-color-bg-warm: #020617;
+  --pd-color-bg-cream: #020617;
+  --pd-color-bg-card: #020617;
+  --pd-color-primary: #38bdf8;
+  --pd-color-primary-hover: #0ea5e9;
+  --pd-color-primary-soft: rgba(56, 189, 248, 0.16);
+  --pd-color-primary-muted: #38bdf8;
+  --pd-color-accent: #f59e0b;
+  --pd-color-accent-hover: #d97706;
+  --pd-color-accent-soft: rgba(245, 158, 11, 0.16);
+  --pd-color-text: #e5e7eb;
+  --pd-color-text-muted: #9ca3af;
+  --pd-color-text-on-primary: #0b1120;
+  --pd-border: #1f2937;
+  --pd-border-light: #111827;
+  --pd-shadow: 0 1px 3px rgba(15, 23, 42, 0.6);
+  --pd-shadow-card: 0 8px 24px rgba(15, 23, 42, 0.8);
+  --pd-shadow-hover: 0 12px 32px rgba(15, 23, 42, 0.9);
+}
+
 /* Wrapper para contenido */
 .pd-content {
   max-width: var(--pd-content-max-width);
@@ -164,6 +187,14 @@ ion-card {
 @media (min-width: 480px) {
   .aventura-grid {
     gap: 1rem;
+  }
+}
+@media (min-width: 768px) {
+  .aventura-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 .aventura-cuadrante {
