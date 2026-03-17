@@ -2,7 +2,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonButtons } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import { arrowBack, locationOutline } from 'ionicons/icons';
+import { arrowBack, locationOutline, flagOutline } from 'ionicons/icons';
 import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
 
@@ -102,27 +102,112 @@ export default function ResultadoAventura() {
                     <p style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.25rem' }}>
                       Tu viaje, en resumen
                     </p>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--pd-color-text-muted)', marginBottom: '0.25rem' }}>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--pd-color-text-muted)', marginBottom: '0.5rem' }}>
                       Distancia aprox.: {d.itinerario.distanciaTotalKm} km · {d.itinerario.duracionDias} días
                     </p>
                     <div
                       style={{
-                        borderLeft: '2px solid var(--pd-border)',
-                        paddingLeft: '0.75rem',
-                        marginTop: '0.25rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        overflowX: 'auto',
+                        paddingBottom: '0.25rem',
                       }}
                     >
-                      <p style={{ fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                        <strong>Comienzo:</strong> {d.itinerario.inicio}
-                      </p>
-                      {d.itinerario.paradas.map((p, idx) => (
-                        <p key={idx} style={{ fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-                          <strong>Paso {idx + 1}:</strong> {p}
-                        </p>
-                      ))}
-                      <p style={{ fontSize: '0.85rem', marginTop: '0.35rem' }}>
-                        <strong>Final:</strong> {d.itinerario.fin}
-                      </p>
+                      {/* Inicio */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px' }}>
+                        <div
+                          style={{
+                            width: '2rem',
+                            height: '2rem',
+                            borderRadius: '999px',
+                            background: 'var(--pd-color-primary-soft)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'var(--pd-color-primary)',
+                            marginBottom: '0.25rem',
+                          }}
+                        >
+                          <IonIcon icon={locationOutline} />
+                        </div>
+                        <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>Inicio</p>
+                      </div>
+                      {/* Línea + paradas */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          flex: 1,
+                          minWidth: '0',
+                          gap: '0.5rem',
+                        }}
+                      >
+                        {d.itinerario.paradas.map((p, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              flex: 1,
+                              minWidth: '90px',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: '100%',
+                                height: '2px',
+                                background: 'var(--pd-border)',
+                                marginBottom: '0.25rem',
+                              }}
+                            />
+                            <div
+                              style={{
+                                width: '1rem',
+                                height: '1rem',
+                                borderRadius: '999px',
+                                background: 'var(--pd-color-accent-soft)',
+                                border: '2px solid var(--pd-color-accent)',
+                                marginBottom: '0.25rem',
+                              }}
+                            />
+                            <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>
+                              Paso {idx + 1}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: '0.8rem',
+                                textAlign: 'center',
+                                margin: 0,
+                                marginTop: '0.1rem',
+                                color: 'var(--pd-color-text-muted)',
+                              }}
+                            >
+                              {p}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Final */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px' }}>
+                        <div
+                          style={{
+                            width: '2rem',
+                            height: '2rem',
+                            borderRadius: '0.75rem',
+                            border: '2px solid var(--pd-color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'var(--pd-color-primary)',
+                            marginBottom: '0.25rem',
+                          }}
+                        >
+                          <IonIcon icon={flagOutline} />
+                        </div>
+                        <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>Final</p>
+                      </div>
                     </div>
                   </div>
                 )}
