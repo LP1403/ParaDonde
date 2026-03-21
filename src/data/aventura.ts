@@ -109,26 +109,38 @@ export const preguntasAventura: PreguntaAventura[] = [
     ],
   },
   {
-    id: 'dias',
-    label: '¿Cuántos días tenés?',
+    id: 'temporada',
+    label: '¿En qué época querés viajar? (hemisferio sur)',
     opciones: [
       {
-        id: 'fin_semana',
-        label: 'Fin de semana',
+        id: 'verano',
+        label: 'Verano (dic – mar)',
         imageUrl:
-          'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
       },
       {
-        id: 'una_semana',
-        label: 'Una semana',
+        id: 'otono',
+        label: 'Otoño (mar – jun)',
         imageUrl:
-          'https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80',
       },
       {
-        id: 'dos_o_mas',
-        label: 'Dos semanas o más',
+        id: 'invierno',
+        label: 'Invierno (jun – sep)',
         imageUrl:
-          'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'primavera',
+        label: 'Primavera (sep – dic)',
+        imageUrl:
+          'https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'flexible',
+        label: 'Me da igual / flexible',
+        imageUrl:
+          'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80',
       },
     ],
   },

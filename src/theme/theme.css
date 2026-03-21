@@ -176,8 +176,20 @@ html {
    HOME PAGE V2
    ============================================================ */
 
+/* Fondo transparente: Ionic pinta capas en shadow DOM; sin esto en modo claro solo se ve el color sólido */
+ion-content.pd-home-v2 {
+  --background: transparent !important;
+  --ion-background-color: transparent !important;
+}
+ion-content.pd-home-v2::part(background) {
+  background: transparent !important;
+}
+ion-content.pd-home-v2::part(scroll) {
+  background: transparent !important;
+}
+
 .pd-home-v2 {
-  --background: var(--pd-color-bg);
+  --background: transparent;
 }
 
 /* --- Theme toggle (fixed) --- */
@@ -258,18 +270,24 @@ html.pd-light .pd-toggle-track--dark {
   overflow: hidden;
 }
 
+/* Imagen real (<img>) para que cargue igual en claro/oscuro (CSS bg a veces queda tapada por Ionic) */
 .pd-hero-bg-img {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   transform: scale(1.04);
-  transition: background-image 0.6s ease;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .pd-hero-overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 .pd-hero-overlay--dark {
   background: linear-gradient(
@@ -279,12 +297,13 @@ html.pd-light .pd-toggle-track--dark {
     rgba(2, 6, 23, 0.7) 100%
   );
 }
+/* Modo claro: overlay más liviano para que el paisaje se note (foto + legibilidad) */
 .pd-hero-overlay--light {
   background: linear-gradient(
     to bottom,
-    rgba(0, 60, 30, 0.45) 0%,
-    rgba(0, 60, 30, 0.15) 50%,
-    rgba(0, 80, 40, 0.55) 100%
+    rgba(15, 23, 42, 0.28) 0%,
+    rgba(15, 23, 42, 0.06) 45%,
+    rgba(15, 23, 42, 0.42) 100%
   );
 }
 
@@ -353,6 +372,7 @@ html.pd-light .pd-hero-cta {
   position: absolute;
   bottom: 2rem;
   left: 50%;
+  z-index: 3;
   transform: translateX(-50%);
   background: none;
   border: 2px solid rgba(255, 255, 255, 0.5);
@@ -1197,4 +1217,789 @@ html.pd-light .pd-prep-card-v2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ============================================================
+   RESULTADO AVENTURA: presupuesto estimado badge
+   ============================================================ */
+.pd-resultado-budget {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0.6rem 0;
+  padding: 0.6rem 0.85rem;
+  background: var(--pd-color-primary-soft);
+  border-radius: var(--pd-radius);
+  border: 1px solid var(--pd-color-primary-soft);
+}
+.pd-resultado-budget-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pd-color-primary-muted);
+  white-space: nowrap;
+}
+html.pd-light .pd-resultado-budget-label {
+  color: var(--pd-color-primary);
+}
+.pd-resultado-budget-range {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--pd-color-text);
+}
+
+/* ============================================================
+   ¿Por qué te recomendamos? block
+   ============================================================ */
+.pd-porque-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: var(--pd-color-accent-soft);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--pd-radius);
+  margin: 0.65rem 0;
+  animation: pd-fade-up 0.4s ease-out both;
+}
+html.pd-light .pd-porque-block {
+  background: rgba(245, 158, 11, 0.07);
+  border-color: rgba(245, 158, 11, 0.18);
+}
+.pd-porque-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.pd-porque-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pd-color-accent);
+  margin: 0 0 0.2rem;
+}
+.pd-porque-text {
+  font-size: 0.88rem;
+  color: var(--pd-color-text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   SEGURO block
+   ============================================================ */
+.pd-seguro-block {
+  margin: 1.25rem 0;
+  padding: 1.5rem;
+  background: var(--pd-card-bg);
+  border: 1px solid var(--pd-card-border);
+  border-radius: var(--pd-radius-lg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: pd-fade-up 0.5s ease-out both;
+  box-shadow: var(--pd-shadow-card);
+}
+html.pd-light .pd-seguro-block {
+  background: #fff;
+  border-color: #e2e8f0;
+}
+
+.pd-seguro-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.pd-seguro-icon {
+  font-size: 1.6rem;
+  color: var(--pd-color-primary);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+.pd-seguro-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pd-color-text);
+  margin: 0 0 0.15rem;
+}
+.pd-seguro-sub {
+  font-size: 0.82rem;
+  color: var(--pd-color-text-muted);
+  margin: 0;
+}
+
+.pd-seguro-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+.pd-seguro-benefit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pd-color-text-muted);
+  background: var(--pd-color-primary-soft);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+.pd-seguro-benefit-dot {
+  color: var(--pd-color-primary);
+  font-weight: 800;
+}
+
+.pd-seguro-ctas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+@media (max-width: 480px) {
+  .pd-seguro-ctas {
+    grid-template-columns: 1fr;
+  }
+}
+.pd-seguro-company {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--pd-card-border);
+  border-radius: var(--pd-radius);
+  text-decoration: none;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+html.pd-light .pd-seguro-company {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+.pd-seguro-company:hover {
+  border-color: var(--pd-color-primary);
+  background: var(--pd-color-primary-soft);
+  transform: translateY(-2px);
+}
+.pd-seguro-company-logo {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.pd-seguro-company-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pd-color-text);
+}
+.pd-seguro-company-desc {
+  font-size: 0.72rem;
+  color: var(--pd-color-text-muted);
+}
+
+.pd-seguro-cta-btn {
+  display: block;
+  width: 100%;
+  padding: 0.9rem;
+  text-align: center;
+  background: var(--pd-color-primary);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: var(--pd-radius);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.pd-seguro-cta-btn:hover {
+  background: var(--pd-color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+html.pd-light .pd-seguro-cta-btn:hover {
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+/* ============================================================
+   DOCUMENTACIÓN cards (Destino.tsx)
+   ============================================================ */
+.pd-doc-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pd-color-text);
+  margin: 0 0 0.85rem;
+}
+
+.pd-doc-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+@media (max-width: 480px) {
+  .pd-doc-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pd-doc-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--pd-radius);
+  border: 1px solid var(--pd-card-border);
+  background: var(--pd-card-bg);
+  transition: border-color 0.2s;
+}
+.pd-doc-card--ok {
+  border-left: 3px solid #10b981;
+}
+.pd-doc-card--warning {
+  border-left: 3px solid #f59e0b;
+}
+.pd-doc-card--info {
+  border-left: 3px solid var(--pd-color-primary);
+}
+html.pd-light .pd-doc-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+html.pd-light .pd-doc-card--ok {
+  border-left-color: #059669;
+}
+
+.pd-doc-card-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+.pd-doc-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.pd-doc-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pd-color-text);
+  margin: 0;
+}
+.pd-doc-card-text {
+  font-size: 0.78rem;
+  color: var(--pd-color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.pd-doc-notas {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  color: var(--pd-color-text-muted);
+  line-height: 1.5;
+  padding: 0.6rem 0.85rem;
+  background: var(--pd-color-bg-elevated);
+  border-radius: var(--pd-radius);
+  border: 1px solid var(--pd-border-light);
+}
+
+/* ============================================================
+   DESTINO page: immersive hero + glass redesign
+   ============================================================ */
+
+/* IonPage wrapper */
+.pd-destino-page {
+  background: var(--pd-color-bg) !important;
+}
+
+/* ── Fixed cycling background ── */
+.pd-destino-bg-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.pd-destino-bg-slot {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1.2s ease;
+  will-change: opacity;
+}
+/* Static dim for base readability */
+.pd-destino-bg-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.38);
+}
+html.pd-light .pd-destino-bg-dim {
+  background: rgba(0, 30, 15, 0.28);
+}
+/* Scroll-driven veil */
+.pd-destino-bg-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--pd-color-bg);
+  pointer-events: none;
+  transition: opacity 0.05s linear;
+  will-change: opacity;
+}
+
+/* ── Floating buttons ── */
+.pd-destino-floating-btn {
+  position: fixed;
+  top: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+html.pd-light .pd-destino-floating-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+}
+.pd-destino-floating-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.04);
+}
+html.pd-light .pd-destino-floating-btn:hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+.pd-destino-floating-back { left: 1rem; }
+.pd-destino-floating-map  { right: 1rem; }
+
+/* ── Scrollable container ── */
+.pd-destino-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ── Hero section ── */
+.pd-destino-hero {
+  position: relative;
+  height: 100dvh;
+  min-height: 500px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+/* Bottom gradient: reveals text over the image */
+.pd-destino-hero-grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 35%,
+    rgba(2, 6, 23, 0.55) 65%,
+    rgba(2, 6, 23, 0.88) 100%
+  );
+  pointer-events: none;
+}
+html.pd-light .pd-destino-hero-grad {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 40, 20, 0.45) 60%,
+    rgba(0, 40, 20, 0.82) 100%
+  );
+}
+
+/* Hero content */
+.pd-destino-hero-body {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 1.5rem 4rem;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  will-change: opacity;
+}
+
+.pd-destino-hero-region {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  align-self: flex-start;
+}
+
+.pd-destino-hero-title {
+  font-size: clamp(2.4rem, 8vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+
+.pd-destino-hero-desc {
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 34rem;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Stats row */
+.pd-destino-hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.pd-destino-hero-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+}
+.pd-destino-hero-stat small {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Scroll hint */
+.pd-destino-hero-scroll-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  animation: pd-scroll-bounce 1.8s ease-in-out infinite;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+/* ── Content area ── */
+.pd-destino-content {
+  position: relative;
+  z-index: 2;
+  /* Top fade: blends hero into content */
+  padding-top: 0;
+}
+.pd-destino-content::before {
+  content: '';
+  display: block;
+  height: 3rem;
+  background: transparent;
+}
+
+.pd-destino-content-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.25rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Glass sections ── */
+.pd-destino-glass-section {
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--pd-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  animation: pd-fade-up 0.4s ease-out both;
+}
+html.pd-light .pd-destino-glass-section {
+  background: rgba(236, 253, 245, 0.72);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.pd-destino-glass-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.85rem;
+  letter-spacing: -0.01em;
+}
+html.pd-light .pd-destino-glass-title {
+  color: #0f172a;
+}
+
+.pd-destino-glass-sub {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 0.35rem;
+}
+html.pd-light .pd-destino-glass-sub {
+  color: #334155;
+}
+
+.pd-destino-glass-text {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.6;
+  margin: 0;
+}
+html.pd-light .pd-destino-glass-text {
+  color: #1e293b;
+}
+
+.pd-destino-glass-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (max-width: 480px) {
+  .pd-destino-glass-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Reviews inside glass ── */
+.pd-destino-review-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.pd-destino-review-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.pd-destino-review-score {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+html.pd-light .pd-destino-review-score {
+  color: #0f172a;
+}
+.pd-destino-review-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+}
+html.pd-light .pd-destino-review-label {
+  color: #64748b;
+}
+.pd-destino-review-count {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  flex: 1;
+}
+html.pd-light .pd-destino-review-count {
+  color: #94a3b8;
+}
+.pd-destino-review-link {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pd-color-primary-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+html.pd-light .pd-destino-review-link {
+  color: var(--pd-color-primary);
+}
+.pd-destino-review-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+html.pd-light .pd-destino-review-link:hover {
+  color: var(--pd-color-primary-hover);
+}
+
+/* ── Doc cards inside glass ── */
+.pd-destino-glass-section .pd-doc-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+html.pd-light .pd-destino-glass-section .pd-doc-card {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+.pd-destino-glass-section .pd-doc-card-title {
+  color: rgba(255, 255, 255, 0.95);
+}
+html.pd-light .pd-destino-glass-section .pd-doc-card-title {
+  color: #0f172a;
+}
+.pd-destino-glass-section .pd-doc-card-text {
+  color: rgba(255, 255, 255, 0.65);
+}
+html.pd-light .pd-destino-glass-section .pd-doc-card-text {
+  color: #475569;
+}
+.pd-destino-glass-section .pd-doc-notas {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+}
+html.pd-light .pd-destino-glass-section .pd-doc-notas {
+  background: rgba(0, 0, 0, 0.04);
+  color: #475569;
+}
+
+/* ── Seguro block inside glass context ── */
+.pd-destino-content-inner .pd-seguro-block {
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border-color: rgba(255, 255, 255, 0.1);
+  margin-top: 0;
+}
+html.pd-light .pd-destino-content-inner .pd-seguro-block {
+  background: rgba(236, 253, 245, 0.72);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.pd-destino-content-inner .pd-seguro-title {
+  color: rgba(255, 255, 255, 0.95);
+}
+html.pd-light .pd-destino-content-inner .pd-seguro-title {
+  color: #0f172a;
+}
+.pd-destino-content-inner .pd-seguro-sub {
+  color: rgba(255, 255, 255, 0.6);
+}
+html.pd-light .pd-destino-content-inner .pd-seguro-sub {
+  color: #64748b;
+}
+.pd-destino-content-inner .pd-seguro-company {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+html.pd-light .pd-destino-content-inner .pd-seguro-company {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+.pd-destino-content-inner .pd-seguro-company-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+html.pd-light .pd-destino-content-inner .pd-seguro-company-name {
+  color: #0f172a;
+}
+.pd-destino-content-inner .pd-seguro-company-desc {
+  color: rgba(255, 255, 255, 0.55);
+}
+html.pd-light .pd-destino-content-inner .pd-seguro-company-desc {
+  color: #64748b;
+}
+
+/* ── Links section ── */
+.pd-destino-links-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.pd-destino-links-section .pd-destino-link {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+html.pd-light .pd-destino-links-section .pd-destino-link {
+  color: var(--pd-color-primary);
+}
+.pd-destino-links-section .pd-destino-link:hover {
+  color: #fff;
+}
+html.pd-light .pd-destino-links-section .pd-destino-link:hover {
+  color: var(--pd-color-primary-hover);
+}
+
+/* ============================================================
+   DESTINO page: budget badge + links
+   ============================================================ */
+.pd-destino-budget-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.7rem 1rem;
+  background: var(--pd-color-primary-soft);
+  border-radius: var(--pd-radius);
+  flex-wrap: wrap;
+}
+.pd-destino-budget-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pd-color-primary-muted);
+  white-space: nowrap;
+}
+html.pd-light .pd-destino-budget-label {
+  color: var(--pd-color-primary);
+}
+.pd-destino-budget-value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--pd-color-text);
+}
+
+.pd-destino-link {
+  display: inline-block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pd-color-primary);
+  text-decoration: none;
+  padding: 0.2rem 0;
+  transition: color 0.2s;
+}
+.pd-destino-link:hover {
+  color: var(--pd-color-primary-hover);
+  text-decoration: underline;
 }

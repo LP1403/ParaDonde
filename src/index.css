@@ -9,3 +9,8 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Home en modo claro: que no tape el hero (Ionic suele pintar sólido en ion-app) */
+html.pd-light ion-app:has(ion-content.pd-home-v2) {
+  background: transparent !important;
+}

@@ -75,7 +75,7 @@ export default function GuiaTematica() {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonButton onClick={() => navigate('/guias')} aria-label="Volver">
+            <IonButton onClick={() => navigate(-1)} aria-label="Volver">
               <IonIcon icon={arrowBack} />
             </IonButton>
           </IonButtons>

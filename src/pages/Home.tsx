@@ -2,14 +2,20 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { IonPage, IonContent } from '@ionic/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { destinos } from '../data/destinos';
-import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
+import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
 
 /* ---------- Constants ---------- */
 
+/** Montaña / cordillera de noche (tema oscuro) */
 const HERO_BG_DARK =
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80';
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80';
+const HERO_BG_DARK_FALLBACK =
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80';
 const HERO_BG_LIGHT =
   'https://images.unsplash.com/photo-1516302350523-4c918cc75af8?auto=format&fit=crop&w=1920&q=80';
+/** Respaldo si el CDN principal falla (red, referrer, etc.) */
+const HERO_BG_LIGHT_FALLBACK =
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80';
 
 const TIPO_VIAJE = [
   { id: 'montana_naturaleza', label: 'Naturaleza', icon: '🏔️' },
@@ -25,10 +31,12 @@ const COMPANIA = [
   { id: 'familia', label: 'Con familia',     icon: '👨‍👩‍👧' },
 ];
 
-const DIAS = [
-  { id: 'fin_semana',  label: 'Fin de semana',     sub: '2 – 3 días' },
-  { id: 'una_semana',  label: 'Una semana',         sub: '5 – 7 días' },
-  { id: 'dos_o_mas',   label: 'Dos semanas o más',  sub: '14+ días' },
+const TEMPORADAS: { id: TemporadaId; label: string; sub: string }[] = [
+  { id: 'verano',    label: 'Verano',     sub: 'Dic – mar (hem. sur)' },
+  { id: 'otono',     label: 'Otoño',      sub: 'Mar – jun' },
+  { id: 'invierno',  label: 'Invierno',   sub: 'Jun – sep' },
+  { id: 'primavera', label: 'Primavera',  sub: 'Sep – dic' },
+  { id: 'flexible',  label: 'Me da igual', sub: 'Cualquier época' },
 ];
 
 /* Images triggered by each selector option */
@@ -50,10 +58,12 @@ const COMPANIA_BG: Record<string, string> = {
   familia: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1920&q=80',
 };
 
-const DIAS_BG: Record<string, string> = {
-  fin_semana: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80',
-  una_semana: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=1920&q=80',
-  dos_o_mas:  'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=1920&q=80',
+const TEMP_BG: Record<string, string> = {
+  verano:    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
+  otono:     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80',
+  invierno:  'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80',
+  primavera: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1920&q=80',
+  flexible:  'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1920&q=80',
 };
 
 const PREP_CARDS = [
@@ -64,17 +74,11 @@ const PREP_CARDS = [
 ];
 
 const PRESUPUESTO_MIN = 50_000;
-const PRESUPUESTO_MAX = 1_000_000;
-const PRESUPUESTO_DEFAULT = 350_000;
+const PRESUPUESTO_MAX = 5_000_000;
+const PRESUPUESTO_DEFAULT = 500_000;
 const USD_RATE = 900;
 
 /* ---------- Helpers ---------- */
-
-function presupuestoCategoria(ars: number): string {
-  if (ars < 220_000) return 'economico';
-  if (ars < 600_000) return 'medio';
-  return 'sin_mirar';
-}
 
 function fmtARS(n: number) {
   return '$' + n.toLocaleString('es-AR');
@@ -100,6 +104,7 @@ export default function Home() {
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
   const [presupuesto, setPresupuesto] = useState(PRESUPUESTO_DEFAULT);
   const [completado, setCompletado] = useState(false);
+  const [heroLightFallback, setHeroLightFallback] = useState(false);
 
   const aventuraRef = useRef<HTMLElement>(null);
   const bgTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -132,11 +137,23 @@ export default function Home() {
     }
   }, [isDark]);
 
-  /* Real-time best destination */
+  useEffect(() => {
+    setHeroLightFallback(false);
+  }, [isDark]);
+
+  /* Vista previa: mismo motor que el resultado, con defaults hasta completar pasos */
   const mejorDestino = useMemo(() => {
-    const r: Record<string, string> = { ...respuestas };
-    if (paso >= 2) r.presupuesto = presupuestoCategoria(presupuesto);
-    const list = filtrarDestinosPorRespuestas(destinos, r);
+    if (!respuestas.experiencia) return null;
+    const list = recomendarDestinos(
+      destinos,
+      {
+        experienciaId: respuestas.experiencia,
+        compania: respuestas.compania ?? '',
+        presupuestoARS: paso >= 2 ? presupuesto : 400_000,
+        temporada: (respuestas.temporada as TemporadaId) || 'flexible',
+      },
+      { max: 1 },
+    );
     return list[0] ?? null;
   }, [respuestas, presupuesto, paso]);
 
@@ -173,19 +190,23 @@ export default function Home() {
   };
 
   const handleVerResultado = () => {
-    const params: Record<string, string> = {
-      ...respuestas,
-      presupuesto: presupuestoCategoria(presupuesto),
-    };
-    navigate(`/aventura/resultado?${new URLSearchParams(params)}`);
+    const params = new URLSearchParams({
+      experiencia: respuestas.experiencia ?? '',
+      compania: respuestas.compania ?? '',
+      temporada: respuestas.temporada ?? 'flexible',
+      presupuesto_ars: String(Math.min(Math.max(presupuesto, PRESUPUESTO_MIN), PRESUPUESTO_MAX)),
+    });
+    navigate(`/aventura/resultado?${params}`);
   };
 
   const handleSorprendeme = () => {
+    const temps: TemporadaId[] = ['invierno', 'primavera', 'verano', 'otono', 'flexible'];
+    const rndArs = [120_000, 350_000, 800_000, 1_800_000, 3_500_000][Math.floor(Math.random() * 5)];
     const r = {
       experiencia: TIPO_VIAJE[Math.floor(Math.random() * TIPO_VIAJE.length)].id,
-      compania:    COMPANIA[Math.floor(Math.random() * COMPANIA.length)].id,
-      dias:        DIAS[Math.floor(Math.random() * DIAS.length)].id,
-      presupuesto: ['economico', 'medio', 'sin_mirar'][Math.floor(Math.random() * 3)],
+      compania: COMPANIA[Math.floor(Math.random() * COMPANIA.length)].id,
+      temporada: temps[Math.floor(Math.random() * temps.length)],
+      presupuesto_ars: String(rndArs),
     };
     navigate(`/aventura/resultado?${new URLSearchParams(r)}`);
   };
@@ -194,7 +215,11 @@ export default function Home() {
     ((presupuesto - PRESUPUESTO_MIN) / (PRESUPUESTO_MAX - PRESUPUESTO_MIN)) * 100,
   );
 
-  const heroBg = isDark ? HERO_BG_DARK : HERO_BG_LIGHT;
+  const heroSrc = isDark
+    ? HERO_BG_DARK
+    : heroLightFallback
+      ? HERO_BG_LIGHT_FALLBACK
+      : HERO_BG_LIGHT;
 
   return (
     <IonPage>
@@ -217,11 +242,18 @@ export default function Home() {
 
         {/* ── Hero ── */}
         <section className="pd-hero-v2" aria-labelledby="home-hero-title">
-          <div
+          <img
+            key={`${isDark ? 'd' : 'l'}-${heroLightFallback ? 'fb' : '1'}`}
             className="pd-hero-bg-img"
-            style={{ backgroundImage: `url(${heroBg})` }}
-            role="img"
-            aria-label="Paisaje argentino"
+            src={heroSrc}
+            alt=""
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={() => {
+              if (!isDark && !heroLightFallback) setHeroLightFallback(true);
+            }}
           />
           <div className={`pd-hero-overlay pd-hero-overlay--${isDark ? 'dark' : 'light'}`} />
           <div className="pd-hero-body">
@@ -393,24 +425,25 @@ export default function Home() {
                       </>
                     )}
 
-                    {/* Step 4: días */}
+                    {/* Step 4: época del año */}
                     {paso === 3 && !completado && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">📅</span>
                           <div>
                             <h3 className="pd-step-title">Época del año</h3>
-                            <p className="pd-step-sub">¿Cuánto tiempo tenés disponible?</p>
+                            <p className="pd-step-sub">¿Cuándo pensás viajar? (hemisferio sur)</p>
                           </div>
                         </div>
                         <div className="pd-chips">
-                          {DIAS.map((op) => (
+                          {TEMPORADAS.map((op) => (
                             <button
                               key={op.id}
-                              className={`pd-chip${respuestas.dias === op.id ? ' pd-chip--selected' : ''}`}
+                              type="button"
+                              className={`pd-chip${respuestas.temporada === op.id ? ' pd-chip--selected' : ''}`}
                               onClick={() => {
-                                setRespuestas((prev) => ({ ...prev, dias: op.id }));
-                                changeSectionBg(DIAS_BG[op.id] ?? '');
+                                setRespuestas((prev) => ({ ...prev, temporada: op.id }));
+                                changeSectionBg(TEMP_BG[op.id] ?? '');
                                 setCompletado(true);
                               }}
                             >

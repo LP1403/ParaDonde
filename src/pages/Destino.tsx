@@ -1,132 +1,345 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonCard, IonCardContent } from '@ionic/react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { IonPage } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
 import { arrowBack, locationOutline } from 'ionicons/icons';
 import { getDestinoBySlug } from '../data/destinos';
-import { DestinoCarousel } from './ResultadoAventura';
+import type { DocumentacionDestino } from '../data/destinos';
+import { SeguroBlock } from './ResultadoAventura';
+
+/* ─────────────────────────────── Doc cards ── */
+
+interface DocCardProps {
+  icon: string;
+  titulo: string;
+  estado: 'ok' | 'warning' | 'info';
+  texto: string;
+}
+function DocCard({ icon, titulo, estado, texto }: DocCardProps) {
+  return (
+    <div className={`pd-doc-card pd-doc-card--${estado}`}>
+      <span className="pd-doc-card-icon">{icon}</span>
+      <div className="pd-doc-card-body">
+        <p className="pd-doc-card-title">{titulo}</p>
+        <p className="pd-doc-card-text">{texto}</p>
+      </div>
+    </div>
+  );
+}
+
+function DocumentacionSection({ doc }: { doc: DocumentacionDestino }) {
+  return (
+    <>
+      <div className="pd-doc-cards-grid">
+        <DocCard
+          icon={doc.pasaporte ? '🛂' : '🪪'}
+          titulo={doc.pasaporte ? 'Pasaporte vigente' : 'DNI alcanza'}
+          estado={doc.pasaporte ? 'warning' : 'ok'}
+          texto={
+            doc.pasaporte
+              ? 'Para este destino necesitás pasaporte vigente.'
+              : 'Podés viajar con tu DNI argentino, sin pasaporte.'
+          }
+        />
+        <DocCard
+          icon={doc.visa ? '📄' : '✅'}
+          titulo={doc.visa ? 'Visa requerida' : 'Sin visa'}
+          estado={doc.visa ? 'warning' : 'ok'}
+          texto={doc.visa
+            ? (doc.visaInfo ?? 'Se requiere trámite de visa previo al viaje.')
+            : (doc.visaInfo ?? 'No necesitás visa para este destino.')}
+        />
+        {doc.vacunas && doc.vacunas.length > 0 && (
+          <DocCard
+            icon="💉"
+            titulo="Vacunas recomendadas"
+            estado="info"
+            texto={doc.vacunas.join(' · ')}
+          />
+        )}
+        <DocCard
+          icon={doc.seguroRecomendado ? '🛡️' : '🤙'}
+          titulo={doc.seguroRecomendado ? 'Seguro recomendado' : 'Seguro opcional'}
+          estado={doc.seguroRecomendado ? 'info' : 'ok'}
+          texto={
+            doc.seguroRecomendado
+              ? 'Te recomendamos contratar seguro de viaje para este destino.'
+              : 'No es indispensable, pero siempre es una buena idea tenerlo.'
+          }
+        />
+      </div>
+      {doc.notas && <p className="pd-doc-notas">ℹ️ {doc.notas}</p>}
+    </>
+  );
+}
+
+/* ─────────────────────────────── Page ── */
 
 export default function Destino() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(0);
 
-  useEffect(() => {
-    if (destino) document.title = `${destino.nombre} – Guía y reseñas – Para Dónde?`;
+  /* Images array */
+  const images = useMemo(() => {
+    if (!destino) return [];
+    if (destino.imageUrls?.length) return destino.imageUrls;
+    if (destino.imageUrl) return [destino.imageUrl];
+    return [];
   }, [destino]);
 
+  /* Two-slot crossfade bg cycling */
+  const [slotA, setSlotA] = useState({ idx: 0, opacity: 1 });
+  const [slotB, setSlotB] = useState({ idx: 1, opacity: 0 });
+  const activeSlot = useRef<'a' | 'b'>('a');
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    let nextIdx = 1;
+    const timer = setInterval(() => {
+      nextIdx = (nextIdx + 1) % images.length;
+      if (activeSlot.current === 'a') {
+        setSlotB({ idx: nextIdx, opacity: 1 });
+        setSlotA((s) => ({ ...s, opacity: 0 }));
+        activeSlot.current = 'b';
+      } else {
+        setSlotA({ idx: nextIdx, opacity: 1 });
+        setSlotB((s) => ({ ...s, opacity: 0 }));
+        activeSlot.current = 'a';
+      }
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  /* Scroll tracking */
+  const handleScroll = useCallback(() => {
+    if (scrollRef.current) setScrollY(scrollRef.current.scrollTop);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  useEffect(() => {
+    if (destino) document.title = `${destino.nombre} – Para Dónde?`;
+  }, [destino]);
+
+  /* Not found */
   if (!destino) {
     return (
       <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Destino</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-<IonContent className="ion-padding">
-          <div className="pd-content">
-            <p>No encontramos ese destino.</p>
-            <Link to="/">Volver al inicio</Link>
-          </div>
-        </IonContent>
-        </IonPage>
-      );
-    }
+        <div style={{ padding: '2rem', color: 'var(--pd-color-text)' }}>
+          <p>No encontramos ese destino.</p>
+          <button onClick={() => navigate(-1)} style={{ marginTop: '1rem', cursor: 'pointer' }}>
+            ← Volver
+          </button>
+        </div>
+      </IonPage>
+    );
+  }
 
-  const ta = destino.reseñasExternas.tripadvisor;
-  const book = destino.reseñasExternas.booking;
+  /* Scroll-driven values */
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 700;
+  const heroContentOpacity = Math.max(0, 1 - scrollY / (vh * 0.52));
+  const scrollHintOpacity  = Math.max(0, 1 - scrollY / (vh * 0.18));
+  /* bg veil: subtle darkening as content scrolls in */
+  const bgVeilOpacity      = Math.min(0.55, scrollY / (vh * 1.1));
+
+  const ta   = destino.reseñasExternas?.tripadvisor;
+  const book = destino.reseñasExternas?.booking;
+
+  const regionLabel =
+    destino.region === 'europa'       ? ' · Europa' :
+    destino.region === 'norteamerica' ? ' · América del Norte' :
+    destino.region === 'sudamerica'   ? ' · Sudamérica' :
+    destino.region === 'asia'         ? ' · Asia' : '';
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => (window.history.length > 2 ? navigate(-1) : navigate('/'))} aria-label="Volver">
-              <IonIcon icon={arrowBack} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>{destino.nombre}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <div className="pd-content">
-        <div style={{ marginBottom: '1rem', borderRadius: 'var(--pd-radius-lg)', overflow: 'hidden' }}>
-          <DestinoCarousel destino={destino} />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <h1 style={{ color: 'var(--pd-color-text)', margin: 0 }}>
-            {destino.nombre}
-          </h1>
-          <IonButton
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino.nombre + ', Argentina')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            fill="clear"
-            size="small"
-            aria-label={`Ver mapa de ${destino.nombre}`}
-          >
-            <IonIcon icon={locationOutline} slot="start" />
-            Ver mapa
-          </IonButton>
-        </div>
-        <p style={{ color: 'var(--pd-color-text-muted)', marginBottom: '1.5rem' }}>
-          {destino.descripcionCorta}
-        </p>
+    <IonPage className="pd-destino-page">
 
-        {(ta || book) && (
-          <IonCard style={{ marginBottom: '1rem' }}>
-            <IonCardContent>
-              <strong style={{ color: 'var(--pd-color-text)' }}>Reseñas</strong>
-              {ta && (
-                <p style={{ marginTop: '0.5rem', color: 'var(--pd-color-text)' }}>
-                  En TripAdvisor: {ta.puntaje}/5 ({ta.cantidad.toLocaleString()} opiniones).{' '}
-                  <a href={ta.url} target="_blank" rel="noopener noreferrer">
-                    Ver más reseñas
-                  </a>
-                </p>
-              )}
-              {book && (
-                <p style={{ marginTop: '0.25rem', color: 'var(--pd-color-text)' }}>
-                  En Booking: {book.puntaje}/5 ({book.cantidad.toLocaleString()} opiniones).{' '}
-                  <a href={book.url} target="_blank" rel="noopener noreferrer">
-                    Ver alojamientos
-                  </a>
-                </p>
-              )}
-            </IonCardContent>
-          </IonCard>
+      {/* ── Fixed cycling background ── */}
+      <div className="pd-destino-bg-fixed" aria-hidden="true">
+        {images[slotA.idx] && (
+          <div
+            className="pd-destino-bg-slot"
+            style={{ backgroundImage: `url(${images[slotA.idx]})`, opacity: slotA.opacity }}
+          />
         )}
+        {images[slotB.idx] && (
+          <div
+            className="pd-destino-bg-slot"
+            style={{ backgroundImage: `url(${images[slotB.idx]})`, opacity: slotB.opacity }}
+          />
+        )}
+        {/* Static dim for readability */}
+        <div className="pd-destino-bg-dim" />
+        {/* Scroll-driven veil */}
+        <div className="pd-destino-bg-veil" style={{ opacity: bgVeilOpacity }} />
+      </div>
 
-          <IonCard>
-          <IonCardContent>
-            <h3 style={{ marginBottom: '0.5rem', color: 'var(--pd-color-text)' }}>Qué ver</h3>
-            <p style={{ color: 'var(--pd-color-text)' }}>{destino.guia.queVer}</p>
-            <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem', color: 'var(--pd-color-text)' }}>Cuándo ir</h3>
-            <p style={{ color: 'var(--pd-color-text)' }}>{destino.guia.cuandoIr}</p>
-            <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem', color: 'var(--pd-color-text)' }}>Cuántos días</h3>
-            <p style={{ color: 'var(--pd-color-text)' }}>{destino.guia.cuantosDias}</p>
-            {destino.guia.requisitos && (
-              <>
-                <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem', color: 'var(--pd-color-text)' }}>Requisitos</h3>
-                <p style={{ color: 'var(--pd-color-text)' }}>{destino.guia.requisitos}</p>
-              </>
+      {/* ── Floating back button ── */}
+      <button
+        className="pd-destino-floating-btn pd-destino-floating-back"
+        onClick={() => navigate(-1)}
+        aria-label="Volver"
+      >
+        <IonIcon icon={arrowBack} />
+        <span>Volver</span>
+      </button>
+
+      {/* ── Floating map button ── */}
+      <a
+        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          destino.nombre + (destino.pais ? ', ' + destino.pais : ', Argentina'),
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="pd-destino-floating-btn pd-destino-floating-map"
+        aria-label="Ver mapa"
+      >
+        <IonIcon icon={locationOutline} />
+        <span>Mapa</span>
+      </a>
+
+      {/* ── Scrollable container ── */}
+      <div ref={scrollRef} className="pd-destino-scroll">
+
+        {/* ── Hero: 100vh ── */}
+        <section className="pd-destino-hero">
+          {/* Bottom gradient for text readability */}
+          <div className="pd-destino-hero-grad" />
+
+          {/* Hero content fades with scroll */}
+          <div className="pd-destino-hero-body" style={{ opacity: heroContentOpacity }}>
+            {destino.pais && destino.region !== 'argentina' && (
+              <span className="pd-destino-hero-region">
+                {destino.pais}{regionLabel}
+              </span>
             )}
-            <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem', color: 'var(--pd-color-text)' }}>Tips</h3>
-            <p style={{ color: 'var(--pd-color-text)' }}>{destino.guia.tips}</p>
-          </IonCardContent>
-        </IonCard>
+            <h1 className="pd-destino-hero-title">{destino.nombre}</h1>
+            <p className="pd-destino-hero-desc">{destino.descripcionCorta}</p>
 
-        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-          <a href="https://www.booking.com" target="_blank" rel="noopener noreferrer">
-            Ver alojamientos en Booking
-          </a>{' '}
-          (enlace de afiliado).
-        </p>
-        <Link to="/guias/que-llevar">
-          <span style={{ color: 'var(--pd-color-primary)' }}>Armar mi checklist para este viaje</span>
-        </Link>
+            {/* Quick stats row */}
+            <div className="pd-destino-hero-stats">
+              {ta && (
+                <span className="pd-destino-hero-stat">
+                  ⭐ {ta.puntaje}<small>/5 TripAdvisor</small>
+                </span>
+              )}
+              {destino.presupuestoEstimado && (
+                <span className="pd-destino-hero-stat">
+                  💰 ${Math.round(destino.presupuestoEstimado.minARS / 1000)}K – ${Math.round(destino.presupuestoEstimado.maxARS / 1000)}K
+                  <small> ARS est.</small>
+                </span>
+              )}
+              {destino.itinerario && (
+                <span className="pd-destino-hero-stat">
+                  📅 {destino.itinerario.duracionDias} días recomendados
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Scroll hint */}
+          <div className="pd-destino-hero-scroll-hint" style={{ opacity: scrollHintOpacity }}>
+            ↓
+          </div>
+        </section>
+
+        {/* ── Glass content sections ── */}
+        <div className="pd-destino-content">
+          <div className="pd-destino-content-inner">
+
+            {/* Qué ver / Cuándo ir / Tips */}
+            <div className="pd-destino-glass-section">
+              <h2 className="pd-destino-glass-title">🗺️ Qué ver</h2>
+              <p className="pd-destino-glass-text">{destino.guia.queVer}</p>
+
+              <div className="pd-destino-glass-row">
+                <div>
+                  <h3 className="pd-destino-glass-sub">📅 Cuándo ir</h3>
+                  <p className="pd-destino-glass-text">{destino.guia.cuandoIr}</p>
+                </div>
+                <div>
+                  <h3 className="pd-destino-glass-sub">⏱️ Cuántos días</h3>
+                  <p className="pd-destino-glass-text">{destino.guia.cuantosDias}</p>
+                </div>
+              </div>
+
+              <h3 className="pd-destino-glass-sub" style={{ marginTop: '1rem' }}>💡 Tips</h3>
+              <p className="pd-destino-glass-text">{destino.guia.tips}</p>
+            </div>
+
+            {/* Reseñas */}
+            {(ta || book) && (
+              <div className="pd-destino-glass-section">
+                <h2 className="pd-destino-glass-title">⭐ Reseñas</h2>
+                {ta && (
+                  <div className="pd-destino-review-row">
+                    <div className="pd-destino-review-info">
+                      <span className="pd-destino-review-score">{ta.puntaje}/5</span>
+                      <span className="pd-destino-review-label">TripAdvisor</span>
+                    </div>
+                    <span className="pd-destino-review-count">{ta.cantidad.toLocaleString()} opiniones</span>
+                    <a href={ta.url} target="_blank" rel="noopener noreferrer" className="pd-destino-review-link">
+                      Ver →
+                    </a>
+                  </div>
+                )}
+                {book && (
+                  <div className="pd-destino-review-row" style={{ marginTop: '0.65rem' }}>
+                    <div className="pd-destino-review-info">
+                      <span className="pd-destino-review-score">{book.puntaje}/5</span>
+                      <span className="pd-destino-review-label">Booking</span>
+                    </div>
+                    <span className="pd-destino-review-count">{book.cantidad.toLocaleString()} opiniones</span>
+                    <a href={book.url} target="_blank" rel="noopener noreferrer" className="pd-destino-review-link">
+                      Alojamientos →
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Documentación */}
+            <div className="pd-destino-glass-section">
+              <h2 className="pd-destino-glass-title">📋 Documentación necesaria</h2>
+              <DocumentacionSection doc={destino.documentacion} />
+            </div>
+
+            {/* Seguro */}
+            <SeguroBlock forDestino={destino} />
+
+            {/* Links */}
+            <div className="pd-destino-glass-section pd-destino-links-section">
+              <a
+                href="https://www.booking.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pd-destino-link"
+              >
+                🏨 Ver alojamientos en Booking.com →
+              </a>
+              <Link to="/guias/que-llevar" className="pd-destino-link">
+                🧳 Armar mi checklist para este viaje →
+              </Link>
+              <button
+                onClick={() => navigate(-1)}
+                className="pd-destino-link"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, font: 'inherit' }}
+              >
+                ← Volver al destino anterior
+              </button>
+            </div>
+
+          </div>
         </div>
-      </IonContent>
+      </div>
     </IonPage>
   );
 }
