@@ -10,7 +10,7 @@ import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
 const HERO_BG_DARK =
   'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80';
 const HERO_BG_DARK_FALLBACK =
-  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80';
+  'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&w=1920&q=80';
 const HERO_BG_LIGHT =
   'https://images.unsplash.com/photo-1516302350523-4c918cc75af8?auto=format&fit=crop&w=1920&q=80';
 /** Respaldo si el CDN principal falla (red, referrer, etc.) */
