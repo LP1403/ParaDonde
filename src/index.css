@@ -4,7 +4,7 @@
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  background: var(--pd-color-bg, #faf8f5);
+  background: var(--pd-color-bg, #0b1120);
 }
 #root {
   min-height: 100vh;

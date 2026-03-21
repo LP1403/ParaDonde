@@ -18,12 +18,20 @@ export interface AtributosDestino {
   dias: string[];
 }
 
+/** 5 fotos por destino para carrusel (resolución ~900px) */
+function fotos(seed: string): string[] {
+  return [1, 2, 3, 4, 5].map((i) => `https://picsum.photos/seed/${seed}-${i}/900/600`);
+}
+
 export interface Destino {
   id: string;
   slug: string;
   nombre: string;
   descripcionCorta: string;
+  /** Primera imagen (compatibilidad) */
   imageUrl?: string;
+  /** 5 imágenes para carrusel */
+  imageUrls?: string[];
   itinerario?: {
     inicio: string;
     paradas: string[];
@@ -42,7 +50,8 @@ export const destinos: Destino[] = [
     slug: 'buenos-aires',
     nombre: 'Buenos Aires',
     descripcionCorta: 'Ciudad, cultura, gastronomía y vida nocturna.',
-    imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=80',
+    imageUrl: 'https://picsum.photos/seed/buenos-aires/900/600',
+    imageUrls: fotos('buenos-aires'),
     itinerario: {
       inicio: 'Tu ciudad de origen',
       paradas: ['Llegada a Aeroparque/Ezeiza', 'Centro / San Telmo', 'Palermo', 'La Boca'],
@@ -73,6 +82,7 @@ export const destinos: Destino[] = [
     nombre: 'San Carlos de Bariloche',
     descripcionCorta: 'Lagos, montaña, nieve y naturaleza en Patagonia.',
     imageUrl: 'https://images.unsplash.com/photo-1516302350523-4c918cc75af8?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('bariloche'),
     itinerario: {
       inicio: 'Buenos Aires',
       paradas: ['Vuelo a Bariloche', 'Circuito Chico', 'Cerro Catedral', 'Día de lagos'],
@@ -102,6 +112,7 @@ export const destinos: Destino[] = [
     nombre: 'Mar del Plata',
     descripcionCorta: 'Playa, verano y familia en la costa atlántica.',
     imageUrl: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('mar-del-plata'),
     itinerario: {
       inicio: 'Buenos Aires',
       paradas: ['Ruta 2 / micro', 'Centro y playas céntricas', 'Punta Mogotes'],
@@ -130,7 +141,8 @@ export const destinos: Destino[] = [
     slug: 'cordoba',
     nombre: 'Córdoba',
     descripcionCorta: 'Sierras, peñas y naturaleza a pocas horas.',
-    imageUrl: 'https://images.unsplash.com/photo-1519817907429-3b9b2e52a46e?auto=format&fit=crop&w=900&q=80',
+    imageUrl: 'https://picsum.photos/seed/cordoba-argentina/900/600',
+    imageUrls: fotos('cordoba-argentina'),
     itinerario: {
       inicio: 'Tu ciudad de origen',
       paradas: ['Ciudad de Córdoba', 'Sierras cercanas', 'Villa Carlos Paz'],
@@ -160,6 +172,7 @@ export const destinos: Destino[] = [
     nombre: 'Villa Carlos Paz',
     descripcionCorta: 'Dique, sierras y turismo familiar en Córdoba.',
     imageUrl: 'https://images.unsplash.com/photo-1521292270410-a8c53642e9d0?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('villa-carlos-paz'),
     itinerario: {
       inicio: 'Ciudad de Córdoba',
       paradas: ['Ruta a Carlos Paz', 'Costanera y lago', 'Cerro de la Cruz'],
@@ -189,6 +202,7 @@ export const destinos: Destino[] = [
     nombre: 'Mendoza',
     descripcionCorta: 'Vino, montaña y Aconcagua.',
     imageUrl: 'https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('mendoza'),
     itinerario: {
       inicio: 'Tu ciudad de origen',
       paradas: ['Ciudad de Mendoza', 'Circuito de bodegas', 'Alta montaña / Aconcagua'],
@@ -218,6 +232,7 @@ export const destinos: Destino[] = [
     nombre: 'Puerto Iguazú',
     descripcionCorta: 'Cataratas del Iguazú y selva misionera.',
     imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('puerto-iguazu'),
     itinerario: {
       inicio: 'Buenos Aires',
       paradas: ['Vuelo a Puerto Iguazú', 'Parque Nacional Iguazú', 'Hito Tres Fronteras'],
@@ -248,6 +263,7 @@ export const destinos: Destino[] = [
     nombre: 'Salta',
     descripcionCorta: 'Norte argentino, quebradas y cultura.',
     imageUrl: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('salta'),
     itinerario: {
       inicio: 'Tu ciudad de origen',
       paradas: ['Salta capital', 'Quebrada de Cafayate', 'Pueblos del Valle Calchaquí'],
@@ -277,6 +293,7 @@ export const destinos: Destino[] = [
     nombre: 'Termas de Río Hondo',
     descripcionCorta: 'Termas y relax en Santiago del Estero.',
     imageUrl: 'https://images.unsplash.com/photo-1505739773434-6a4b3f1e3c44?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('termas-rio-hondo'),
     itinerario: {
       inicio: 'Tu ciudad de origen',
       paradas: ['Llegada a Termas', 'Día de termas y spa', 'Vista al dique'],
@@ -306,6 +323,7 @@ export const destinos: Destino[] = [
     nombre: 'Rosario',
     descripcionCorta: 'Ciudad del río Paraná, cultura y paseos.',
     imageUrl: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=900&q=80',
+    imageUrls: fotos('rosario'),
     itinerario: {
       inicio: 'Buenos Aires',
       paradas: ['Viaje a Rosario', 'Costanera del Paraná', 'Monumento a la Bandera'],

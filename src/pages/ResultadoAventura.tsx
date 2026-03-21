@@ -1,10 +1,54 @@
+import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonButtons } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import { arrowBack, locationOutline, flagOutline } from 'ionicons/icons';
+import { arrowBack, locationOutline, flagOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
+import type { Destino } from '../data/destinos';
+
+export function DestinoCarousel({ destino }: { destino: Destino }) {
+  const images = (destino.imageUrls && destino.imageUrls.length > 0)
+    ? destino.imageUrls
+    : destino.imageUrl
+      ? [destino.imageUrl]
+      : [];
+  const [index, setIndex] = useState(0);
+  if (images.length === 0) return null;
+  const prev = () => setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+  const next = () => setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+  return (
+    <div className="pd-destino-carousel">
+      <div
+        className="pd-destino-carousel-track"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.45)), url(${images[index]})`,
+        }}
+      />
+      {images.length > 1 && (
+        <>
+          <button type="button" className="pd-destino-carousel-btn pd-destino-carousel-btn--prev" onClick={prev} aria-label="Foto anterior">
+            <IonIcon icon={chevronBackOutline} />
+          </button>
+          <button type="button" className="pd-destino-carousel-btn pd-destino-carousel-btn--next" onClick={next} aria-label="Foto siguiente">
+            <IonIcon icon={chevronForwardOutline} />
+          </button>
+          <div className="pd-destino-carousel-dots">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`pd-destino-carousel-dot ${i === index ? 'pd-destino-carousel-dot--active' : ''}`}
+                onClick={() => setIndex(i)}
+                aria-label={`Ir a foto ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function ResultadoAventura() {
   const navigate = useNavigate();
@@ -57,19 +101,7 @@ export default function ResultadoAventura() {
         ) : (
           sugeridos.map((d) => (
             <IonCard key={d.id}>
-              {d.imageUrl && (
-                <div
-                  style={{
-                    width: '100%',
-                    paddingTop: '42%',
-                    borderTopLeftRadius: '16px',
-                    borderTopRightRadius: '16px',
-                    backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.5)), url(${d.imageUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                />
-              )}
+              <DestinoCarousel destino={d} />
               <IonCardHeader>
                 <div
                   style={{
@@ -86,9 +118,10 @@ export default function ResultadoAventura() {
                     rel="noopener noreferrer"
                     fill="clear"
                     size="small"
-                    aria-label={`Ver ${d.nombre} en Google Maps`}
+                    aria-label={`Ver mapa de ${d.nombre}`}
                   >
-                    <IonIcon icon={locationOutline} slot="icon-only" />
+                    <IonIcon icon={locationOutline} slot="start" />
+                    Ver mapa
                   </IonButton>
                 </div>
               </IonCardHeader>
@@ -225,25 +258,11 @@ export default function ResultadoAventura() {
                     href={d.reseñasExternas.tripadvisor.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Ver en TripAdvisor"
                   >
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span
-                        style={{
-                          width: '1.2rem',
-                          height: '1.2rem',
-                          borderRadius: '999px',
-                          background: '#34e0a1',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#000',
-                          fontSize: '0.8rem',
-                          fontWeight: 700,
-                        }}
-                      >
-                        T
-                      </span>
-                      <span>Ir a Tripadvisor</span>
+                    <span className="pd-tripadvisor-btn">
+                      <span className="pd-tripadvisor-icon">T</span>
+                      <span>Ver en TripAdvisor</span>
                     </span>
                   </IonButton>
                 )}
