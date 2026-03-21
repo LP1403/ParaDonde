@@ -13,6 +13,7 @@ import {
 } from 'ionicons/icons';
 import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
+import { generarFeedback } from '../logic/motorAventuraDinamico';
 import type { Destino } from '../data/destinos';
 
 /* ─────────────────────────────────────────── Carousel ── */
@@ -232,6 +233,7 @@ export default function ResultadoAventura() {
   searchParams.forEach((v, k) => { respuestas[k] = v; });
 
   const sugeridos = filtrarDestinosPorRespuestas(destinos, respuestas);
+  const feedbackIntro = generarFeedback(respuestas, sugeridos);
 
   const diasSeleccionados = respuestas['dias'];
   const temporadaSel = respuestas['temporada'];
@@ -272,9 +274,22 @@ export default function ResultadoAventura() {
           <h2 style={{ marginBottom: '0.25rem', color: 'var(--pd-color-text)' }}>
             Destinos sugeridos para vos
           </h2>
-          <p style={{ marginBottom: '1.5rem', color: 'var(--pd-color-text-muted)', fontSize: '0.9rem' }}>
+          <p style={{ marginBottom: '0.75rem', color: 'var(--pd-color-text-muted)', fontSize: '0.9rem' }}>
             Pensando en {descripcionDuracion}, estos destinos encajan con tu forma de viajar.
           </p>
+          {feedbackIntro && (
+            <p
+              style={{
+                marginBottom: '1.5rem',
+                color: 'var(--pd-color-text)',
+                fontSize: '0.95rem',
+                lineHeight: 1.45,
+                fontWeight: 500,
+              }}
+            >
+              {feedbackIntro}
+            </p>
+          )}
 
           {sugeridos.length === 0 ? (
             <p style={{ color: 'var(--pd-color-text-muted)' }}>
@@ -298,7 +313,10 @@ export default function ResultadoAventura() {
                           {d.region === 'europa' ? ' · Europa' :
                            d.region === 'norteamerica' ? ' · América del Norte' :
                            d.region === 'sudamerica' ? ' · Sudamérica' :
-                           d.region === 'asia' ? ' · Asia' : ''}
+                           d.region === 'asia' ? ' · Asia' :
+                           d.region === 'caribe' ? ' · Caribe' :
+                           d.region === 'medio_oriente' ? ' · Medio Oriente' :
+                           d.region === 'africa' ? ' · África' : ''}
                         </p>
                       )}
                     </div>

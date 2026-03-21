@@ -289,12 +289,13 @@ html.pd-light .pd-toggle-track--dark {
   z-index: 1;
   pointer-events: none;
 }
+/* Un poco más abierto arriba para que se vean cielo / estrellas en foto nocturna */
 .pd-hero-overlay--dark {
   background: linear-gradient(
     to bottom,
-    rgba(2, 6, 23, 0.6) 0%,
-    rgba(2, 6, 23, 0.3) 50%,
-    rgba(2, 6, 23, 0.7) 100%
+    rgba(2, 6, 23, 0.45) 0%,
+    rgba(2, 6, 23, 0.22) 48%,
+    rgba(2, 6, 23, 0.78) 100%
   );
 }
 /* Modo claro: overlay más liviano para que el paisaje se note (foto + legibilidad) */
@@ -393,13 +394,33 @@ html.pd-light .pd-hero-cta {
   color: #fff;
 }
 
-/* --- Adventure section --- */
+/* --- Adventure section: pantalla completa aparte del hero (flecha / CTA bajan acá) --- */
 .pd-aventura-v2 {
   position: relative;
-  padding: 4rem 0 3rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.25rem, 3vh, 2rem) 0;
   background: var(--pd-color-bg);
   overflow: hidden;
   transition: background 0.3s;
+  scroll-margin-top: 0;
+  /* Separación visual respecto al hero */
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+html.pd-light .pd-aventura-v2 {
+  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.08);
+}
+
+.pd-aventura-v2 .pd-aventura-inner {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
 }
 
 /* Dynamic background image layer */
@@ -442,10 +463,6 @@ html.pd-light .pd-hero-cta {
 html.pd-light .pd-section-title--over-bg {
   color: #0f172a;
   text-shadow: 0 1px 8px rgba(255, 255, 255, 0.6);
-}
-
-.pd-aventura-inner {
-  max-width: 1100px;
 }
 
 .pd-section-title {

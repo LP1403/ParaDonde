@@ -2,7 +2,15 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { IonPage, IonContent } from '@ionic/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { destinos } from '../data/destinos';
+import {
+  ID_PREGUNTA_INICIO,
+  acumularImpactoDinamico,
+  buscarOpcion,
+  obtenerSubpregunta,
+  preguntasDinamicas,
+} from '../data/aventuraDinamica';
 import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
+import { armarInputDesdeRespuestasUrl } from '../logic/motorAventuraDinamico';
 
 /* ---------- Constants ---------- */
 
@@ -16,13 +24,6 @@ const HERO_BG_LIGHT =
 /** Respaldo si el CDN principal falla (red, referrer, etc.) */
 const HERO_BG_LIGHT_FALLBACK =
   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80';
-
-const TIPO_VIAJE = [
-  { id: 'montana_naturaleza', label: 'Naturaleza', icon: '🏔️' },
-  { id: 'ciudad_cultura',     label: 'Ciudad',     icon: '🏙️' },
-  { id: 'playa_relax',        label: 'Relax',      icon: '🧘' },
-  { id: 'aventura_deporte',   label: 'Aventura',   icon: '🧗' },
-];
 
 const COMPANIA = [
   { id: 'solo',    label: 'Solo/a',          icon: '🧍' },
@@ -38,18 +39,6 @@ const TEMPORADAS: { id: TemporadaId; label: string; sub: string }[] = [
   { id: 'primavera', label: 'Primavera',  sub: 'Sep – dic' },
   { id: 'flexible',  label: 'Me da igual', sub: 'Cualquier época' },
 ];
-
-/* Images triggered by each selector option */
-const TIPO_BG: Record<string, string> = {
-  montana_naturaleza:
-    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80',
-  ciudad_cultura:
-    'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1920&q=80',
-  playa_relax:
-    'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1920&q=80',
-  aventura_deporte:
-    'https://images.unsplash.com/photo-1500043201641-4f4e6da1cd8e?auto=format&fit=crop&w=1920&q=80',
-};
 
 const COMPANIA_BG: Record<string, string> = {
   solo:    'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80',
@@ -105,23 +94,19 @@ export default function Home() {
   const [presupuesto, setPresupuesto] = useState(PRESUPUESTO_DEFAULT);
   const [completado, setCompletado] = useState(false);
   const [heroLightFallback, setHeroLightFallback] = useState(false);
+  const [heroDarkFallback, setHeroDarkFallback] = useState(false);
 
   const aventuraRef = useRef<HTMLElement>(null);
-  const bgTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const totalPasos = 4;
+  const totalPasos = 5;
 
-  /* Section background: crossfade on option pick */
-  const [sectionBg, setSectionBg]       = useState('');
-  const [sectionBgOpacity, setBgOpacity] = useState(0);
+  /* Fondo de la sección aventura: misma foto visible en todos los pasos hasta cambiar de contexto */
+  const [sectionBg, setSectionBg] = useState('');
+  const [sectionBgOpacity, setBgOpacity] = useState(1);
 
   const changeSectionBg = useCallback((url: string) => {
     if (!url) return;
-    if (bgTimerRef.current) clearTimeout(bgTimerRef.current);
-    setBgOpacity(0);
-    bgTimerRef.current = setTimeout(() => {
-      setSectionBg(url);
-      setBgOpacity(1);
-    }, 220);
+    setSectionBg(url);
+    setBgOpacity(1);
   }, []);
 
   /* Apply theme class to <html> */
@@ -139,22 +124,18 @@ export default function Home() {
 
   useEffect(() => {
     setHeroLightFallback(false);
+    setHeroDarkFallback(false);
   }, [isDark]);
 
   /* Vista previa: mismo motor que el resultado, con defaults hasta completar pasos */
   const mejorDestino = useMemo(() => {
-    if (!respuestas.experiencia) return null;
-    const list = recomendarDestinos(
-      destinos,
-      {
-        experienciaId: respuestas.experiencia,
-        compania: respuestas.compania ?? '',
-        presupuestoARS: paso >= 2 ? presupuesto : 400_000,
-        temporada: (respuestas.temporada as TemporadaId) || 'flexible',
-      },
-      { max: 1 },
+    if (!respuestas.vibra) return null;
+    const input = armarInputDesdeRespuestasUrl(
+      respuestas,
+      paso >= 3 ? presupuesto : 400_000,
+      (respuestas.temporada as TemporadaId) || 'flexible',
     );
-    return list[0] ?? null;
+    return recomendarDestinos(destinos, input, { max: 1 })[0] ?? null;
   }, [respuestas, presupuesto, paso]);
 
   /* When completed & a destination is known, show its image in the bg */
@@ -166,12 +147,23 @@ export default function Home() {
 
   /* Navigate forward (auto-advance) */
   const goNext = (key: string, value: string) => {
-    const next = { ...respuestas, [key]: value };
+    let next: Record<string, string> = { ...respuestas, [key]: value };
+    if (key === 'vibra' || key === 'matiz') {
+      const dyn = acumularImpactoDinamico(next);
+      next = { ...next, experiencia: dyn.experienciaMotor };
+    }
     setRespuestas(next);
 
-    // Update section background based on what was picked
-    if (key === 'experiencia') changeSectionBg(TIPO_BG[value] ?? '');
-    if (key === 'compania')    changeSectionBg(COMPANIA_BG[value] ?? '');
+    if (key === 'vibra') {
+      const o = buscarOpcion(ID_PREGUNTA_INICIO, value);
+      if (o?.impacto.imagenFondo) changeSectionBg(o.impacto.imagenFondo);
+    }
+    if (key === 'matiz' && respuestas.vibra) {
+      const subId = buscarOpcion(ID_PREGUNTA_INICIO, respuestas.vibra)?.siguientePreguntaId;
+      const o2 = subId ? buscarOpcion(subId, value) : undefined;
+      if (o2?.impacto.imagenFondo) changeSectionBg(o2.impacto.imagenFondo);
+    }
+    if (key === 'compania') changeSectionBg(COMPANIA_BG[value] ?? '');
 
     if (paso < totalPasos - 1) {
       setStepKey((k) => k + 1);
@@ -191,6 +183,8 @@ export default function Home() {
 
   const handleVerResultado = () => {
     const params = new URLSearchParams({
+      vibra: respuestas.vibra ?? '',
+      matiz: respuestas.matiz ?? '',
       experiencia: respuestas.experiencia ?? '',
       compania: respuestas.compania ?? '',
       temporada: respuestas.temporada ?? 'flexible',
@@ -202,8 +196,18 @@ export default function Home() {
   const handleSorprendeme = () => {
     const temps: TemporadaId[] = ['invierno', 'primavera', 'verano', 'otono', 'flexible'];
     const rndArs = [120_000, 350_000, 800_000, 1_800_000, 3_500_000][Math.floor(Math.random() * 5)];
+    const pIni = preguntasDinamicas[ID_PREGUNTA_INICIO];
+    const vOp = pIni.opciones[Math.floor(Math.random() * pIni.opciones.length)];
+    const sub = obtenerSubpregunta(vOp.valor);
+    const mOp = sub ? sub.opciones[Math.floor(Math.random() * sub.opciones.length)] : null;
+    const dyn = acumularImpactoDinamico({
+      vibra: vOp.valor,
+      matiz: mOp?.valor ?? '',
+    });
     const r = {
-      experiencia: TIPO_VIAJE[Math.floor(Math.random() * TIPO_VIAJE.length)].id,
+      vibra: vOp.valor,
+      matiz: mOp?.valor ?? '',
+      experiencia: dyn.experienciaMotor,
       compania: COMPANIA[Math.floor(Math.random() * COMPANIA.length)].id,
       temporada: temps[Math.floor(Math.random() * temps.length)],
       presupuesto_ars: String(rndArs),
@@ -216,7 +220,9 @@ export default function Home() {
   );
 
   const heroSrc = isDark
-    ? HERO_BG_DARK
+    ? heroDarkFallback
+      ? HERO_BG_DARK_FALLBACK
+      : HERO_BG_DARK
     : heroLightFallback
       ? HERO_BG_LIGHT_FALLBACK
       : HERO_BG_LIGHT;
@@ -243,7 +249,7 @@ export default function Home() {
         {/* ── Hero ── */}
         <section className="pd-hero-v2" aria-labelledby="home-hero-title">
           <img
-            key={`${isDark ? 'd' : 'l'}-${heroLightFallback ? 'fb' : '1'}`}
+            key={`${isDark ? 'd' : 'l'}-${isDark ? (heroDarkFallback ? 'fb' : '1') : (heroLightFallback ? 'fb' : '1')}`}
             className="pd-hero-bg-img"
             src={heroSrc}
             alt=""
@@ -252,7 +258,8 @@ export default function Home() {
             decoding="async"
             referrerPolicy="no-referrer"
             onError={() => {
-              if (!isDark && !heroLightFallback) setHeroLightFallback(true);
+              if (isDark && !heroDarkFallback) setHeroDarkFallback(true);
+              else if (!isDark && !heroLightFallback) setHeroLightFallback(true);
             }}
           />
           <div className={`pd-hero-overlay pd-hero-overlay--${isDark ? 'dark' : 'light'}`} />
@@ -332,21 +339,22 @@ export default function Home() {
                   {/* Step content */}
                   <div className="pd-step-content" key={stepKey}>
 
-                    {/* Step 1: tipo de viaje */}
+                    {/* Paso 1: vibra general */}
                     {paso === 0 && !completado && (
                       <>
                         <div className="pd-step-header">
-                          <span className="pd-step-emoji">🗺️</span>
+                          <span className="pd-step-emoji">✨</span>
                           <div>
-                            <h3 className="pd-step-title">¿Qué tipo de viaje buscás?</h3>
+                            <h3 className="pd-step-title">{preguntasDinamicas[ID_PREGUNTA_INICIO].texto}</h3>
                           </div>
                         </div>
                         <div className="pd-tipo-grid">
-                          {TIPO_VIAJE.map((op) => (
+                          {preguntasDinamicas[ID_PREGUNTA_INICIO].opciones.map((op) => (
                             <button
-                              key={op.id}
-                              className={`pd-tipo-btn${respuestas.experiencia === op.id ? ' pd-tipo-btn--selected' : ''}`}
-                              onClick={() => goNext('experiencia', op.id)}
+                              key={op.valor}
+                              type="button"
+                              className={`pd-tipo-btn${respuestas.vibra === op.valor ? ' pd-tipo-btn--selected' : ''}`}
+                              onClick={() => goNext('vibra', op.valor)}
                             >
                               <span className="pd-tipo-icon">{op.icon}</span>
                               <span>{op.label}</span>
@@ -356,8 +364,43 @@ export default function Home() {
                       </>
                     )}
 
-                    {/* Step 2: compañía */}
-                    {paso === 1 && !completado && (
+                    {/* Paso 2: matiz según rama */}
+                    {paso === 1 && !completado && (() => {
+                      const sub = respuestas.vibra ? obtenerSubpregunta(respuestas.vibra) : null;
+                      if (!sub) {
+                        return (
+                          <p className="pd-step-sub" style={{ marginTop: '0.5rem' }}>
+                            Elegí una opción en el paso anterior.
+                          </p>
+                        );
+                      }
+                      return (
+                        <>
+                          <div className="pd-step-header">
+                            <span className="pd-step-emoji">🎯</span>
+                            <div>
+                              <h3 className="pd-step-title">{sub.texto}</h3>
+                            </div>
+                          </div>
+                          <div className="pd-tipo-grid">
+                            {sub.opciones.map((op) => (
+                              <button
+                                key={op.valor}
+                                type="button"
+                                className={`pd-tipo-btn${respuestas.matiz === op.valor ? ' pd-tipo-btn--selected' : ''}`}
+                                onClick={() => goNext('matiz', op.valor)}
+                              >
+                                <span className="pd-tipo-icon">{op.icon}</span>
+                                <span>{op.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      );
+                    })()}
+
+                    {/* Paso 3: compañía */}
+                    {paso === 2 && !completado && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">👥</span>
@@ -380,8 +423,8 @@ export default function Home() {
                       </>
                     )}
 
-                    {/* Step 3: presupuesto (slider) */}
-                    {paso === 2 && !completado && (
+                    {/* Paso 4: presupuesto (slider) */}
+                    {paso === 3 && !completado && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">💰</span>
@@ -414,10 +457,11 @@ export default function Home() {
                           <span>Sin límite</span>
                         </div>
                         <button
+                          type="button"
                           className="pd-continuar-btn"
                           onClick={() => {
                             setStepKey((k) => k + 1);
-                            setPaso(3);
+                            setPaso(4);
                           }}
                         >
                           Continuar →
@@ -425,8 +469,8 @@ export default function Home() {
                       </>
                     )}
 
-                    {/* Step 4: época del año */}
-                    {paso === 3 && !completado && (
+                    {/* Paso 5: época del año */}
+                    {paso === 4 && !completado && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">📅</span>
@@ -481,9 +525,10 @@ export default function Home() {
                   )}
                   {completado && (
                     <button
+                      type="button"
                       className="pd-back-btn"
                       onClick={() => {
-                        setPaso(3);
+                        setPaso(4);
                         setCompletado(false);
                         setStepKey((k) => k + 1);
                       }}
@@ -507,7 +552,7 @@ export default function Home() {
                     <div className="pd-preview-body">
                       <h3 className="pd-preview-nombre">{mejorDestino.nombre}</h3>
                       <p className="pd-preview-desc">{mejorDestino.descripcionCorta}</p>
-                      {paso >= 2 && (
+                      {paso >= 3 && (
                         <div className="pd-preview-budget">
                           <span className="pd-preview-budget-label">Presupuesto aprox:</span>
                           <span className="pd-preview-budget-value">{fmtARS(presupuesto)} ARS</span>

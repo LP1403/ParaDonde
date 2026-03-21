@@ -154,10 +154,13 @@ export default function Destino() {
   const book = destino.reseñasExternas?.booking;
 
   const regionLabel =
-    destino.region === 'europa'       ? ' · Europa' :
-    destino.region === 'norteamerica' ? ' · América del Norte' :
-    destino.region === 'sudamerica'   ? ' · Sudamérica' :
-    destino.region === 'asia'         ? ' · Asia' : '';
+    destino.region === 'europa'         ? ' · Europa' :
+    destino.region === 'norteamerica'   ? ' · América del Norte' :
+    destino.region === 'sudamerica'     ? ' · Sudamérica' :
+    destino.region === 'asia'           ? ' · Asia' :
+    destino.region === 'caribe'         ? ' · Caribe' :
+    destino.region === 'medio_oriente'  ? ' · Medio Oriente' :
+    destino.region === 'africa'         ? ' · África' : '';
 
   return (
     <IonPage className="pd-destino-page">

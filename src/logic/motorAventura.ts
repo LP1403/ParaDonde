@@ -1,5 +1,6 @@
-import type { Destino } from '../data/destinos';
+import type { Destino, TagDestinoMotor } from '../data/destinos';
 import { TEMPORADAS_POR_DESTINO } from '../data/destinoMetadatosMotor';
+import { armarInputDesdeRespuestasUrl } from './motorAventuraDinamico';
 
 export type RespuestasAventura = Record<string, string>;
 
@@ -15,6 +16,10 @@ export interface InputMotorRecomendacion {
   compania: string;
   presupuestoARS: number;
   temporada: TemporadaId;
+  /** Ponderación extra desde wizard dinámico (tags / región / experiencias) */
+  tagsBoost?: TagDestinoMotor[];
+  regionesPreferidas?: string[];
+  experienciasBoost?: string[];
 }
 
 /** Tipo de viaje del UI (4 opciones) → tag canónico */
@@ -95,7 +100,14 @@ export interface ResultadoScored {
     compania: number;
     presupuesto: number;
     temporada: number;
+    dinamico?: number;
   };
+}
+
+/** Score numérico para un destino (útil para tests / UI) */
+export function calcularScore(destino: Destino, input: InputMotorRecomendacion): number {
+  const r = rankearDestinos([destino], input, { max: 1 });
+  return r[0]?.puntaje ?? 0;
 }
 
 /**
@@ -136,11 +148,33 @@ export function rankearDestinos(
     const pPres = puntajePresupuesto(ars, rangos);
     const pTemp = puntajeTemporada(input.temporada, temps);
 
-    const puntaje = pTags + pComp + pPres + pTemp;
+    let pDin = 0;
+    const boostTags = input.tagsBoost ?? [];
+    for (const t of boostTags) {
+      if (dTags.includes(t)) pDin += 8;
+    }
+    pDin = Math.min(pDin, 24);
+    const boostExp = input.experienciasBoost ?? [];
+    for (const e of boostExp) {
+      if (destino.atributos.experiencia.includes(e)) pDin += 5;
+    }
+    pDin = Math.min(pDin, 38);
+    const prefs = input.regionesPreferidas ?? [];
+    if (prefs.length && destino.region && prefs.includes(destino.region)) {
+      pDin += 14;
+    }
+
+    const puntaje = pTags + pComp + pPres + pTemp + pDin;
     return {
       destino,
       puntaje,
-      desglose: { tags: pTags, compania: pComp, presupuesto: pPres, temporada: pTemp },
+      desglose: {
+        tags: pTags,
+        compania: pComp,
+        presupuesto: pPres,
+        temporada: pTemp,
+        dinamico: pDin,
+      },
     };
   });
 
@@ -177,13 +211,7 @@ export function filtrarDestinosPorRespuestas(
     : categoriaPresupuestoToARS(respuestas.presupuesto);
 
   const temporada = parseTemporada(respuestas.temporada);
+  const input = armarInputDesdeRespuestasUrl(respuestas, presupuestoARS, temporada);
 
-  const input: InputMotorRecomendacion = {
-    experienciaId: respuestas.experiencia ?? '',
-    compania: respuestas.compania ?? '',
-    presupuestoARS,
-    temporada,
-  };
-
-  return recomendarDestinos(todos, input, { max: 10 });
+  return recomendarDestinos(todos, input, { max: 5 });
 }
