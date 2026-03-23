@@ -15,16 +15,26 @@ import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
 import { generarFeedback } from '../logic/motorAventuraDinamico';
 import type { Destino } from '../data/destinos';
+import { wikiImages } from '../data/wikiImages';
+
+/** Fotos del carrusel: primero assets locales (Wikipedia descargados), sino datos del destino. */
+function carouselImagesForDestino(destino: Destino): string[] {
+  const local = wikiImages[destino.id];
+  if (local && local.length > 0) return local;
+  if (destino.imageUrls && destino.imageUrls.length > 0) return destino.imageUrls;
+  if (destino.imageUrl) return [destino.imageUrl];
+  return [];
+}
 
 /* ─────────────────────────────────────────── Carousel ── */
 
 export function DestinoCarousel({ destino }: { destino: Destino }) {
-  const images = (destino.imageUrls && destino.imageUrls.length > 0)
-    ? destino.imageUrls
-    : destino.imageUrl
-      ? [destino.imageUrl]
-      : [];
+  const images = carouselImagesForDestino(destino);
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    setIndex(0);
+  }, [destino.id]);
   if (images.length === 0) return null;
   const prev = () => setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
   const next = () => setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
@@ -80,7 +90,7 @@ const SEGUROS = [
     nombre: 'AXA',
     logo: '🔵',
     desc: 'Seguro internacional',
-    url: 'https://www.axaassistance.com.ar/?utm_source=paradonde',
+    url: 'https://www.axa-asistenciaviaje.com.ar/?utm_source=paradonde',
   },
 ];
 

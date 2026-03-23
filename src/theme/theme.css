@@ -1743,6 +1743,41 @@ html.pd-light .pd-destino-hero-grad {
   pointer-events: none;
 }
 
+/* Wikipedia loading badge */
+.pd-destino-wiki-badge {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.72rem;
+  font-weight: 600;
+  pointer-events: none;
+  animation: pd-fade-in 0.3s ease both;
+}
+.pd-destino-wiki-spinner {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: rgba(255,255,255,0.85);
+  animation: pd-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes pd-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Content area ── */
 .pd-destino-content {
   position: relative;

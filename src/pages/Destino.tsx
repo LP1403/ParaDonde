@@ -6,6 +6,8 @@ import { arrowBack, locationOutline } from 'ionicons/icons';
 import { getDestinoBySlug } from '../data/destinos';
 import type { DocumentacionDestino } from '../data/destinos';
 import { SeguroBlock } from './ResultadoAventura';
+import { useWikipediaImages } from '../hooks/useWikipediaImages';
+import { wikiImages as localWikiImages } from '../data/wikiImages';
 
 /* ─────────────────────────────── Doc cards ── */
 
@@ -82,13 +84,25 @@ export default function Destino() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
 
-  /* Images array */
+  /*
+    Image priority:
+      1. Pre-downloaded local images (public/images/destinos/{id}/) → instant
+      2. Wikipedia API fetch (async) → only when local images don't exist yet
+      3. destino.imageUrl (Unsplash) → final fallback
+  */
+  const hasLocalImages = Boolean(destino && localWikiImages[destino.id]?.length);
+
+  /* Only hit the Wikipedia API if we have no local images */
+  const { images: wikiApiImages, loading: wikiLoading } = useWikipediaImages(
+    !hasLocalImages ? destino?.id : undefined,
+  );
+
   const images = useMemo(() => {
     if (!destino) return [];
-    if (destino.imageUrls?.length) return destino.imageUrls;
-    if (destino.imageUrl) return [destino.imageUrl];
-    return [];
-  }, [destino]);
+    if (hasLocalImages)          return localWikiImages[destino.id];
+    if (wikiApiImages.length > 0) return wikiApiImages;
+    return destino.imageUrl ? [destino.imageUrl] : [];
+  }, [destino, hasLocalImages, wikiApiImages]);
 
   /* Two-slot crossfade bg cycling */
   const [slotA, setSlotA] = useState({ idx: 0, opacity: 1 });
@@ -247,6 +261,14 @@ export default function Destino() {
               )}
             </div>
           </div>
+
+          {/* Loading badge — only shown when fetching from API (no local images yet) */}
+          {wikiLoading && !hasLocalImages && (
+            <div className="pd-destino-wiki-badge" aria-label="Cargando fotos reales del destino">
+              <span className="pd-destino-wiki-spinner" />
+              Cargando fotos reales…
+            </div>
+          )}
 
           {/* Scroll hint */}
           <div className="pd-destino-hero-scroll-hint" style={{ opacity: scrollHintOpacity }}>
