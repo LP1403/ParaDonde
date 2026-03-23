@@ -28,19 +28,19 @@ la opcion de cuantos dias: fin de semana no tiene imagen, las imagenes de una se
 
 20/03
 
-NUEVOS
-que el ver destino, por ej 
-http://localhost:5173/destino/bariloche
-
-
-
-
 autenticacion y conectar o guardar vuelos, cosas de ese destino, y que luego aparezca como recordatorio en la pantalla del destino, el usuario tendria un menu para llegar a Mis Destinos o Mis Viajes, y ahi veria por destino sus recordatorios adentro al entrar, es una carta de presentacion del destino con el recordatorio, una card para ello
-
 
 
 habria que ir diciendole tipo notificaciones en alguna parte del vh, mientras elige su aventura, ayudas o hints, 
 
+
+la documentacion tendria que tener la info de una balija proporcional al de una persona, una escala de humano, valija chica, mediana, grande, tamaños de ellos, permitidos por el avion o por la aerolinea, peso maximo de equipaje o rangos de pesos, que tenga criterio y que coincida con la estetica de la web.
+
+En proporcion a las respuestas, (te copa mas la ciudad ,etc, las elecciones de las opciones). que devuelva actividades en proporcion a eso, si elegis vino, una bodega, s
+
+
+
+..................
 
 HECHOS
 que muestre documentacion requira e indispensable para el viajero en base al destino final segun el usuario elige,
