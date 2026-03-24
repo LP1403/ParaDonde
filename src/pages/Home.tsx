@@ -11,6 +11,7 @@ import {
 } from '../data/aventuraDinamica';
 import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
 import { armarInputDesdeRespuestasUrl } from '../logic/motorAventuraDinamico';
+import { usePdTheme } from '../hooks/usePdTheme';
 
 /* ---------- Constants ---------- */
 
@@ -82,10 +83,7 @@ function fmtUSD(n: number) {
 export default function Home() {
   const navigate = useNavigate();
 
-  /* Dark mode: dark by default, persisted */
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    return localStorage.getItem('pd-theme') !== 'light';
-  });
+  const { isDark, toggleTheme } = usePdTheme();
 
   /* Adventure flow */
   const [paso, setPaso] = useState(0);
@@ -109,18 +107,9 @@ export default function Home() {
     setBgOpacity(1);
   }, []);
 
-  /* Apply theme class to <html> */
   useEffect(() => {
     document.title = 'Para Dónde? – Guía de viajes';
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.remove('pd-light');
-      localStorage.setItem('pd-theme', 'dark');
-    } else {
-      root.classList.add('pd-light');
-      localStorage.setItem('pd-theme', 'light');
-    }
-  }, [isDark]);
+  }, []);
 
   useEffect(() => {
     setHeroLightFallback(false);
@@ -235,7 +224,7 @@ export default function Home() {
         <div className="pd-toggle-wrapper" slot="fixed">
           <button
             className="pd-toggle-btn"
-            onClick={() => setIsDark((v) => !v)}
+            onClick={toggleTheme}
             aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
           >
             <span className="pd-toggle-icon">{isDark ? '🌙' : '☀️'}</span>

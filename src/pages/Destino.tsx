@@ -6,8 +6,18 @@ import { arrowBack, locationOutline } from 'ionicons/icons';
 import { getDestinoBySlug } from '../data/destinos';
 import type { DocumentacionDestino } from '../data/destinos';
 import { SeguroBlock } from './ResultadoAventura';
+import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { PdThemeToggle } from '../components/PdThemeToggle';
 import { useWikipediaImages } from '../hooks/useWikipediaImages';
 import { wikiImages as localWikiImages } from '../data/wikiImages';
+
+function scrollContentBelowHero(
+  scrollRoot: HTMLDivElement | null,
+  contentEl: HTMLDivElement | null,
+) {
+  if (!scrollRoot || !contentEl) return;
+  scrollRoot.scrollTo({ top: contentEl.offsetTop, behavior: 'smooth' });
+}
 
 /* ─────────────────────────────── Doc cards ── */
 
@@ -82,7 +92,12 @@ export default function Destino() {
   const navigate = useNavigate();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
+
+  const scrollHeroToContent = useCallback(() => {
+    scrollContentBelowHero(scrollRef.current, contentRef.current);
+  }, []);
 
   /*
     Image priority:
@@ -147,11 +162,9 @@ export default function Destino() {
   if (!destino) {
     return (
       <IonPage>
-        <div style={{ padding: '2rem', color: 'var(--pd-color-text)' }}>
+        <PdSubpageChrome onBack={() => navigate(-1)} />
+        <div className="pd-content pd-subpage-inner" style={{ padding: '1rem', color: 'var(--pd-color-text)' }}>
           <p>No encontramos ese destino.</p>
-          <button onClick={() => navigate(-1)} style={{ marginTop: '1rem', cursor: 'pointer' }}>
-            ← Volver
-          </button>
         </div>
       </IonPage>
     );
@@ -209,19 +222,22 @@ export default function Destino() {
         <span>Volver</span>
       </button>
 
-      {/* ── Floating map button ── */}
-      <a
-        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          destino.nombre + (destino.pais ? ', ' + destino.pais : ', Argentina'),
-        )}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="pd-destino-floating-btn pd-destino-floating-map"
-        aria-label="Ver mapa"
-      >
-        <IonIcon icon={locationOutline} />
-        <span>Mapa</span>
-      </a>
+      {/* ── Mapa + tema (derecha), mismo estilo que subpáginas ── */}
+      <div className="pd-destino-floating-right">
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            destino.nombre + (destino.pais ? ', ' + destino.pais : ', Argentina'),
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pd-destino-floating-btn pd-destino-floating-map"
+          aria-label="Ver mapa"
+        >
+          <IonIcon icon={locationOutline} />
+          <span>Mapa</span>
+        </a>
+        <PdThemeToggle />
+      </div>
 
       {/* ── Scrollable container ── */}
       <div ref={scrollRef} className="pd-destino-scroll">
@@ -270,14 +286,24 @@ export default function Destino() {
             </div>
           )}
 
+          {/* Transición foto → contenido (misma lectura que el scroll con el velo) */}
+          <div className="pd-hero-to-content-fade" aria-hidden="true" />
+
           {/* Scroll hint */}
-          <div className="pd-destino-hero-scroll-hint" style={{ opacity: scrollHintOpacity }}>
-            ↓
+          <div className="pd-destino-hero-scroll-hint-wrap" style={{ opacity: scrollHintOpacity }}>
+            <button
+              type="button"
+              className="pd-destino-hero-scroll-hint-btn"
+              onClick={scrollHeroToContent}
+              aria-label="Ver información del destino"
+            >
+              ↓
+            </button>
           </div>
         </section>
 
         {/* ── Glass content sections ── */}
-        <div className="pd-destino-content">
+        <div ref={contentRef} className="pd-destino-content">
           <div className="pd-destino-content-inner">
 
             {/* Qué ver / Cuándo ir / Tips */}

@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IonPage, IonContent, IonInput, IonItem, IonLabel } from '@ionic/react';
+import { PdSubpageChrome } from '../components/PdSubpageChrome';
 
 const PAGE_TITLE = 'Calculadora dólar tarjeta – Para Dónde?';
-import { useNavigate } from 'react-router-dom';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonInput, IonItem, IonLabel } from '@ionic/react';
-import { IonIcon } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons';
 
 const DOLAR_API = 'https://dolarapi.com/v1/dolares/tarjeta';
 
@@ -48,18 +47,9 @@ export default function CalculadoraDolar() {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => navigate('/')} aria-label="Volver">
-              <IonIcon icon={arrowBack} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Dólar tarjeta</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <PdSubpageChrome onBack={() => navigate('/')} />
       <IonContent className="ion-padding">
-        <div className="pd-content">
+        <div className="pd-content pd-subpage-inner">
         <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '0.5rem' }}>
           ¿Cuánto me llega en pesos?
         </h1>

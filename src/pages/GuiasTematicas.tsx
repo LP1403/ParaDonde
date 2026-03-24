@@ -1,9 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonList, IonItem, IonLabel, IonButtons, IonButton } from '@ionic/react';
-import { IonIcon } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons';
+import { IonPage, IonContent, IonList, IonItem, IonLabel } from '@ionic/react';
 import { guiasTematicas } from '../data/guias';
+import { PdSubpageChrome } from '../components/PdSubpageChrome';
 
 export default function GuiasTematicas() {
   const navigate = useNavigate();
@@ -12,18 +11,12 @@ export default function GuiasTematicas() {
   }, []);
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => navigate('/')} aria-label="Volver">
-              <IonIcon icon={arrowBack} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Guías prácticas</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <PdSubpageChrome onBack={() => navigate('/')} />
       <IonContent className="ion-padding">
-        <div className="pd-content">
+        <div className="pd-content pd-subpage-inner">
+        <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '0.35rem', fontSize: '1.35rem' }}>
+          Guías prácticas
+        </h1>
         <p style={{ color: 'var(--pd-color-text-muted)', marginBottom: '1rem' }}>
           Documentación, derechos y tips para viajar con menos sorpresas.
         </p>

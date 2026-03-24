@@ -90,10 +90,6 @@ Los requisitos son en general los mismos para todos los países MERCOSUR; ante d
 1. Primero con la aerolínea (por escrito).
 2. Si no responden: Defensa del Consumidor.
 3. Vía judicial si corresponde. Hay sentencias que condenan a aerolíneas.
-
-## Links útiles
-- ANAC (Administración Nacional de Aviación Civil)
-- Defensa del Consumidor
     `.trim(),
     linksOficiales: [
       { label: 'ANAC', url: 'https://www.argentina.gob.ar/anac' },
@@ -140,9 +136,6 @@ Los requisitos son en general los mismos para todos los países MERCOSUR; ante d
 - Medicamentos básicos y recetas si necesitás
 - Adaptador de corriente si viajás al exterior
 - Documentación de mascotas o menores si aplica
-
-## Links
-- ANAC y Policía Aeroportuaria para restricciones de equipaje de mano y líquidos.
     `.trim(),
     linksOficiales: [
       { label: 'ANAC', url: 'https://www.argentina.gob.ar/anac' },
@@ -163,7 +156,7 @@ Los requisitos son en general los mismos para todos los países MERCOSUR; ante d
 - Avisar al banco antes de viajar para evitar bloqueos.
 
 ## Calculadora
-- En esta web podés usar la calculadora "Gasté X USD con tarjeta → resumen en pesos" para estimar cuánto te llega a pagar en pesos. (Ver enlace debajo.)
+- Usá la calculadora de esta web (enlace en “Enlaces oficiales”) para estimar cuánto te llega a pagar en pesos según el dólar tarjeta.
     `.trim(),
     linksOficiales: [
       { label: 'BCRA - Información cambiaria', url: 'https://www.bcra.gob.ar/' },

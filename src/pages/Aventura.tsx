@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons } from '@ionic/react';
-import { IonIcon } from '@ionic/react';
-import { arrowBack, sunny, moon } from 'ionicons/icons';
+import { IonPage, IonContent } from '@ionic/react';
+import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { preguntasAventura } from '../data/aventura';
 
 const STORAGE_KEY = 'paradonde_aventura_respuestas';
@@ -24,8 +23,6 @@ export default function Aventura() {
   const navigate = useNavigate();
   const [respuestas, setRespuestas] = useState<Record<string, string>>(getRespuestasFromStorage);
   const [pasoActual, setPasoActual] = useState(0);
-  const [temaOscuro, setTemaOscuro] = useState(false);
-
   const pregunta = preguntasAventura[pasoActual];
   const esUltima = pasoActual === preguntasAventura.length - 1;
 
@@ -54,45 +51,14 @@ export default function Aventura() {
     document.title = 'Elige tu aventura – Para Dónde?';
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (temaOscuro) {
-      root.classList.add('pd-theme-dark');
-    } else {
-      root.classList.remove('pd-theme-dark');
-    }
-  }, [temaOscuro]);
-
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={handleAtras} aria-label="Volver" fill="clear">
-              <IonIcon icon={arrowBack} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-          <IonButtons slot="end">
-            <IonButton
-              onClick={() => navigate('/')}
-              fill="clear"
-              aria-label="Volver al inicio"
-            >
-              Inicio
-            </IonButton>
-            <IonButton
-              onClick={() => setTemaOscuro((v) => !v)}
-              fill="clear"
-              aria-label={temaOscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-            >
-              <IonIcon icon={temaOscuro ? sunny : moon} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Elige tu aventura</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <PdSubpageChrome onBack={handleAtras} />
       <IonContent className="ion-padding">
-        <div className="pd-content">
+        <div className="pd-content pd-subpage-inner">
+        <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '0.25rem', fontSize: '1.35rem' }}>
+          Elige tu aventura
+        </h1>
         {pregunta && (
           <>
             <p style={{ marginBottom: '1rem', color: 'var(--pd-color-text-muted)' }}>

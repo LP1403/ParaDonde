@@ -1234,6 +1234,338 @@ html.pd-light .pd-prep-card-v2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   RESULTADO AVENTURA: lista tipo guía destino (stacked heroes)
+   ============================================================ */
+.pd-resultado-ion-content {
+  --background: var(--pd-color-bg);
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+/* Hero al entrar a la lista (100vh, sin fotos de destinos — solo color/gradientes) */
+.pd-resultado-list-hero {
+  position: relative;
+  min-height: 100dvh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pd-resultado-list-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 120% 80% at 20% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 70% at 85% 75%, rgba(245, 158, 11, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(25, 118, 210, 0.22) 0%, transparent 45%),
+    linear-gradient(165deg, #0a0f1f 0%, #020617 40%, #0f172a 100%);
+}
+html.pd-light .pd-resultado-list-hero-bg {
+  background:
+    radial-gradient(ellipse 120% 80% at 15% 15%, rgba(99, 102, 241, 0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 70% at 90% 80%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+    linear-gradient(165deg, #ecfdf5 0%, #d1fae5 35%, #f0fdf4 100%);
+}
+
+.pd-resultado-list-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 4rem)) 1.5rem max(3rem, env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+.pd-resultado-list-hero-kicker {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 0.75rem;
+}
+html.pd-light .pd-resultado-list-hero-kicker {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.pd-resultado-list-hero-title {
+  font-size: clamp(1.65rem, 5.5vw, 2.35rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin: 0 0 1rem;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.35);
+}
+html.pd-light .pd-resultado-list-hero-title {
+  color: #0f172a;
+  text-shadow: none;
+}
+
+.pd-resultado-list-hero-lead {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 1.75rem;
+}
+html.pd-light .pd-resultado-list-hero-lead {
+  color: #334155;
+}
+.pd-resultado-list-hero-lead strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+html.pd-light .pd-resultado-list-hero-lead strong {
+  color: #0f172a;
+}
+
+.pd-resultado-list-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.9rem 1.6rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 6px 28px rgba(99, 102, 241, 0.45);
+  text-decoration: none;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+}
+.pd-resultado-list-hero-cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 32px rgba(99, 102, 241, 0.5);
+}
+.pd-resultado-list-hero-cta:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
+}
+html.pd-light .pd-resultado-list-hero-cta:focus-visible {
+  outline-color: var(--pd-color-primary);
+}
+
+.pd-resultado-list-hero-cta--link {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  box-shadow: 0 6px 24px rgba(14, 165, 233, 0.35);
+}
+
+.pd-resultado-list-hero-cta-arrow {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.pd-resultado-list-hero-cta-arrow--bounce {
+  animation: pd-scroll-hint-bounce 1.85s ease-in-out infinite;
+}
+
+.pd-resultado-primer-destino-anchor {
+  display: block;
+}
+
+.pd-resultado-page-intro {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: 0.5rem;
+}
+
+.pd-resultado-footer-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+}
+
+.pd-resultado-destino-block {
+  position: relative;
+}
+
+/* Misma altura que la guía de destino: 100vh del viewport */
+.pd-resultado-destino-hero {
+  position: relative;
+  height: 100dvh;
+  min-height: 500px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.pd-resultado-hero-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.pd-resultado-destino-hero .pd-destino-hero-title {
+  font-size: clamp(1.85rem, 6.5vw, 3.25rem);
+}
+
+.pd-resultado-hero-map-pill {
+  text-decoration: none;
+  color: #fff !important;
+}
+.pd-resultado-hero-map-pill small {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.pd-resultado-destino-content {
+  margin-top: 0;
+  /* Suelta el degradado del hero; primer bloque glass con respiro */
+  padding-top: 0.25rem;
+}
+
+/* Itinerario vertical (lista amigable) */
+.pd-itinerario-v {
+  margin: 0;
+}
+.pd-itinerario-v-heading {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+html.pd-light .pd-itinerario-v-heading {
+  color: #0f172a;
+}
+.pd-itinerario-v-meta {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0 0 1.1rem;
+  line-height: 1.4;
+}
+html.pd-light .pd-itinerario-v-meta {
+  color: #64748b;
+}
+.pd-itinerario-v-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.pd-itinerario-v-item {
+  position: relative;
+  padding: 0 0 1.15rem 1.35rem;
+  border-left: 3px solid rgba(25, 118, 210, 0.45);
+}
+html.pd-light .pd-itinerario-v-item {
+  border-left-color: rgba(25, 118, 210, 0.35);
+}
+.pd-itinerario-v-item:last-child {
+  padding-bottom: 0;
+}
+.pd-itinerario-v-item::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0.28rem;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--pd-color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+}
+html.pd-light .pd-itinerario-v-item::before {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+}
+.pd-itinerario-v-item--start::before {
+  background: #6366f1;
+}
+.pd-itinerario-v-item--end::before {
+  background: #f59e0b;
+}
+.pd-itinerario-v-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pd-color-primary-muted);
+  margin-bottom: 0.2rem;
+}
+html.pd-light .pd-itinerario-v-badge {
+  color: var(--pd-color-primary);
+}
+.pd-itinerario-v-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+}
+html.pd-light .pd-itinerario-v-text {
+  color: #1e293b;
+}
+
+/* CTAs resultado */
+.pd-resultado-cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0.25rem 0 0;
+}
+.pd-resultado-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.15rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+}
+.pd-resultado-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.pd-resultado-cta--primary {
+  background: linear-gradient(135deg, var(--pd-color-primary), #1565c0);
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.35);
+}
+.pd-resultado-cta--tripadvisor {
+  background: rgba(52, 224, 161, 0.12);
+  border: 2px solid #2ec88a;
+  color: var(--pd-color-text) !important;
+}
+html.pd-light .pd-resultado-cta--tripadvisor {
+  background: rgba(52, 224, 161, 0.18);
+}
+.pd-resultado-cta-rating {
+  margin-left: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  opacity: 0.9;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
+}
+html.pd-light .pd-resultado-cta-rating {
+  background: rgba(15, 23, 42, 0.08);
 }
 
 /* ============================================================
@@ -1601,7 +1933,36 @@ html.pd-light .pd-destino-floating-btn:hover {
   background: rgba(255, 255, 255, 0.92);
 }
 .pd-destino-floating-back { left: 1rem; }
-.pd-destino-floating-map  { right: 1rem; }
+
+/* Destino: mapa + tema a la derecha */
+.pd-destino-floating-right {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Subpáginas (guías, calculadora, resultado…): tema fijo arriba a la derecha */
+.pd-subpage-theme-fixed {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
+.pd-subpage-theme-toggle {
+  transform: scale(0.92);
+  transform-origin: center right;
+}
+
+/* Espacio bajo botones flotantes (volver + tema) */
+.pd-subpage-inner {
+  padding-top: max(4.5rem, calc(env(safe-area-inset-top, 0px) + 3.25rem));
+}
 
 /* ── Scrollable container ── */
 .pd-destino-scroll {
@@ -1648,10 +2009,10 @@ html.pd-light .pd-destino-hero-grad {
   );
 }
 
-/* Hero content */
+/* Hero content (por encima del fade inferior) */
 .pd-destino-hero-body {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   padding: 2rem 1.5rem 4rem;
   width: 100%;
   max-width: 720px;
@@ -1722,25 +2083,83 @@ html.pd-light .pd-destino-hero-grad {
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Scroll hint */
-.pd-destino-hero-scroll-hint {
+/* Transición suave foto del hero → fondo de página (como al hacer scroll en destino) */
+.pd-hero-to-content-fade {
   position: absolute;
-  bottom: 1.5rem;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: clamp(4.5rem, 12vh, 7rem);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 6, 23, 0) 0%,
+    rgba(2, 6, 23, 0.25) 35%,
+    rgba(2, 6, 23, 0.75) 85%,
+    var(--pd-color-bg) 100%
+  );
+}
+html.pd-light .pd-hero-to-content-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(240, 253, 244, 0) 0%,
+    rgba(240, 253, 244, 0.2) 40%,
+    rgba(240, 253, 244, 0.85) 88%,
+    var(--pd-color-bg) 100%
+  );
+}
+
+/* Botón ↓: wrapper centrado (el bounce ya no pisa translateX del centrado) */
+.pd-destino-hero-scroll-hint-wrap {
+  position: absolute;
+  bottom: 1.35rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
-  width: 2.2rem;
-  height: 2.2rem;
+  z-index: 5;
+  will-change: opacity;
+}
+
+.pd-destino-hero-scroll-hint-btn {
+  width: 2.35rem;
+  height: 2.35rem;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
-  animation: pd-scroll-bounce 1.8s ease-in-out infinite;
-  will-change: opacity;
-  pointer-events: none;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  animation: pd-scroll-hint-bounce 1.85s ease-in-out infinite;
+  transition: background 0.2s, transform 0.15s;
+}
+.pd-destino-hero-scroll-hint-btn:hover {
+  background: rgba(0, 0, 0, 0.55);
+  transform: scale(1.06);
+}
+.pd-destino-hero-scroll-hint-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+@keyframes pd-scroll-hint-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(9px);
+    opacity: 1;
+  }
 }
 
 /* Wikipedia loading badge */
@@ -1788,8 +2207,13 @@ html.pd-light .pd-destino-hero-grad {
 .pd-destino-content::before {
   content: '';
   display: block;
-  height: 3rem;
-  background: transparent;
+  height: 2.75rem;
+  margin-top: -2.75rem;
+  background: linear-gradient(to bottom, rgba(2, 6, 23, 0), var(--pd-color-bg));
+  pointer-events: none;
+}
+html.pd-light .pd-destino-content::before {
+  background: linear-gradient(to bottom, rgba(240, 253, 244, 0), var(--pd-color-bg));
 }
 
 .pd-destino-content-inner {

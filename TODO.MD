@@ -6,7 +6,16 @@ Veo que todo el resultado del aventurero queda en la URL como query string, me g
 
 
 La pantalla de lista de destinos posibles (resultado del aventurero) que arranque con un hero con el texto actual o algo mas copado diciendo, en base a tus elecciones encontrmaos los mejores desetinos para tu aventura! o algo asi del estilo
-y que haya un boton "Empecemos"y ahi si te lleva a loque se ve hoy, que te lleva destino por destino, con la info y todo lo que hay actual, pero con el look visual de la  guia de destino especifico, donde se ve la imagen carrousel entera, scrolleas hacia abajo y recien ahi muestra la info y demas, en este caso sera reducida porque es la lista de destinos, asi que debe tener algo acotado como ya tiene haora, no hace falta que lo cambies, y a los botones de trip advisor debajo de ver guia completa, agregales el texto Ver en tripadvisor. tambien la lista de destinos que no tenga barra superior, que sea simplemnete la pagina como la pagina destino especifico, que solo tiene arriba el boton volver, y a la drecha del todo que siga estando la posibilidad de cambiar el tema a oscuro o claro
+y que haya un boton "Empecemos"y ahi si te lleva a loque se ve hoy, los destinos que calculo el aventurero uno abajo del otro, con la info y todo lo que hay actual, pero con el look visual de la  guia de destino especifico, donde se ve la imagen carrousel entera, scrolleas hacia abajo y recien ahi muestra la info y demas, en este caso sera reducida porque es la lista de destinos, asi que debe tener algo acotado como ya tiene haora, no hace falta que lo cambies, y a los botones de trip advisor debajo de ver guia completa, agregales el texto Ver en tripadvisor. 
+
+
+tambien todo el resto de la app, como por ej la lista de destinos que no tenga barra superior (ion toolbar y ion title), que sea simplemente la pagina como la pagina destino especifico, que solo tiene arriba el boton volver a la izq, y a la derecha del todo que siga estando la posibilidad de cambiar el tema a oscuro o claro
+
+
+La parte de links utiles muestra la lista, y abajo estan los enlaces aparte, que la misma lista sea hipervinculo y te lleve si haces click, es redundante que hayan dos
+
+
+
 
 20/03
 

@@ -1,75 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import {
-  IonPage, IonContent, IonHeader, IonToolbar, IonTitle,
-  IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonButton, IonButtons,
-} from '@ionic/react';
+import { IonPage, IonContent, IonButton } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
-import {
-  arrowBack, locationOutline, flagOutline,
-  chevronBackOutline, chevronForwardOutline,
-  shieldCheckmarkOutline,
-} from 'ionicons/icons';
+import { shieldCheckmarkOutline } from 'ionicons/icons';
 import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
 import { generarFeedback } from '../logic/motorAventuraDinamico';
+import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { DestinoResultadoBlock } from '../components/DestinoResultadoBlock';
+import { scrollElementToTopInScrollParent } from '../utils/scrollIntoScrollParent';
 import type { Destino } from '../data/destinos';
-import { wikiImages } from '../data/wikiImages';
-
-/** Fotos del carrusel: primero assets locales (Wikipedia descargados), sino datos del destino. */
-function carouselImagesForDestino(destino: Destino): string[] {
-  const local = wikiImages[destino.id];
-  if (local && local.length > 0) return local;
-  if (destino.imageUrls && destino.imageUrls.length > 0) return destino.imageUrls;
-  if (destino.imageUrl) return [destino.imageUrl];
-  return [];
-}
-
-/* ─────────────────────────────────────────── Carousel ── */
-
-export function DestinoCarousel({ destino }: { destino: Destino }) {
-  const images = carouselImagesForDestino(destino);
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    setIndex(0);
-  }, [destino.id]);
-  if (images.length === 0) return null;
-  const prev = () => setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
-  const next = () => setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
-  return (
-    <div className="pd-destino-carousel">
-      <div
-        className="pd-destino-carousel-track"
-        style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.45)), url(${images[index]})`,
-        }}
-      />
-      {images.length > 1 && (
-        <>
-          <button type="button" className="pd-destino-carousel-btn pd-destino-carousel-btn--prev" onClick={prev} aria-label="Foto anterior">
-            <IonIcon icon={chevronBackOutline} />
-          </button>
-          <button type="button" className="pd-destino-carousel-btn pd-destino-carousel-btn--next" onClick={next} aria-label="Foto siguiente">
-            <IonIcon icon={chevronForwardOutline} />
-          </button>
-          <div className="pd-destino-carousel-dots">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                className={`pd-destino-carousel-dot ${i === index ? 'pd-destino-carousel-dot--active' : ''}`}
-                onClick={() => setIndex(i)}
-                aria-label={`Ir a foto ${i + 1}`}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 /* ─────────────────────────────────────────── Seguro Block ── */
 
@@ -95,7 +35,7 @@ const SEGUROS = [
 ];
 
 export function SeguroBlock({ forDestino }: { forDestino?: Destino }) {
-  const showSeguro = !forDestino || forDestino.documentacion.seguroRecomendado || (forDestino.region !== 'argentina');
+  const showSeguro = !forDestino || forDestino.documentacion.seguroRecomendado || forDestino.region !== 'argentina';
   if (!showSeguro) return null;
 
   return (
@@ -226,21 +166,15 @@ function PorQueBlock({ destino, respuestas }: { destino: Destino; respuestas: Re
   );
 }
 
-/* ─────────────────────────────────────────── fmtARS ── */
-
-function fmtARS(n: number) {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1).replace('.0', '')} M`;
-  if (n >= 1_000) return `$${Math.round(n / 1_000)} K`;
-  return `$${n}`;
-}
-
 /* ─────────────────────────────────────────── Page ── */
 
 export default function ResultadoAventura() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const respuestas: Record<string, string> = {};
-  searchParams.forEach((v, k) => { respuestas[k] = v; });
+  searchParams.forEach((v, k) => {
+    respuestas[k] = v;
+  });
 
   const sugeridos = filtrarDestinosPorRespuestas(destinos, respuestas);
   const feedbackIntro = generarFeedback(respuestas, sugeridos);
@@ -248,49 +182,112 @@ export default function ResultadoAventura() {
   const diasSeleccionados = respuestas['dias'];
   const temporadaSel = respuestas['temporada'];
   const descripcionDuracion =
-    temporadaSel === 'verano'    ? 'un viaje en verano austral' :
-    temporadaSel === 'otono'     ? 'un viaje en otoño' :
-    temporadaSel === 'invierno'  ? 'un viaje en invierno austral' :
-    temporadaSel === 'primavera' ? 'un viaje en primavera' :
-    temporadaSel === 'flexible' ? 'un viaje con fechas flexibles' :
-    diasSeleccionados === 'fin_semana'   ? 'una escapada corta de fin de semana' :
-    diasSeleccionados === 'una_semana'   ? 'un viaje de alrededor de una semana' :
-    diasSeleccionados === 'dos_o_mas'    ? 'un viaje más largo, de dos semanas o más' :
-    'un viaje según tus preferencias';
+    temporadaSel === 'verano'
+      ? 'un viaje en verano austral'
+      : temporadaSel === 'otono'
+        ? 'un viaje en otoño'
+        : temporadaSel === 'invierno'
+          ? 'un viaje en invierno austral'
+          : temporadaSel === 'primavera'
+            ? 'un viaje en primavera'
+            : temporadaSel === 'flexible'
+              ? 'un viaje con fechas flexibles'
+              : diasSeleccionados === 'fin_semana'
+                ? 'una escapada corta de fin de semana'
+                : diasSeleccionados === 'una_semana'
+                  ? 'un viaje de alrededor de una semana'
+                  : diasSeleccionados === 'dos_o_mas'
+                    ? 'un viaje más largo, de dos semanas o más'
+                    : 'un viaje según tus preferencias';
 
   const hayInternacional = sugeridos.some((d) => d.region !== 'argentina');
+
+  const primerDestinoWrapRef = useRef<HTMLDivElement>(null);
+
+  const irAPrimerDestino = () => {
+    scrollElementToTopInScrollParent(primerDestinoWrapRef.current);
+  };
 
   useEffect(() => {
     document.title = 'Tu resultado – Para Dónde?';
   }, []);
 
+  const haySugeridos = sugeridos.length > 0;
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => navigate('/')} aria-label="Volver">
-              <IonIcon icon={arrowBack} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Tu resultado</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+    <IonPage className="pd-destino-page">
+      <PdSubpageChrome onBack={() => navigate('/')} />
+      <IonContent fullscreen className="pd-resultado-ion-content">
+        {/* Hero inicial: sin spoilers (sin nombres ni fotos de destinos) */}
+        <section className="pd-resultado-list-hero" aria-labelledby="pd-resultado-list-hero-title">
+          <div className="pd-resultado-list-hero-bg" aria-hidden="true" />
+          <div className="pd-resultado-list-hero-inner">
+            <p className="pd-resultado-list-hero-kicker">
+              {haySugeridos ? '✨ Listo' : 'Ups'}
+            </p>
+            <h1 id="pd-resultado-list-hero-title" className="pd-resultado-list-hero-title">
+              {haySugeridos ? 'Tenemos ideas para tu próximo viaje' : 'No encontramos coincidencias claras'}
+            </h1>
+            <p className="pd-resultado-list-hero-lead">
+              {haySugeridos ? (
+                <>
+                  Armamos opciones con lo que contaste
+                  {descripcionDuracion !== 'un viaje según tus preferencias'
+                    ? ` (pensando en ${descripcionDuracion})`
+                    : ''}
+                  . Abajo están las fichas completas: mapas, fotos y tips.{' '}
+                  <strong>Sin spoilearte nada desde acá.</strong>
+                </>
+              ) : (
+                <>
+                  Probá ajustar presupuesto, época o tipo de viaje en el inicio. A veces un pequeño cambio
+                  abre destinos que no habíamos puesto arriba del todo.
+                </>
+              )}
+            </p>
+            {haySugeridos ? (
+              <button type="button" className="pd-resultado-list-hero-cta" onClick={irAPrimerDestino}>
+                <span>¡Tus destinos!</span>
+                <span className="pd-resultado-list-hero-cta-arrow pd-resultado-list-hero-cta-arrow--bounce" aria-hidden>
+                  ↓
+                </span>
+              </button>
+            ) : (
+              <Link to="/" className="pd-resultado-list-hero-cta pd-resultado-list-hero-cta--link">
+                <span>Volver a elegir aventura</span>
+                <span className="pd-resultado-list-hero-cta-arrow" aria-hidden>
+                  →
+                </span>
+              </Link>
+            )}
+          </div>
+        </section>
 
-      <IonContent className="ion-padding">
-        <div className="pd-content">
-
-          {/* Intro */}
-          <h2 style={{ marginBottom: '0.25rem', color: 'var(--pd-color-text)' }}>
-            Destinos sugeridos para vos
+        <div className="pd-resultado-page-intro pd-subpage-inner">
+          <h2
+            style={{
+              marginBottom: '0.35rem',
+              color: 'var(--pd-color-text)',
+              fontSize: '1.35rem',
+            }}
+          >
+            Tu resultado
           </h2>
-          <p style={{ marginBottom: '0.75rem', color: 'var(--pd-color-text-muted)', fontSize: '0.9rem' }}>
-            Pensando en {descripcionDuracion}, estos destinos encajan con tu forma de viajar.
+          <p
+            style={{
+              marginBottom: '0.75rem',
+              color: 'var(--pd-color-text-muted)',
+              fontSize: '0.9rem',
+              lineHeight: 1.45,
+            }}
+          >
+            <strong style={{ color: 'var(--pd-color-text)' }}>Destinos sugeridos para vos.</strong>{' '}
+            Pensando en {descripcionDuracion}, estos lugares encajan con tu forma de viajar.
           </p>
           {feedbackIntro && (
             <p
               style={{
-                marginBottom: '1.5rem',
+                marginBottom: '0.5rem',
                 color: 'var(--pd-color-text)',
                 fontSize: '0.95rem',
                 lineHeight: 1.45,
@@ -300,142 +297,35 @@ export default function ResultadoAventura() {
               {feedbackIntro}
             </p>
           )}
+        </div>
 
-          {sugeridos.length === 0 ? (
+        {haySugeridos ? (
+          sugeridos.map((d, idx) => (
+            <div key={d.id} ref={idx === 0 ? primerDestinoWrapRef : undefined} className="pd-resultado-primer-destino-anchor">
+              <DestinoResultadoBlock destino={d}>
+                {idx === 0 && <PorQueBlock destino={d} respuestas={respuestas} />}
+              </DestinoResultadoBlock>
+            </div>
+          ))
+        ) : (
+          <div className="pd-resultado-page-intro pd-subpage-inner" style={{ paddingBottom: '2rem' }}>
             <p style={{ color: 'var(--pd-color-text-muted)' }}>
-              No encontramos destinos que coincidan exactamente. Probá cambiar algunas respuestas en{' '}
+              Si querés, tocá el botón de arriba o este enlace:{' '}
               <Link to="/">Elige tu aventura</Link>.
             </p>
-          ) : (
-            sugeridos.map((d, idx) => (
-              <IonCard key={d.id}>
-                {/* Imagen */}
-                <DestinoCarousel destino={d} />
+          </div>
+        )}
 
-                {/* Cabecera */}
-                <IonCardHeader>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                    <div>
-                      <IonCardTitle style={{ margin: 0 }}>{d.nombre}</IonCardTitle>
-                      {d.pais && d.region !== 'argentina' && (
-                        <p style={{ margin: '0.1rem 0 0', fontSize: '0.78rem', color: 'var(--pd-color-text-muted)' }}>
-                          {d.pais}
-                          {d.region === 'europa' ? ' · Europa' :
-                           d.region === 'norteamerica' ? ' · América del Norte' :
-                           d.region === 'sudamerica' ? ' · Sudamérica' :
-                           d.region === 'asia' ? ' · Asia' :
-                           d.region === 'caribe' ? ' · Caribe' :
-                           d.region === 'medio_oriente' ? ' · Medio Oriente' :
-                           d.region === 'africa' ? ' · África' : ''}
-                        </p>
-                      )}
-                    </div>
-                    <IonButton
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.nombre + (d.pais ? ', ' + d.pais : ', Argentina'))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      fill="clear"
-                      size="small"
-                      aria-label={`Ver mapa de ${d.nombre}`}
-                    >
-                      <IonIcon icon={locationOutline} slot="start" />
-                      Ver mapa
-                    </IonButton>
-                  </div>
-                </IonCardHeader>
-
-                <IonCardContent>
-                  <p style={{ marginBottom: '0.5rem' }}>{d.descripcionCorta}</p>
-
-                  {/* ¿Por qué te lo recomendamos? */}
-                  {idx === 0 && <PorQueBlock destino={d} respuestas={respuestas} />}
-
-                  {/* Presupuesto estimado */}
-                  {d.presupuestoEstimado && (
-                    <div className="pd-resultado-budget">
-                      <span className="pd-resultado-budget-label">Presupuesto estimado</span>
-                      <span className="pd-resultado-budget-range">
-                        {fmtARS(d.presupuestoEstimado.minARS)} – {fmtARS(d.presupuestoEstimado.maxARS)} ARS
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Mejor época */}
-                  <p style={{ fontSize: '0.85rem', color: 'var(--pd-color-text-muted)', marginTop: '0.5rem' }}>
-                    <strong>Mejor época:</strong> {d.guia.cuandoIr}
-                  </p>
-
-                  {/* Itinerario rápido */}
-                  {d.itinerario && (
-                    <div style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
-                      <p style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.25rem' }}>Tu viaje, en resumen</p>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--pd-color-text-muted)', marginBottom: '0.5rem' }}>
-                        Distancia aprox.: {d.itinerario.distanciaTotalKm.toLocaleString()} km · {d.itinerario.duracionDias} días
-                      </p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px' }}>
-                          <div style={{ width: '2rem', height: '2rem', borderRadius: '999px', background: 'var(--pd-color-primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--pd-color-primary)', marginBottom: '0.25rem' }}>
-                            <IonIcon icon={locationOutline} />
-                          </div>
-                          <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>Inicio</p>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: '0', gap: '0.5rem' }}>
-                          {d.itinerario.paradas.map((p, idx2) => (
-                            <div key={idx2} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '90px' }}>
-                              <div style={{ width: '100%', height: '2px', background: 'var(--pd-border)', marginBottom: '0.25rem' }} />
-                              <div style={{ width: '1rem', height: '1rem', borderRadius: '999px', background: 'var(--pd-color-accent-soft)', border: '2px solid var(--pd-color-accent)', marginBottom: '0.25rem' }} />
-                              <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>Día {idx2 + 1}</p>
-                              <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0, marginTop: '0.1rem', color: 'var(--pd-color-text-muted)' }}>{p}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px' }}>
-                          <div style={{ width: '2rem', height: '2rem', borderRadius: '0.75rem', border: '2px solid var(--pd-color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--pd-color-primary)', marginBottom: '0.25rem' }}>
-                            <IonIcon icon={flagOutline} />
-                          </div>
-                          <p style={{ fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>Final</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Botones */}
-                  <Link to={`/destino/${d.slug}`}>
-                    <IonButton expand="block" size="small" style={{ marginTop: '0.75rem' }}>
-                      Ver guía completa de {d.nombre}
-                    </IonButton>
-                  </Link>
-
-                  {d.reseñasExternas?.tripadvisor && (
-                    <IonButton
-                      expand="block"
-                      size="small"
-                      fill="outline"
-                      style={{ marginTop: '0.5rem' }}
-                      href={d.reseñasExternas.tripadvisor.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span className="pd-tripadvisor-btn">
-                        <span className="pd-tripadvisor-icon">T</span>
-                        <span>Ver en TripAdvisor · {d.reseñasExternas.tripadvisor.puntaje}/5</span>
-                      </span>
-                    </IonButton>
-                  )}
-                </IonCardContent>
-              </IonCard>
-            ))
-          )}
-
-          {/* Bloque de seguro – siempre que haya resultados */}
-          {sugeridos.length > 0 && <SeguroBlock forDestino={hayInternacional ? sugeridos[0] : undefined} />}
-
-          <Link to="/">
-            <IonButton fill="outline" expand="block" style={{ marginTop: '1rem' }}>
-              ← Volver a elegir destino
-            </IonButton>
-          </Link>
-        </div>
+        {sugeridos.length > 0 && (
+          <div className="pd-resultado-footer-wrap">
+            <SeguroBlock forDestino={hayInternacional ? sugeridos[0] : undefined} />
+            <Link to="/" style={{ display: 'block', marginTop: '1rem' }}>
+              <IonButton fill="outline" expand="block">
+                ← Volver a elegir destino
+              </IonButton>
+            </Link>
+          </div>
+        )}
       </IonContent>
     </IonPage>
   );

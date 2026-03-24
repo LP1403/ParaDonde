@@ -1,8 +1,8 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons';
+import { IonPage, IonContent } from '@ionic/react';
 import { getGuiaBySlug } from '../data/guias';
+import { PdSubpageChrome } from '../components/PdSubpageChrome';
 
 const sectionHeadingStyle: React.CSSProperties = {
   color: 'var(--pd-color-primary)',
@@ -54,13 +54,9 @@ export default function GuiaTematica() {
   if (!guia) {
     return (
       <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Guía</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        <PdSubpageChrome onBack={() => navigate('/guias')} />
         <IonContent className="ion-padding">
-          <div className="pd-content">
+          <div className="pd-content pd-subpage-inner">
             <p>No encontramos esa guía.</p>
           </div>
         </IonContent>
@@ -72,18 +68,9 @@ export default function GuiaTematica() {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => navigate(-1)} aria-label="Volver">
-              <IonIcon icon={arrowBack} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>{guia.titulo}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <PdSubpageChrome onBack={() => navigate(-1)} />
       <IonContent className="ion-padding">
-        <div className="pd-content pd-guia-content">
+        <div className="pd-content pd-guia-content pd-subpage-inner">
           <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '1rem' }}>
             {guia.titulo}
           </h1>

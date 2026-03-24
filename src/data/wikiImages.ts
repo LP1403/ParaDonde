@@ -28,7 +28,7 @@ export const wikiImages: Record<string, string[]> = {
     "/images/destinos/cordoba/2.jpg",
     "/images/destinos/cordoba/3.jpg",
     "/images/destinos/cordoba/4.jpg",
-    "/images/destinos/cordoba/5.jpg"
+    "/images/destinos/cordoba/5.png"
   ],
   "villa-carlos-paz": [
     "/images/destinos/villa-carlos-paz/1.jpg"
@@ -93,6 +93,7 @@ export const wikiImages: Record<string, string[]> = {
     "/images/destinos/el-bolson/5.jpg"
   ],
   "rio-de-janeiro": [
+    "/images/destinos/rio-de-janeiro/1.jpg",
     "/images/destinos/rio-de-janeiro/2.jpg",
     "/images/destinos/rio-de-janeiro/4.jpg",
     "/images/destinos/rio-de-janeiro/5.jpg"
