@@ -1190,6 +1190,10 @@ html.pd-light .pd-prep-card-v2 {
   line-height: 1.25;
 }
 
+.pd-flow-card .pd-origen-pais-btn {
+  background: var(--pd-card-bg);
+}
+
 /* ============================================================
    SHARED: Guías
    ============================================================ */
