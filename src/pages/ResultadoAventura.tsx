@@ -10,6 +10,10 @@ import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { DestinoResultadoBlock } from '../components/DestinoResultadoBlock';
 import { scrollElementToTopInScrollParent } from '../utils/scrollIntoScrollParent';
 import type { Destino } from '../data/destinos';
+import {
+  infoDocumentacionParaOrigen,
+  labelPaisOrigen,
+} from '../data/origenViajero';
 
 /* ─────────────────────────────────────────── Seguro Block ── */
 
@@ -200,7 +204,14 @@ export default function ResultadoAventura() {
                     ? 'un viaje más largo, de dos semanas o más'
                     : 'un viaje según tus preferencias';
 
+  const haySugeridos = sugeridos.length > 0;
   const hayInternacional = sugeridos.some((d) => d.region !== 'argentina');
+  const soloArgentinaEnResultados =
+    haySugeridos && sugeridos.every((d) => d.region === 'argentina');
+  const origenPaisId = respuestas.origen_pais?.trim();
+  const infoDocOrigen =
+    origenPaisId &&
+    infoDocumentacionParaOrigen(origenPaisId, { soloArgentinaEnResultados });
 
   const primerDestinoWrapRef = useRef<HTMLDivElement>(null);
 
@@ -211,8 +222,6 @@ export default function ResultadoAventura() {
   useEffect(() => {
     document.title = 'Tu resultado – Para Dónde?';
   }, []);
-
-  const haySugeridos = sugeridos.length > 0;
 
   return (
     <IonPage className="pd-destino-page">
@@ -296,6 +305,82 @@ export default function ResultadoAventura() {
             >
               {feedbackIntro}
             </p>
+          )}
+
+          {infoDocOrigen && (
+            <div
+              className="pd-resultado-origen-doc"
+              style={{
+                marginTop: '1rem',
+                padding: '1rem 1.1rem',
+                borderRadius: 12,
+                border: '1px solid var(--pd-border)',
+                background: 'var(--pd-color-surface-alt, rgba(25, 118, 210, 0.06))',
+              }}
+            >
+              <p
+                style={{
+                  margin: '0 0 0.35rem',
+                  fontSize: '0.8rem',
+                  color: 'var(--pd-color-text-muted)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                Tu punto de partida
+              </p>
+              <h3
+                style={{
+                  margin: '0 0 0.5rem',
+                  fontSize: '1.05rem',
+                  color: 'var(--pd-color-text)',
+                }}
+              >
+                {infoDocOrigen.titulo}{' '}
+                <span style={{ fontWeight: 400, color: 'var(--pd-color-text-muted)' }}>
+                  ({labelPaisOrigen(origenPaisId!)})
+                </span>
+              </h3>
+              {infoDocOrigen.parrafos.map((t) => (
+                <p
+                  key={t.slice(0, 48)}
+                  style={{
+                    margin: '0 0 0.5rem',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                    color: 'var(--pd-color-text-muted)',
+                  }}
+                >
+                  {t}
+                </p>
+              ))}
+              <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.2rem', fontSize: '0.9rem' }}>
+                {infoDocOrigen.linksOficiales.map((l) => (
+                  <li key={l.url} style={{ marginBottom: '0.35rem' }}>
+                    {l.url.startsWith('/') ? (
+                      <Link to={l.url}>{l.label}</Link>
+                    ) : (
+                      <a href={l.url} target="_blank" rel="noopener noreferrer">
+                        {l.label}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <Link
+                  to="/guias/documentacion-viajar"
+                  style={{ fontSize: '0.88rem', fontWeight: 600 }}
+                >
+                  Guía: documentación →
+                </Link>
+                {infoDocOrigen.guiaEquipajeTo && (
+                  <Link to={infoDocOrigen.guiaEquipajeTo} style={{ fontSize: '0.88rem', fontWeight: 600 }}>
+                    Guía: equipaje →
+                  </Link>
+                )}
+              </div>
+            </div>
           )}
         </div>
 

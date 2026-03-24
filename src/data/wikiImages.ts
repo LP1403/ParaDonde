@@ -146,5 +146,11 @@ export const wikiImages: Record<string, string[]> = {
     "/images/destinos/tokio/3.jpg",
     "/images/destinos/tokio/4.jpg",
     "/images/destinos/tokio/5.jpg"
-  ]
+  ],
+  "san-martin-de-los-andes": [],
+  "puerto-madryn": [],
+  "san-miguel-de-tucuman": [],
+  "villa-la-angostura": [],
+  "merlo-san-luis": [],
+  "tigre-delta": []
 };

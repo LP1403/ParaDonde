@@ -173,10 +173,16 @@ export function DestinoResultadoBlock({ destino: d, children }: Props) {
 
           <div className="pd-destino-hero-stats">
             {ta && (
-              <span className="pd-destino-hero-stat">
+              <a
+                href={ta.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pd-destino-hero-stat pd-destino-hero-stat--link"
+                aria-label={`Ver opiniones de ${d.nombre} en TripAdvisor (${ta.puntaje} de 5)`}
+              >
                 ⭐ {ta.puntaje}
                 <small>/5 TripAdvisor</small>
-              </span>
+              </a>
             )}
             {d.presupuestoEstimado && (
               <span className="pd-destino-hero-stat">
@@ -264,20 +270,6 @@ export function DestinoResultadoBlock({ destino: d, children }: Props) {
             <Link to={`/destino/${d.slug}`} className="pd-resultado-cta pd-resultado-cta--primary">
               Guía completa
             </Link>
-            {ta && (
-              <a
-                href={ta.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pd-resultado-cta pd-resultado-cta--tripadvisor"
-              >
-                <span className="pd-tripadvisor-icon" aria-hidden>
-                  T
-                </span>
-                <span>Opiniones en TripAdvisor</span>
-                <span className="pd-resultado-cta-rating">{ta.puntaje}/5</span>
-              </a>
-            )}
           </div>
         </div>
       </div>

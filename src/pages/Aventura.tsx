@@ -70,23 +70,47 @@ export default function Aventura() {
             <p style={{ marginTop: '-0.75rem', marginBottom: '1.25rem', fontSize: '0.9rem', color: 'var(--pd-color-text-muted)' }}>
               Tocá una opción para continuar.
             </p>
-            <div className="aventura-grid">
-              {pregunta.opciones.map((op) => (
-                <button
-                  key={op.id}
-                  type="button"
-                  className={`aventura-cuadrante ${valorActual === op.id ? 'aventura-cuadrante--selected' : ''}`}
-                  data-has-image={op.imageUrl ? 'true' : undefined}
-                  style={{
-                    backgroundImage: op.imageUrl ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})` : undefined,
-                    backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
-                  }}
-                  onClick={() => handleSeleccionOpcion(op.id)}
-                >
-                  <span className="aventura-cuadrante-label">{op.label}</span>
-                </button>
-              ))}
-            </div>
+            {pregunta.id === 'origen_pais' ? (
+              <div className="pd-origen-pais-grid" role="list">
+                {pregunta.opciones.map((op) => (
+                  <button
+                    key={op.id}
+                    type="button"
+                    role="listitem"
+                    className={`pd-origen-pais-btn ${valorActual === op.id ? 'pd-origen-pais-btn--selected' : ''}`}
+                    onClick={() => handleSeleccionOpcion(op.id)}
+                  >
+                    <span className="pd-origen-pais-flag" aria-hidden>
+                      {op.bandera ?? '🏳️'}
+                    </span>
+                    <span className="pd-origen-pais-sep" aria-hidden>
+                      —
+                    </span>
+                    <span className="pd-origen-pais-nombre">{op.label}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="aventura-grid">
+                {pregunta.opciones.map((op) => (
+                  <button
+                    key={op.id}
+                    type="button"
+                    className={`aventura-cuadrante ${valorActual === op.id ? 'aventura-cuadrante--selected' : ''}`}
+                    data-has-image={op.imageUrl ? 'true' : undefined}
+                    style={{
+                      backgroundImage: op.imageUrl
+                        ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})`
+                        : undefined,
+                      backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
+                    }}
+                    onClick={() => handleSeleccionOpcion(op.id)}
+                  >
+                    <span className="aventura-cuadrante-label">{op.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <div style={{ marginTop: '2rem' }} />
           </>
         )}

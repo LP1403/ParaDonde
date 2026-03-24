@@ -1,4 +1,5 @@
 import type { Destino, TagDestinoMotor } from '../data/destinos';
+import { comidasDestino } from '../data/comidasPorDestino';
 import { TEMPORADAS_POR_DESTINO } from '../data/destinoMetadatosMotor';
 import { armarInputDesdeRespuestasUrl } from './motorAventuraDinamico';
 
@@ -20,6 +21,12 @@ export interface InputMotorRecomendacion {
   tagsBoost?: TagDestinoMotor[];
   regionesPreferidas?: string[];
   experienciasBoost?: string[];
+  /** País desde el que viaja (id de `OPCIONES_ORIGEN_PAIS`) */
+  paisOrigenId?: string;
+  /** menor_12 | adolescente_13_17 | adulto_18_64 | mayor_65 */
+  edadViajero?: string;
+  /** Tag de comida (ver `OPCIONES_COMIDA_AVENTURA`) */
+  comidaPreferida?: string;
 }
 
 /** Tipo de viaje del UI (4 opciones) → tag canónico */
@@ -92,6 +99,44 @@ function puntajeTemporada(temp: TemporadaId, destTemps: string[]): number {
   return 4;
 }
 
+function puntajeComida(pref: string | undefined, destino: Destino): number {
+  if (!pref) return 14;
+  const c = comidasDestino(destino);
+  return c.some((id) => id === pref) ? 26 : 9;
+}
+
+function puntajeEdad(edad: string | undefined, destino: Destino): number {
+  if (!edad) return 12;
+  const tags = tagsDestino(destino);
+  const permiteFamilia = destino.atributos.compania.includes('familia');
+  if (edad === 'menor_12') {
+    let p = 10;
+    if (permiteFamilia) p += 8;
+    if (tags.includes('relax') || tags.includes('ciudad')) p += 5;
+    return Math.min(p, 28);
+  }
+  if (edad === 'adolescente_13_17') {
+    let p = 12;
+    if (permiteFamilia) p += 5;
+    if (tags.includes('aventura')) p += 6;
+    return Math.min(p, 25);
+  }
+  if (edad === 'mayor_65') {
+    let p = 10;
+    if (tags.includes('relax') || tags.includes('ciudad')) p += 12;
+    if (tags.includes('aventura') && !tags.includes('relax')) p -= 4;
+    return Math.max(4, Math.min(p, 26));
+  }
+  return 14;
+}
+
+function puntajeOrigen(origen: string | undefined, destino: Destino): number {
+  if (!origen) return 10;
+  if (origen === 'ar' && destino.region === 'argentina') return 18;
+  if (['br', 'uy', 'py', 'bo', 'cl'].includes(origen) && destino.region === 'argentina') return 10;
+  return 12;
+}
+
 export interface ResultadoScored {
   destino: Destino;
   puntaje: number;
@@ -147,6 +192,9 @@ export function rankearDestinos(
 
     const pPres = puntajePresupuesto(ars, rangos);
     const pTemp = puntajeTemporada(input.temporada, temps);
+    const pComida = puntajeComida(input.comidaPreferida, destino);
+    const pEdad = puntajeEdad(input.edadViajero, destino);
+    const pOrigen = puntajeOrigen(input.paisOrigenId, destino);
 
     let pDin = 0;
     const boostTags = input.tagsBoost ?? [];
@@ -164,7 +212,7 @@ export function rankearDestinos(
       pDin += 14;
     }
 
-    const puntaje = pTags + pComp + pPres + pTemp + pDin;
+    const puntaje = pTags + pComp + pPres + pTemp + pDin + pComida + pEdad + pOrigen;
     return {
       destino,
       puntaje,

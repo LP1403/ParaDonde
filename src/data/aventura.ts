@@ -3,6 +3,8 @@ export interface OpcionAventura {
   label: string;
   /** URL de imagen de fondo para el cuadrante */
   imageUrl?: string;
+  /** Emoji de bandera (u otros) para el paso país de origen: se muestra “bandera — nombre” */
+  bandera?: string;
 }
 
 export interface PreguntaAventura {
@@ -11,7 +13,60 @@ export interface PreguntaAventura {
   opciones: OpcionAventura[];
 }
 
+/**
+ * Orden del flujo /aventura:
+ * 1. País de residencia → documentación contextual en resultados
+ * 2. Edad del viajero
+ * 3. Compañía … (resto)
+ */
 export const preguntasAventura: PreguntaAventura[] = [
+  {
+    id: 'origen_pais',
+    label: '¿Desde dónde comienza tu aventura? (tu país de residencia)',
+    opciones: [
+      { id: 'ar', label: 'Argentina', bandera: '🇦🇷' },
+      { id: 'br', label: 'Brasil', bandera: '🇧🇷' },
+      { id: 'uy', label: 'Uruguay', bandera: '🇺🇾' },
+      { id: 'cl', label: 'Chile', bandera: '🇨🇱' },
+      { id: 'py', label: 'Paraguay', bandera: '🇵🇾' },
+      { id: 'bo', label: 'Bolivia', bandera: '🇧🇴' },
+      { id: 'us', label: 'Estados Unidos / Canadá', bandera: '🇺🇸\u00A0🇨🇦' },
+      { id: 'mx', label: 'México', bandera: '🇲🇽' },
+      { id: 'es', label: 'España', bandera: '🇪🇸' },
+      { id: 'europa_otros', label: 'Europa (otro)', bandera: '🇪🇺' },
+      { id: 'otros', label: 'Otro país', bandera: '🌍' },
+    ],
+  },
+  {
+    id: 'edad_viajero',
+    label: '¿Qué edad tiene quien viaja? (principal viajero)',
+    opciones: [
+      {
+        id: 'menor_12',
+        label: 'Menor de 12',
+        imageUrl:
+          'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'adolescente_13_17',
+        label: '13 a 17 años',
+        imageUrl:
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'adulto_18_64',
+        label: '18 a 64 años',
+        imageUrl:
+          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'mayor_65',
+        label: '65 o más',
+        imageUrl:
+          'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80',
+      },
+    ],
+  },
   {
     id: 'compania',
     label: '¿Con quién viajás?',
@@ -26,7 +81,7 @@ export const preguntasAventura: PreguntaAventura[] = [
         id: 'pareja',
         label: 'En pareja',
         imageUrl:
-          'https://images.unsplash.com/photo-1517840933442-d2d1a05edb84?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80',
       },
       {
         id: 'amigos',
@@ -81,6 +136,48 @@ export const preguntasAventura: PreguntaAventura[] = [
         label: 'Termas y relax',
         imageUrl:
           'https://images.unsplash.com/photo-1505733289361-41e24b3c2e69?auto=format&fit=crop&w=800&q=80',
+      },
+    ],
+  },
+  {
+    id: 'comida_pref',
+    label: '¿Qué estilo de comida te atrae más en el viaje?',
+    opciones: [
+      {
+        id: 'parrilla',
+        label: 'Parrilla y asado',
+        imageUrl:
+          'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'empanadas',
+        label: 'Empanadas y horno',
+        imageUrl:
+          'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'pescado',
+        label: 'Pescado y mariscos',
+        imageUrl:
+          'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'andina',
+        label: 'Cocina andina (humitas, quinoa…)',
+        imageUrl:
+          'https://images.unsplash.com/photo-1609350051988-60e6cf4ec7a9?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'pasta_italiana',
+        label: 'Pasta, pizza y café',
+        imageUrl:
+          'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=800&q=80',
+      },
+      {
+        id: 'criollo',
+        label: 'Locro, guisos y vino regional',
+        imageUrl:
+          'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=800&q=80',
       },
     ],
   },

@@ -2,13 +2,7 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { IonPage, IonContent } from '@ionic/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { destinos } from '../data/destinos';
-import {
-  ID_PREGUNTA_INICIO,
-  acumularImpactoDinamico,
-  buscarOpcion,
-  obtenerSubpregunta,
-  preguntasDinamicas,
-} from '../data/aventuraDinamica';
+import { preguntasAventura } from '../data/aventura';
 import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
 import { armarInputDesdeRespuestasUrl } from '../logic/motorAventuraDinamico';
 import { usePdTheme } from '../hooks/usePdTheme';
@@ -26,13 +20,6 @@ const HERO_BG_LIGHT =
 const HERO_BG_LIGHT_FALLBACK =
   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80';
 
-const COMPANIA = [
-  { id: 'solo',    label: 'Solo/a',          icon: '🧍' },
-  { id: 'pareja',  label: 'En pareja',       icon: '💑' },
-  { id: 'amigos',  label: 'Con amigos',      icon: '👫' },
-  { id: 'familia', label: 'Con familia',     icon: '👨‍👩‍👧' },
-];
-
 const TEMPORADAS: { id: TemporadaId; label: string; sub: string }[] = [
   { id: 'verano',    label: 'Verano',     sub: 'Dic – mar (hem. sur)' },
   { id: 'otono',     label: 'Otoño',      sub: 'Mar – jun' },
@@ -40,13 +27,6 @@ const TEMPORADAS: { id: TemporadaId; label: string; sub: string }[] = [
   { id: 'primavera', label: 'Primavera',  sub: 'Sep – dic' },
   { id: 'flexible',  label: 'Me da igual', sub: 'Cualquier época' },
 ];
-
-const COMPANIA_BG: Record<string, string> = {
-  solo:    'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80',
-  pareja:  'https://images.unsplash.com/photo-1517840933442-d2d1a05edb84?auto=format&fit=crop&w=1920&q=80',
-  amigos:  'https://images.unsplash.com/photo-1528715471579-d1bcf0ba5e83?auto=format&fit=crop&w=1920&q=80',
-  familia: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1920&q=80',
-};
 
 const TEMP_BG: Record<string, string> = {
   verano:    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
@@ -78,6 +58,23 @@ function fmtUSD(n: number) {
   return '≈ $' + Math.round(n / USD_RATE).toLocaleString('en-US') + ' USD';
 }
 
+function preguntaPorId(id: string) {
+  return preguntasAventura.find((p) => p.id === id);
+}
+
+/** Coherente con categorías del wizard /aventura */
+function presupuestoToCategoria(ars: number): string {
+  if (ars < 280_000) return 'economico';
+  if (ars < 1_400_000) return 'medio';
+  return 'sin_mirar';
+}
+
+function randomOpcionId(preguntaId: string): string {
+  const p = preguntaPorId(preguntaId);
+  if (!p?.opciones.length) return '';
+  return p.opciones[Math.floor(Math.random() * p.opciones.length)].id;
+}
+
 /* ---------- Component ---------- */
 
 export default function Home() {
@@ -95,7 +92,7 @@ export default function Home() {
   const [heroDarkFallback, setHeroDarkFallback] = useState(false);
 
   const aventuraRef = useRef<HTMLElement>(null);
-  const totalPasos = 5;
+  const totalPasos = 7;
 
   /* Fondo de la sección aventura: misma foto visible en todos los pasos hasta cambiar de contexto */
   const [sectionBg, setSectionBg] = useState('');
@@ -118,10 +115,10 @@ export default function Home() {
 
   /* Vista previa: mismo motor que el resultado, con defaults hasta completar pasos */
   const mejorDestino = useMemo(() => {
-    if (!respuestas.vibra) return null;
+    if (!respuestas.experiencia) return null;
     const input = armarInputDesdeRespuestasUrl(
       respuestas,
-      paso >= 3 ? presupuesto : 400_000,
+      paso >= 5 ? presupuesto : 400_000,
       (respuestas.temporada as TemporadaId) || 'flexible',
     );
     return recomendarDestinos(destinos, input, { max: 1 })[0] ?? null;
@@ -135,24 +132,9 @@ export default function Home() {
   }, [completado, mejorDestino, changeSectionBg]);
 
   /* Navigate forward (auto-advance) */
-  const goNext = (key: string, value: string) => {
-    let next: Record<string, string> = { ...respuestas, [key]: value };
-    if (key === 'vibra' || key === 'matiz') {
-      const dyn = acumularImpactoDinamico(next);
-      next = { ...next, experiencia: dyn.experienciaMotor };
-    }
-    setRespuestas(next);
-
-    if (key === 'vibra') {
-      const o = buscarOpcion(ID_PREGUNTA_INICIO, value);
-      if (o?.impacto.imagenFondo) changeSectionBg(o.impacto.imagenFondo);
-    }
-    if (key === 'matiz' && respuestas.vibra) {
-      const subId = buscarOpcion(ID_PREGUNTA_INICIO, respuestas.vibra)?.siguientePreguntaId;
-      const o2 = subId ? buscarOpcion(subId, value) : undefined;
-      if (o2?.impacto.imagenFondo) changeSectionBg(o2.impacto.imagenFondo);
-    }
-    if (key === 'compania') changeSectionBg(COMPANIA_BG[value] ?? '');
+  const goNext = (key: string, value: string, imagenFondo?: string) => {
+    setRespuestas((prev) => ({ ...prev, [key]: value }));
+    if (imagenFondo) changeSectionBg(imagenFondo);
 
     if (paso < totalPasos - 1) {
       setStepKey((k) => k + 1);
@@ -171,13 +153,16 @@ export default function Home() {
   };
 
   const handleVerResultado = () => {
+    const ars = Math.min(Math.max(presupuesto, PRESUPUESTO_MIN), PRESUPUESTO_MAX);
     const params = new URLSearchParams({
-      vibra: respuestas.vibra ?? '',
-      matiz: respuestas.matiz ?? '',
-      experiencia: respuestas.experiencia ?? '',
+      origen_pais: respuestas.origen_pais ?? '',
+      edad_viajero: respuestas.edad_viajero ?? '',
       compania: respuestas.compania ?? '',
+      experiencia: respuestas.experiencia ?? '',
+      comida_pref: respuestas.comida_pref ?? '',
+      presupuesto: presupuestoToCategoria(ars),
       temporada: respuestas.temporada ?? 'flexible',
-      presupuesto_ars: String(Math.min(Math.max(presupuesto, PRESUPUESTO_MIN), PRESUPUESTO_MAX)),
+      presupuesto_ars: String(ars),
     });
     navigate(`/aventura/resultado?${params}`);
   };
@@ -185,19 +170,13 @@ export default function Home() {
   const handleSorprendeme = () => {
     const temps: TemporadaId[] = ['invierno', 'primavera', 'verano', 'otono', 'flexible'];
     const rndArs = [120_000, 350_000, 800_000, 1_800_000, 3_500_000][Math.floor(Math.random() * 5)];
-    const pIni = preguntasDinamicas[ID_PREGUNTA_INICIO];
-    const vOp = pIni.opciones[Math.floor(Math.random() * pIni.opciones.length)];
-    const sub = obtenerSubpregunta(vOp.valor);
-    const mOp = sub ? sub.opciones[Math.floor(Math.random() * sub.opciones.length)] : null;
-    const dyn = acumularImpactoDinamico({
-      vibra: vOp.valor,
-      matiz: mOp?.valor ?? '',
-    });
     const r = {
-      vibra: vOp.valor,
-      matiz: mOp?.valor ?? '',
-      experiencia: dyn.experienciaMotor,
-      compania: COMPANIA[Math.floor(Math.random() * COMPANIA.length)].id,
+      origen_pais: randomOpcionId('origen_pais'),
+      edad_viajero: randomOpcionId('edad_viajero'),
+      compania: randomOpcionId('compania'),
+      experiencia: randomOpcionId('experiencia'),
+      comida_pref: randomOpcionId('comida_pref'),
+      presupuesto: presupuestoToCategoria(rndArs),
       temporada: temps[Math.floor(Math.random() * temps.length)],
       presupuesto_ars: String(rndArs),
     };
@@ -314,8 +293,8 @@ export default function Home() {
                         <span
                           key={i}
                           className={`pd-flow-dot${
-                            i < paso ? ' pd-flow-dot--done' :
-                            i === paso && !completado ? ' pd-flow-dot--active' : ''
+                            completado || i < paso ? ' pd-flow-dot--done' :
+                            i === paso ? ' pd-flow-dot--active' : ''
                           }`}
                         />
                       ))}
@@ -328,98 +307,170 @@ export default function Home() {
                   {/* Step content */}
                   <div className="pd-step-content" key={stepKey}>
 
-                    {/* Paso 1: vibra general */}
-                    {paso === 0 && !completado && (
+                    {/* Paso 1: país de residencia */}
+                    {paso === 0 && !completado && preguntaPorId('origen_pais') && (
                       <>
                         <div className="pd-step-header">
-                          <span className="pd-step-emoji">✨</span>
+                          <span className="pd-step-emoji">🌎</span>
                           <div>
-                            <h3 className="pd-step-title">{preguntasDinamicas[ID_PREGUNTA_INICIO].texto}</h3>
+                            <h3 className="pd-step-title">{preguntaPorId('origen_pais')!.label}</h3>
+                            <p className="pd-step-sub">Asumimos que vivís ahí para tips de documentación y equipaje.</p>
                           </div>
                         </div>
-                        <div className="pd-tipo-grid">
-                          {preguntasDinamicas[ID_PREGUNTA_INICIO].opciones.map((op) => (
+                        <div className="pd-origen-pais-grid" role="list">
+                          {preguntaPorId('origen_pais')!.opciones.map((op) => (
                             <button
-                              key={op.valor}
+                              key={op.id}
                               type="button"
-                              className={`pd-tipo-btn${respuestas.vibra === op.valor ? ' pd-tipo-btn--selected' : ''}`}
-                              onClick={() => goNext('vibra', op.valor)}
+                              role="listitem"
+                              className={`pd-origen-pais-btn${respuestas.origen_pais === op.id ? ' pd-origen-pais-btn--selected' : ''}`}
+                              onClick={() => goNext('origen_pais', op.id)}
                             >
-                              <span className="pd-tipo-icon">{op.icon}</span>
-                              <span>{op.label}</span>
+                              <span className="pd-origen-pais-flag" aria-hidden>
+                                {op.bandera ?? '🏳️'}
+                              </span>
+                              <span className="pd-origen-pais-sep" aria-hidden>
+                                —
+                              </span>
+                              <span className="pd-origen-pais-nombre">{op.label}</span>
                             </button>
                           ))}
                         </div>
                       </>
                     )}
 
-                    {/* Paso 2: matiz según rama */}
-                    {paso === 1 && !completado && (() => {
-                      const sub = respuestas.vibra ? obtenerSubpregunta(respuestas.vibra) : null;
-                      if (!sub) {
-                        return (
-                          <p className="pd-step-sub" style={{ marginTop: '0.5rem' }}>
-                            Elegí una opción en el paso anterior.
-                          </p>
-                        );
-                      }
-                      return (
-                        <>
-                          <div className="pd-step-header">
-                            <span className="pd-step-emoji">🎯</span>
-                            <div>
-                              <h3 className="pd-step-title">{sub.texto}</h3>
-                            </div>
+                    {/* Paso 2: edad */}
+                    {paso === 1 && !completado && preguntaPorId('edad_viajero') && (
+                      <>
+                        <div className="pd-step-header">
+                          <span className="pd-step-emoji">🎂</span>
+                          <div>
+                            <h3 className="pd-step-title">{preguntaPorId('edad_viajero')!.label}</h3>
                           </div>
-                          <div className="pd-tipo-grid">
-                            {sub.opciones.map((op) => (
-                              <button
-                                key={op.valor}
-                                type="button"
-                                className={`pd-tipo-btn${respuestas.matiz === op.valor ? ' pd-tipo-btn--selected' : ''}`}
-                                onClick={() => goNext('matiz', op.valor)}
-                              >
-                                <span className="pd-tipo-icon">{op.icon}</span>
-                                <span>{op.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      );
-                    })()}
+                        </div>
+                        <div className="aventura-grid">
+                          {preguntaPorId('edad_viajero')!.opciones.map((op) => (
+                            <button
+                              key={op.id}
+                              type="button"
+                              className={`aventura-cuadrante${respuestas.edad_viajero === op.id ? ' aventura-cuadrante--selected' : ''}`}
+                              data-has-image={op.imageUrl ? 'true' : undefined}
+                              style={{
+                                backgroundImage: op.imageUrl
+                                  ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})`
+                                  : undefined,
+                                backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
+                              }}
+                              onClick={() => goNext('edad_viajero', op.id, op.imageUrl)}
+                            >
+                              <span className="aventura-cuadrante-label">{op.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
 
                     {/* Paso 3: compañía */}
-                    {paso === 2 && !completado && (
+                    {paso === 2 && !completado && preguntaPorId('compania') && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">👥</span>
                           <div>
-                            <h3 className="pd-step-title">¿Con quién viajás?</h3>
+                            <h3 className="pd-step-title">{preguntaPorId('compania')!.label}</h3>
                           </div>
                         </div>
-                        <div className="pd-pills">
-                          {COMPANIA.map((op) => (
+                        <div className="aventura-grid">
+                          {preguntaPorId('compania')!.opciones.map((op) => (
                             <button
                               key={op.id}
-                              className={`pd-pill${respuestas.compania === op.id ? ' pd-pill--selected' : ''}`}
-                              onClick={() => goNext('compania', op.id)}
+                              type="button"
+                              className={`aventura-cuadrante${respuestas.compania === op.id ? ' aventura-cuadrante--selected' : ''}`}
+                              data-has-image={op.imageUrl ? 'true' : undefined}
+                              style={{
+                                backgroundImage: op.imageUrl
+                                  ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})`
+                                  : undefined,
+                                backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
+                              }}
+                              onClick={() => goNext('compania', op.id, op.imageUrl)}
                             >
-                              <span>{op.icon}</span>
-                              <span>{op.label}</span>
+                              <span className="aventura-cuadrante-label">{op.label}</span>
                             </button>
                           ))}
                         </div>
                       </>
                     )}
 
-                    {/* Paso 4: presupuesto (slider) */}
-                    {paso === 3 && !completado && (
+                    {/* Paso 4: tipo de experiencia */}
+                    {paso === 3 && !completado && preguntaPorId('experiencia') && (
+                      <>
+                        <div className="pd-step-header">
+                          <span className="pd-step-emoji">✨</span>
+                          <div>
+                            <h3 className="pd-step-title">{preguntaPorId('experiencia')!.label}</h3>
+                          </div>
+                        </div>
+                        <div className="aventura-grid">
+                          {preguntaPorId('experiencia')!.opciones.map((op) => (
+                            <button
+                              key={op.id}
+                              type="button"
+                              className={`aventura-cuadrante${respuestas.experiencia === op.id ? ' aventura-cuadrante--selected' : ''}`}
+                              data-has-image={op.imageUrl ? 'true' : undefined}
+                              style={{
+                                backgroundImage: op.imageUrl
+                                  ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})`
+                                  : undefined,
+                                backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
+                              }}
+                              onClick={() => goNext('experiencia', op.id, op.imageUrl)}
+                            >
+                              <span className="aventura-cuadrante-label">{op.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Paso 5: comida */}
+                    {paso === 4 && !completado && preguntaPorId('comida_pref') && (
+                      <>
+                        <div className="pd-step-header">
+                          <span className="pd-step-emoji">🍽️</span>
+                          <div>
+                            <h3 className="pd-step-title">{preguntaPorId('comida_pref')!.label}</h3>
+                          </div>
+                        </div>
+                        <div className="aventura-grid">
+                          {preguntaPorId('comida_pref')!.opciones.map((op) => (
+                            <button
+                              key={op.id}
+                              type="button"
+                              className={`aventura-cuadrante${respuestas.comida_pref === op.id ? ' aventura-cuadrante--selected' : ''}`}
+                              data-has-image={op.imageUrl ? 'true' : undefined}
+                              style={{
+                                backgroundImage: op.imageUrl
+                                  ? `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${op.imageUrl})`
+                                  : undefined,
+                                backgroundColor: op.imageUrl ? undefined : 'var(--pd-color-primary-soft)',
+                              }}
+                              onClick={() => goNext('comida_pref', op.id, op.imageUrl)}
+                            >
+                              <span className="aventura-cuadrante-label">{op.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Paso 6: presupuesto (slider) */}
+                    {paso === 5 && !completado && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">💰</span>
                           <div>
-                            <h3 className="pd-step-title">Presupuesto</h3>
-                            <p className="pd-step-sub">¿Cuál es tu presupuesto para el viaje?</p>
+                            <h3 className="pd-step-title">Presupuesto del viaje</h3>
+                            <p className="pd-step-sub">¿Cuánto pensás gastar en total (aprox.)?</p>
                           </div>
                         </div>
                         <div className="pd-slider-display">
@@ -450,7 +501,7 @@ export default function Home() {
                           className="pd-continuar-btn"
                           onClick={() => {
                             setStepKey((k) => k + 1);
-                            setPaso(4);
+                            setPaso(6);
                           }}
                         >
                           Continuar →
@@ -458,8 +509,8 @@ export default function Home() {
                       </>
                     )}
 
-                    {/* Paso 5: época del año */}
-                    {paso === 4 && !completado && (
+                    {/* Paso 7: época del año */}
+                    {paso === 6 && !completado && (
                       <>
                         <div className="pd-step-header">
                           <span className="pd-step-emoji">📅</span>
@@ -517,7 +568,7 @@ export default function Home() {
                       type="button"
                       className="pd-back-btn"
                       onClick={() => {
-                        setPaso(4);
+                        setPaso(6);
                         setCompletado(false);
                         setStepKey((k) => k + 1);
                       }}
@@ -541,7 +592,7 @@ export default function Home() {
                     <div className="pd-preview-body">
                       <h3 className="pd-preview-nombre">{mejorDestino.nombre}</h3>
                       <p className="pd-preview-desc">{mejorDestino.descripcionCorta}</p>
-                      {paso >= 3 && (
+                      {paso >= 5 && (
                         <div className="pd-preview-budget">
                           <span className="pd-preview-budget-label">Presupuesto aprox:</span>
                           <span className="pd-preview-budget-value">{fmtARS(presupuesto)} ARS</span>

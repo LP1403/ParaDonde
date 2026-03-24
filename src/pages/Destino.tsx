@@ -260,9 +260,16 @@ export default function Destino() {
             {/* Quick stats row */}
             <div className="pd-destino-hero-stats">
               {ta && (
-                <span className="pd-destino-hero-stat">
-                  ⭐ {ta.puntaje}<small>/5 TripAdvisor</small>
-                </span>
+                <a
+                  href={ta.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pd-destino-hero-stat pd-destino-hero-stat--link"
+                  aria-label={`Ver opiniones de ${destino.nombre} en TripAdvisor (${ta.puntaje} de 5)`}
+                >
+                  ⭐ {ta.puntaje}
+                  <small>/5 TripAdvisor</small>
+                </a>
               )}
               {destino.presupuestoEstimado && (
                 <span className="pd-destino-hero-stat">

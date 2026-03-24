@@ -1,6 +1,7 @@
 /**
  * Puente entre respuestas del wizard (URL / estado) y el motor de recomendación.
  */
+import { preguntasAventura } from '../data/aventura';
 import {
   acumularImpactoDinamico,
   buscarOpcion,
@@ -27,6 +28,9 @@ export function armarInputDesdeRespuestasUrl(
     tagsBoost: dyn.tagsBoost.length ? dyn.tagsBoost : undefined,
     regionesPreferidas: dyn.regionesPreferidas.length ? dyn.regionesPreferidas : undefined,
     experienciasBoost: dyn.experienciasBoost.length ? dyn.experienciasBoost : undefined,
+    paisOrigenId: respuestas.origen_pais?.trim() || undefined,
+    edadViajero: respuestas.edad_viajero?.trim() || undefined,
+    comidaPreferida: respuestas.comida_pref?.trim() || undefined,
   };
 }
 
@@ -59,6 +63,12 @@ export function generarFeedback(
       const lm = labelOpcion(subId, matiz);
       if (lm) partes.push(`con matices de “${lm}”`);
     }
+  }
+
+  if (!vibra && respuestas.experiencia) {
+    const pExp = preguntasAventura.find((p) => p.id === 'experiencia');
+    const labExp = pExp?.opciones.find((o) => o.id === respuestas.experiencia)?.label;
+    if (labExp) partes.push(`buscás “${labExp}”`);
   }
 
   const comp = respuestas.compania;
