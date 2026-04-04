@@ -82,7 +82,14 @@ export function PdUserMenu({ variant = 'home' }: Props) {
                     <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
                       Mis datos
                     </Link>
-                    <button type="button" className="pd-user-menu-link pd-user-menu-link--btn" onClick={() => { logout(); close(); }}>
+                    <button
+                      type="button"
+                      className="pd-user-menu-link pd-user-menu-link--btn"
+                      onClick={() => {
+                        void logout();
+                        close();
+                      }}
+                    >
                       Cerrar sesión
                     </button>
                   </>

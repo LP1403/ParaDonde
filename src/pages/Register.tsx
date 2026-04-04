@@ -1,17 +1,15 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IonPage, IonContent } from '@ionic/react';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { PdGoogleSignInButton } from '../components/PdGoogleSignInButton';
 import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
   const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const navigate = useNavigate();
-  const { register, user, ready } = useAuth();
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { signInWithGoogle, user, ready } = useAuth();
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -22,16 +20,7 @@ export default function Register() {
     if (ready && user) navigate('/cuenta', { replace: true });
   }, [ready, user, navigate]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-    try {
-      await register(email, password, displayName);
-      navigate('/cuenta', { replace: true });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');
-    }
-  };
+  const configured = Boolean(import.meta.env.VITE_FIREBASE_API_KEY?.trim());
 
   return (
     <IonPage>
@@ -40,49 +29,23 @@ export default function Register() {
         <div className="pd-content pd-subpage-inner">
           <h1 className="pd-auth-page-title">Crear cuenta</h1>
           <p className="pd-auth-lead">
-            Registro de demostración guardado en este navegador. Cuando conectemos Firebase, el mismo flujo pasará a usar Google o email verificado.
+            Usamos Google para crear tu cuenta de forma segura. Si ya tenés sesión en el navegador, podés elegir otra cuenta con “Continuar con Google”.
           </p>
 
-          <form className="pd-auth-form" onSubmit={handleSubmit}>
+          <div className="pd-auth-form">
             {error ? <p className="pd-auth-error">{error}</p> : null}
-            <label className="pd-auth-label">
-              Nombre o apodo
-              <input
-                className="pd-auth-input"
-                type="text"
-                autoComplete="name"
-                value={displayName}
-                onChange={(ev) => setDisplayName(ev.target.value)}
-                placeholder="Cómo te mostramos en la app"
-              />
-            </label>
-            <label className="pd-auth-label">
-              Correo
-              <input
-                className="pd-auth-input"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(ev) => setEmail(ev.target.value)}
-                required
-              />
-            </label>
-            <label className="pd-auth-label">
-              Contraseña
-              <input
-                className="pd-auth-input"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(ev) => setPassword(ev.target.value)}
-                required
-                minLength={6}
-              />
-            </label>
-            <button type="submit" className="pd-auth-submit">
-              Registrarme
-            </button>
-          </form>
+            {!configured ? (
+              <p className="pd-auth-error">
+                Falta configurar <code className="pd-auth-code">VITE_FIREBASE_API_KEY</code> en{' '}
+                <code className="pd-auth-code">.env</code>.
+              </p>
+            ) : null}
+            <PdGoogleSignInButton
+              signInWithGoogle={signInWithGoogle}
+              onError={setError}
+              disabled={!configured}
+            />
+          </div>
 
           <p className="pd-auth-footer-link">
             ¿Ya tenés cuenta? <Link to="/login">Iniciar sesión</Link>

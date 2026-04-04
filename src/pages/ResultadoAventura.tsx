@@ -10,6 +10,7 @@ import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { DestinoResultadoBlock } from '../components/DestinoResultadoBlock';
 import { scrollElementToTopInScrollParent } from '../utils/scrollIntoScrollParent';
 import type { Destino } from '../data/destinos';
+import { recordDestinoVisit } from '../logic/destinosHomeStorage';
 
 /* ─────────────────────────────────────────── Seguro Block ── */
 
@@ -212,6 +213,11 @@ export default function ResultadoAventura() {
   useEffect(() => {
     document.title = 'Tu resultado – Para Dónde?';
   }, []);
+
+  const primerSlug = sugeridos[0]?.slug;
+  useEffect(() => {
+    if (primerSlug) recordDestinoVisit(primerSlug);
+  }, [primerSlug]);
 
   return (
     <IonPage className="pd-destino-page">

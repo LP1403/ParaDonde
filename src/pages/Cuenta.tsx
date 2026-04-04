@@ -56,11 +56,20 @@ export default function Cuenta() {
             <p className="pd-cuenta-label">ID interno</p>
             <p className="pd-cuenta-value pd-cuenta-mono">{user.uid}</p>
             <p className="pd-cuenta-hint">
-              Con Firebase, acá veremos foto de perfil y método de inicio de sesión (Google, etc.).
+              Iniciaste sesión con Google. La foto de perfil puede mostrarse cuando la API la expone.
             </p>
           </div>
 
-          <button type="button" className="pd-auth-submit pd-auth-submit--outline" onClick={() => { logout(); navigate('/', { replace: true }); }}>
+          <button
+            type="button"
+            className="pd-auth-submit pd-auth-submit--outline"
+            onClick={() => {
+              void (async () => {
+                await logout();
+                navigate('/', { replace: true });
+              })();
+            }}
+          >
             Cerrar sesión
           </button>
 

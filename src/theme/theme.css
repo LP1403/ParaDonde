@@ -508,6 +508,43 @@ html.pd-light .pd-hero-cta {
   transform: scale(0.98);
 }
 
+.pd-hero-cta-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: min(100%, 22rem);
+  max-width: 100%;
+}
+
+.pd-hero-cta-stack .pd-hero-cta {
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Segundo CTA del hero hub: mismo tamaño / pill, estilo glass para no competir con el primario */
+.pd-hero-cta--secondary {
+  animation: none;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+.pd-hero-cta--secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+html.pd-light .pd-hero-cta--secondary {
+  color: #fff;
+  background: rgba(15, 23, 42, 0.35);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+html.pd-light .pd-hero-cta--secondary:hover {
+  background: rgba(15, 23, 42, 0.48);
+}
+
 .pd-scroll-indicator {
   position: absolute;
   bottom: max(2rem, calc(env(safe-area-inset-bottom, 0px) + 1.25rem));
@@ -531,6 +568,341 @@ html.pd-light .pd-hero-cta {
 .pd-scroll-indicator:hover {
   border-color: #fff;
   color: #fff;
+}
+
+/* --- Home hub (logueado o actividad persistida) --- */
+.pd-home-hub-below {
+  background: var(--pd-color-bg);
+  padding: clamp(1.5rem, 4vw, 2.25rem) 0 2rem;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+  transition: background 0.3s;
+}
+html.pd-light .pd-home-hub-below {
+  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.08);
+}
+
+.pd-home-hub-section {
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+  padding-left: var(--pd-content-padding);
+  padding-right: var(--pd-content-padding);
+  max-width: var(--pd-content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  animation: pd-fade-up 0.55s ease-out both;
+}
+
+/* Scroll desde hero: deja aire bajo el chrome fijo */
+.pd-home-hub-section--scroll-target {
+  scroll-margin-top: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 4rem));
+}
+.pd-home-hub-section:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.pd-home-hub-section:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.pd-home-hub-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pd-home-hub-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--pd-color-text);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.pd-home-hub-section-title--solo {
+  margin-bottom: 1rem;
+}
+
+.pd-home-hub-section-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pd-color-primary-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pd-home-hub-section-link:hover {
+  color: var(--pd-color-primary-hover);
+}
+
+.pd-home-hub-empty {
+  font-size: 0.9rem;
+  color: var(--pd-color-text-muted);
+  margin: 0;
+}
+
+.pd-home-hub-rail {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.pd-home-hub-rail-item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: min(270px, 78vw);
+}
+
+.pd-home-hub-card {
+  display: block;
+  border-radius: var(--pd-radius-lg);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--pd-card-border);
+  box-shadow: var(--pd-shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.pd-home-hub-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--pd-shadow-hover);
+}
+
+.pd-home-hub-card-img {
+  position: relative;
+  min-height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--pd-color-bg-elevated);
+}
+
+.pd-home-hub-card-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.35) 55%, rgba(2, 6, 23, 0.2) 100%);
+  pointer-events: none;
+}
+html.pd-light .pd-home-hub-card-img-overlay {
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.25) 55%, transparent 100%);
+}
+
+.pd-home-hub-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem 1rem 1.1rem;
+  z-index: 1;
+}
+
+.pd-home-hub-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.5rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+}
+
+.pd-home-hub-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.pd-home-hub-chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  line-height: 1.3;
+}
+
+/* Tarjeta aventura activa */
+.pd-home-hub-active-wrap {
+  margin-bottom: 2rem;
+}
+
+.pd-home-hub-active-card {
+  border-radius: calc(var(--pd-radius-lg) + 4px);
+  overflow: hidden;
+  border: 1px solid var(--pd-card-border);
+  box-shadow: var(--pd-shadow-card);
+}
+
+.pd-home-hub-active-cover {
+  position: relative;
+  min-height: 220px;
+  background-size: cover;
+  background-position: center;
+}
+
+.pd-home-hub-active-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(2, 6, 23, 0.75) 0%, rgba(49, 46, 129, 0.55) 100%);
+  pointer-events: none;
+}
+
+.pd-home-hub-active-inner {
+  position: relative;
+  z-index: 1;
+  padding: 1.35rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.pd-home-hub-active-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.pd-home-hub-active-step {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.pd-home-hub-active-dots {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.pd-home-hub-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+.pd-home-hub-active-dot--done {
+  background: rgba(255, 255, 255, 0.65);
+}
+.pd-home-hub-active-dot--on {
+  background: var(--pd-color-primary);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+  transform: scale(1.2);
+}
+
+.pd-home-hub-active-cta {
+  margin-top: 0.75rem;
+  padding: 0.65rem 1.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--pd-color-primary-hover), var(--pd-color-primary));
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+  transition: transform 0.15s ease;
+}
+.pd-home-hub-active-cta:hover {
+  transform: scale(1.03);
+}
+
+/* Categorías */
+.pd-home-hub-cat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.pd-home-hub-cat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pd-color-text);
+  background: var(--pd-card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--pd-card-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.pd-home-hub-cat-btn:hover {
+  border-color: var(--pd-color-primary-muted);
+  transform: translateY(-1px);
+}
+
+.pd-home-hub-cat-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* Alertas */
+.pd-home-hub-alerts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pd-home-hub-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--pd-radius);
+  text-decoration: none;
+  color: var(--pd-color-text);
+  background: var(--pd-card-bg);
+  border: 1px solid var(--pd-border);
+  transition: border-color 0.2s, background 0.2s;
+}
+.pd-home-hub-alert:hover {
+  border-color: var(--pd-color-primary-muted);
+}
+
+.pd-home-hub-alert-icon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.pd-home-hub-alert-text {
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--pd-color-text-muted);
+}
+
+.pd-home-hub-alert-chevron {
+  color: var(--pd-color-text-muted);
+  font-size: 0.9rem;
+}
+
+.pd-home-hub-bottom-cta-wrap {
+  padding: 0 var(--pd-content-padding) 2rem;
+  max-width: var(--pd-content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.pd-home-hub-bottom-cta {
+  width: 100%;
+  max-width: 22rem;
+  justify-content: center;
 }
 
 /* --- Adventure section: pantalla completa aparte del hero (flecha / CTA bajan acá) --- */
@@ -1293,24 +1665,29 @@ html.pd-light .pd-prep-card-v2 {
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 1rem;
-  border-radius: var(--pd-radius);
-  border: 2px solid var(--pd-border);
-  background: var(--pd-color-surface, var(--ion-background-color, #fff));
+  border-radius: var(--pd-radius-lg);
+  border: 1px solid var(--pd-card-border);
+  /* Siempre tokens del tema: en /aventura no hay .pd-flow-card y Ionic puede dejar --ion-background-color claro */
+  background: var(--pd-card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   cursor: pointer;
   text-align: left;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--pd-color-text);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   min-height: 3.25rem;
   box-sizing: border-box;
 }
 .pd-origen-pais-btn:hover {
-  border-color: var(--pd-color-primary);
+  border-color: var(--pd-color-primary-muted);
+  background: var(--pd-color-bg-elevated);
   box-shadow: var(--pd-shadow-card);
 }
 .pd-origen-pais-btn--selected {
   border-color: var(--pd-color-primary);
+  background: var(--pd-color-primary-soft);
   box-shadow: 0 0 0 2px var(--pd-color-primary-soft);
 }
 .pd-origen-pais-flag {
@@ -1327,10 +1704,101 @@ html.pd-light .pd-prep-card-v2 {
   flex: 1;
   min-width: 0;
   line-height: 1.25;
+  color: var(--pd-color-text);
 }
 
-.pd-flow-card .pd-origen-pais-btn {
+/* Resumen país guardado (/aventura paso 1) */
+.pd-origen-pais-resumen {
+  margin-top: 0.25rem;
+}
+.pd-origen-pais-resumen-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pd-color-primary-muted);
+}
+.pd-origen-pais-resumen-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--pd-color-text);
+  line-height: 1.2;
+}
+.pd-origen-pais-resumen-lead {
+  margin: 0 0 1.25rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--pd-color-text-muted);
+}
+.pd-origen-pais-resumen-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--pd-radius-lg);
+  border: 1px solid var(--pd-card-border);
   background: var(--pd-card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-bottom: 1.5rem;
+}
+.pd-origen-pais-resumen-flag {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+.pd-origen-pais-resumen-nombre {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--pd-color-text);
+}
+.pd-origen-pais-resumen-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.pd-origen-pais-resumen-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.95rem 1.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--pd-color-text-on-primary);
+  background: var(--pd-color-primary);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pd-origen-pais-resumen-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+}
+.pd-origen-pais-resumen-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pd-color-text-muted);
+  background: transparent;
+  border: 1px solid var(--pd-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.pd-origen-pais-resumen-btn-secondary:hover {
+  color: var(--pd-color-text);
+  border-color: var(--pd-color-primary-muted);
+  background: var(--pd-color-primary-soft);
+}
+
+html.pd-light .pd-origen-pais-btn:hover {
+  background: var(--pd-color-bg-elevated);
 }
 
 /* ============================================================
@@ -2981,6 +3449,56 @@ html.pd-light .pd-auth-submit--outline {
 .pd-auth-footer-link a {
   color: var(--pd-color-primary);
   font-weight: 600;
+}
+
+.pd-auth-code {
+  font-size: 0.82em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--pd-color-primary-soft);
+  color: var(--pd-color-text);
+}
+
+.pd-auth-google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: 100%;
+  max-width: 22rem;
+  margin-top: 0.25rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--pd-radius);
+  border: 1px solid #dadce0;
+  background: #fff;
+  color: #3c4043;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.12s;
+}
+.pd-auth-google-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.pd-auth-google-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+html:not(.pd-light) .pd-auth-google-btn {
+  background: #131314;
+  border-color: #5f6368;
+  color: #e8eaed;
+  box-shadow: none;
+}
+html:not(.pd-light) .pd-auth-google-btn:hover:not(:disabled) {
+  background: #1e1f20;
+}
+.pd-auth-google-icon {
+  display: flex;
+  flex-shrink: 0;
 }
 
 .pd-cuenta-card {

@@ -4,6 +4,7 @@ import { IonPage, IonContent } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
 import { arrowBack, locationOutline } from 'ionicons/icons';
 import { getDestinoBySlug } from '../data/destinos';
+import { recordDestinoVisit } from '../logic/destinosHomeStorage';
 import type { DocumentacionDestino } from '../data/destinos';
 import { SeguroBlock } from './ResultadoAventura';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
@@ -103,6 +104,10 @@ export default function Destino() {
   const navigate = useNavigate();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (slug && destino) recordDestinoVisit(slug);
+  }, [slug, destino]);
   const contentRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
 

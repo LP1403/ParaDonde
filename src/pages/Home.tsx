@@ -7,7 +7,15 @@ import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
 import { armarInputDesdeRespuestasUrl } from '../logic/motorAventuraDinamico';
 import { usePdTheme } from '../hooks/usePdTheme';
 import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
+import { useHomeHubState } from '../hooks/useHomeHubState';
 import { PdUserMenu } from '../components/PdUserMenu';
+import { HomeHeroHub } from '../components/home/HomeHeroHub';
+import { HomeActiveAdventureCard } from '../components/home/HomeActiveAdventureCard';
+import { HomeDestinationRail } from '../components/home/HomeDestinationRail';
+import { HomeExploreCategories } from '../components/home/HomeExploreCategories';
+import { HomeAlertsList } from '../components/home/HomeAlertsList';
+import { HomeBottomCta } from '../components/home/HomeBottomCta';
+import { clearAventuraProgress } from '../logic/aventuraStorage';
 
 /* ---------- Constants ---------- */
 
@@ -84,8 +92,11 @@ export default function Home() {
 
   const { isDark, toggleTheme } = usePdTheme();
   const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
+  const hubState = useHomeHubState();
+  const isColdHub = hubState.isColdHub;
+  const [hubHeroImgFailed, setHubHeroImgFailed] = useState(false);
 
-  /* Adventure flow */
+  /* Adventure flow (solo estado frío: wizard embebido) */
   const [paso, setPaso] = useState(0);
   const [stepKey, setStepKey] = useState(0);
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
@@ -115,6 +126,10 @@ export default function Home() {
     setHeroLightFallback(false);
     setHeroDarkFallback(false);
   }, [isDark]);
+
+  useEffect(() => {
+    setHubHeroImgFailed(false);
+  }, [hubState.lastHeroImageUrl, isColdHub]);
 
   /* Vista previa: mismo motor que el resultado, con defaults hasta completar pasos */
   const mejorDestino = useMemo(() => {
@@ -190,13 +205,19 @@ export default function Home() {
     ((presupuesto - PRESUPUESTO_MIN) / (PRESUPUESTO_MAX - PRESUPUESTO_MIN)) * 100,
   );
 
-  const heroSrc = isDark
+  const defaultHeroSrc = isDark
     ? heroDarkFallback
       ? HERO_BG_DARK_FALLBACK
       : HERO_BG_DARK
     : heroLightFallback
       ? HERO_BG_LIGHT_FALLBACK
       : HERO_BG_LIGHT;
+
+  const tryHubHero =
+    !isColdHub && Boolean(hubState.lastHeroImageUrl) && !hubHeroImgFailed;
+  const heroSrc = tryHubHero ? hubState.lastHeroImageUrl! : defaultHeroSrc;
+
+  const heroImgKey = `${isDark ? 'd' : 'l'}-${tryHubHero ? 'hub' : isDark ? (heroDarkFallback ? 'fb' : '1') : heroLightFallback ? 'fb' : '1'}`;
 
   return (
     <IonPage>
@@ -221,47 +242,63 @@ export default function Home() {
           </button>
         </div>
 
-        {/* ── Hero ── */}
-        <section className="pd-hero-v2" aria-labelledby="home-hero-title">
-          <img
-            key={`${isDark ? 'd' : 'l'}-${isDark ? (heroDarkFallback ? 'fb' : '1') : (heroLightFallback ? 'fb' : '1')}`}
-            className="pd-hero-bg-img"
-            src={heroSrc}
-            alt=""
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            onError={() => {
-              if (isDark && !heroDarkFallback) setHeroDarkFallback(true);
-              else if (!isDark && !heroLightFallback) setHeroLightFallback(true);
-            }}
-          />
-          <div className={`pd-hero-overlay pd-hero-overlay--${isDark ? 'dark' : 'light'}`} />
-          <div className="pd-hero-body">
-            <h1 id="home-hero-title" className="pd-hero-title">
-              ¿Para dónde?
-            </h1>
-            <p className="pd-hero-subtitle">
-              Descubrí tu próximo viaje en menos de <strong>60 segundos</strong>
-            </p>
-            <button
-              className="pd-hero-cta"
-              onClick={() => aventuraRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              ✨ Empezar mi aventura
-            </button>
-          </div>
-          <button
-            className="pd-scroll-indicator"
-            onClick={() => aventuraRef.current?.scrollIntoView({ behavior: 'smooth' })}
-            aria-label="Ir a la sección de aventura"
-          >
-            ↓
-          </button>
-        </section>
+        <HomeHeroHub
+          variant={isColdHub ? 'cold' : 'hub'}
+          isDark={isDark}
+          heroSrc={heroSrc}
+          imgKey={heroImgKey}
+          onImgError={() => {
+            if (tryHubHero) setHubHeroImgFailed(true);
+            else if (isDark && !heroDarkFallback) setHeroDarkFallback(true);
+            else if (!isDark && !heroLightFallback) setHeroLightFallback(true);
+          }}
+          greetingFirstName={hubState.greetingFirstName}
+          hasActiveAventura={hubState.hasActiveAventura}
+          onColdCta={() => aventuraRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          onHubPrimaryCta={() => {
+            if (hubState.hasActiveAventura) navigate('/aventura');
+            else {
+              clearAventuraProgress();
+              navigate('/aventura');
+            }
+          }}
+          showMisDestinos={!isColdHub && hubState.recentDestinos.length > 0}
+          onMisDestinos={() => {
+            document.getElementById('mis-destinos')?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
+          }}
+        />
 
-        {/* ── Elige tu aventura ── */}
+        {!isColdHub && (
+          <div className="pd-home-hub-below">
+            {hubState.aventuraProgress ? (
+              <HomeActiveAdventureCard
+                progress={hubState.aventuraProgress}
+                totalPasos={hubState.aventuraTotalPasos}
+              />
+            ) : null}
+            <HomeDestinationRail
+              sectionId="mis-destinos"
+              title="Tus destinos"
+              destinos={hubState.recentDestinos}
+              verTodosTo={
+                hubState.recentDestinos[0]
+                  ? `/destino/${hubState.recentDestinos[0].slug}`
+                  : undefined
+              }
+              emptyHint="Cuando abras una guía de destino, aparecerá acá."
+            />
+            <HomeDestinationRail title="Recomendados para vos" destinos={hubState.recommendedDestinos} />
+            <HomeExploreCategories />
+            <HomeAlertsList />
+            <HomeBottomCta resetAventura />
+          </div>
+        )}
+
+        {/* ── Elige tu aventura (solo estado frío) ── */}
+        {isColdHub && (
         <section
           className="pd-aventura-v2"
           id="aventura"
@@ -623,6 +660,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        )}
 
         {/* ── Prepará tu viaje ── */}
         <section className="pd-prep-v2">

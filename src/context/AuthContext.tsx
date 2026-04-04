@@ -7,6 +7,18 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { Capacitor } from '@capacitor/core';
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+  type User,
+} from 'firebase/auth';
+import { getFirebaseAuth } from '../firebase';
+import { consumeFirebaseRedirectResult } from '../logic/authRedirect';
+import { replaceDevLocalhostMissingPort } from '../utils/fixDevLocalhostOrigin';
 
 export type PdUser = {
   uid: string;
@@ -15,17 +27,23 @@ export type PdUser = {
   photoURL?: string;
 };
 
+function mapFirebaseUser(u: User): PdUser {
+  return {
+    uid: u.uid,
+    displayName: u.displayName || u.email?.split('@')[0] || 'Viajero',
+    email: u.email ?? '',
+    photoURL: u.photoURL ?? undefined,
+  };
+}
+
 type AuthContextValue = {
   user: PdUser | null;
   ready: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, displayName: string) => Promise<void>;
-  logout: () => void;
-  /** Reservado para Firebase + backend; hoy solo muestra mensaje informativo */
+  /** Web: popup. Android/iOS (Capacitor): redirect al mismo dominio auth. */
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
   requestAccountDeletion: () => Promise<{ ok: boolean; message: string }>;
 };
-
-const STORAGE_KEY = 'paradonde_auth_user_v1';
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -34,60 +52,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as PdUser;
-        if (parsed?.uid && parsed?.email) setUser(parsed);
-      }
-    } catch {
-      /* ignore */
+    if (typeof window === 'undefined') return;
+
+    if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+      setReady(true);
+      return;
     }
-    setReady(true);
+
+    const auth = getFirebaseAuth();
+    void consumeFirebaseRedirectResult(auth);
+    const unsub = onAuthStateChanged(auth, (fbUser) => {
+      setUser(fbUser ? mapFirebaseUser(fbUser) : null);
+      setReady(true);
+    });
+    return () => unsub();
   }, []);
 
-  const persist = useCallback((u: PdUser | null) => {
-    if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-    else localStorage.removeItem(STORAGE_KEY);
-    setUser(u);
+  const signInWithGoogle = useCallback(async () => {
+    if (!import.meta.env.VITE_FIREBASE_API_KEY?.trim()) {
+      throw new Error('Falta VITE_FIREBASE_API_KEY en .env (copiá la API key de Firebase → Configuración del proyecto).');
+    }
+    const auth = getFirebaseAuth();
+    const provider = new GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    if (Capacitor.isNativePlatform()) {
+      if (replaceDevLocalhostMissingPort()) {
+        return;
+      }
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+    await signInWithPopup(auth, provider);
   }, []);
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const e = email.trim().toLowerCase();
-      if (!e || !e.includes('@')) throw new Error('Ingresá un correo válido.');
-      if (password.length < 4) throw new Error('La contraseña debe tener al menos 4 caracteres.');
-      persist({
-        uid: `mock_${Date.now().toString(36)}_${e.slice(0, 8)}`,
-        displayName: e.split('@')[0] ?? 'Viajero',
-        email: e,
-      });
-    },
-    [persist],
-  );
-
-  const register = useCallback(
-    async (email: string, password: string, displayName: string) => {
-      const e = email.trim().toLowerCase();
-      if (!e || !e.includes('@')) throw new Error('Ingresá un correo válido.');
-      if (password.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.');
-      const name = displayName.trim() || (e.split('@')[0] ?? 'Viajero');
-      persist({
-        uid: `mock_${Date.now()}`,
-        displayName: name,
-        email: e,
-      });
-    },
-    [persist],
-  );
-
-  const logout = useCallback(() => persist(null), [persist]);
+  const logout = useCallback(async () => {
+    if (!import.meta.env.VITE_FIREBASE_API_KEY?.trim()) return;
+    await signOut(getFirebaseAuth());
+  }, []);
 
   const requestAccountDeletion = useCallback(async () => {
     return {
       ok: false,
       message:
-        'La baja definitiva de cuenta estará disponible cuando activemos la cuenta con Firebase y los requisitos de las tiendas oficiales. Por ahora podés cerrar sesión en cualquier momento.',
+        'La baja definitiva de cuenta la habilitaremos con Firebase y las políticas de las tiendas. Por ahora podés cerrar sesión.',
     };
   }, []);
 
@@ -95,12 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       ready,
-      login,
-      register,
+      signInWithGoogle,
       logout,
       requestAccountDeletion,
     }),
-    [user, ready, login, register, logout, requestAccountDeletion],
+    [user, ready, signInWithGoogle, logout, requestAccountDeletion],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

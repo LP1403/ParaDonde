@@ -1,5 +1,6 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAnalytics, type Analytics } from 'firebase/analytics';
+import { getAuth, type Auth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
@@ -13,12 +14,17 @@ const firebaseConfig = {
 
 let app: FirebaseApp;
 let analytics: Analytics | null = null;
+let auth: Auth | undefined;
 
 export function getFirebaseApp(): FirebaseApp {
   if (!app) {
     app = initializeApp(firebaseConfig);
     if (typeof window !== 'undefined' && firebaseConfig.apiKey) {
-      analytics = getAnalytics(app);
+      try {
+        analytics = getAnalytics(app);
+      } catch {
+        analytics = null;
+      }
     }
   }
   return app;
@@ -27,4 +33,12 @@ export function getFirebaseApp(): FirebaseApp {
 export function getFirebaseAnalytics(): Analytics | null {
   if (!app) getFirebaseApp();
   return analytics;
+}
+
+/** Auth (Google, etc.). Requiere `VITE_FIREBASE_API_KEY` y proveedor habilitado en consola. */
+export function getFirebaseAuth(): Auth {
+  if (!auth) {
+    auth = getAuth(getFirebaseApp());
+  }
+  return auth;
 }
