@@ -2,7 +2,10 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { Destino } from '../data/destinos';
 import { urlsImagenesDestino } from '../utils/destinoImagenes';
-import { scrollElementToTopInScrollParent } from '../utils/scrollIntoScrollParent';
+import {
+  scrollElementToTopInScrollParent,
+  SCROLL_EXTRA_PAST_CONTENT_TOP_PX,
+} from '../utils/scrollIntoScrollParent';
 import { useWikipediaImages } from '../hooks/useWikipediaImages';
 import { wikiImages as localWikiImages } from '../data/wikiImages';
 import { IonIcon } from '@ionic/react';
@@ -57,10 +60,6 @@ function ItinerarioVertical({ d }: { d: Destino }) {
 
   return (
     <div className="pd-itinerario-v">
-      <h3 className="pd-itinerario-v-heading">Tu viaje, en resumen</h3>
-      <p className="pd-itinerario-v-meta">
-        ~{it.distanciaTotalKm.toLocaleString('es-AR')} km · {it.duracionDias} días sugeridos
-      </p>
       <ul className="pd-itinerario-v-list" aria-label="Itinerario sugerido">
         {pasos.map((step, i) => (
           <li key={i} className={`pd-itinerario-v-item pd-itinerario-v-item--${step.variant ?? 'mid'}`}>
@@ -98,7 +97,7 @@ export function DestinoResultadoBlock({ destino: d, children }: Props) {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollHeroToContent = () => {
-    scrollElementToTopInScrollParent(contentRef.current);
+    scrollElementToTopInScrollParent(contentRef.current, SCROLL_EXTRA_PAST_CONTENT_TOP_PX);
   };
 
   const [slotA, setSlotA] = useState({ idx: 0, opacity: 1 });

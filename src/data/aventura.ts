@@ -42,12 +42,6 @@ export const preguntasAventura: PreguntaAventura[] = [
     label: '¿Qué edad tiene quien viaja? (principal viajero)',
     opciones: [
       {
-        id: 'menor_12',
-        label: 'Menor de 12',
-        imageUrl:
-          'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80',
-      },
-      {
         id: 'adolescente_13_17',
         label: '13 a 17 años',
         imageUrl:

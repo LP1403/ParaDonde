@@ -23,7 +23,7 @@ export interface InputMotorRecomendacion {
   experienciasBoost?: string[];
   /** País desde el que viaja (id de `OPCIONES_ORIGEN_PAIS`) */
   paisOrigenId?: string;
-  /** menor_12 | adolescente_13_17 | adulto_18_64 | mayor_65 */
+  /** adolescente_13_17 | adulto_18_64 | mayor_65 */
   edadViajero?: string;
   /** Tag de comida (ver `OPCIONES_COMIDA_AVENTURA`) */
   comidaPreferida?: string;
@@ -109,12 +109,6 @@ function puntajeEdad(edad: string | undefined, destino: Destino): number {
   if (!edad) return 12;
   const tags = tagsDestino(destino);
   const permiteFamilia = destino.atributos.compania.includes('familia');
-  if (edad === 'menor_12') {
-    let p = 10;
-    if (permiteFamilia) p += 8;
-    if (tags.includes('relax') || tags.includes('ciudad')) p += 5;
-    return Math.min(p, 28);
-  }
   if (edad === 'adolescente_13_17') {
     let p = 12;
     if (permiteFamilia) p += 5;

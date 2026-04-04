@@ -15,8 +15,6 @@ tambien todo el resto de la app, como por ej la lista de destinos que no tenga b
 La parte de links utiles muestra la lista, y abajo estan los enlaces aparte, que la misma lista sea hipervinculo y te lleve si haces click, es redundante que hayan dos
 
 
-
-
 20/03
 
 autenticacion y conectar o guardar vuelos, cosas de ese destino, y que luego aparezca como recordatorio en la pantalla del destino, el usuario tendria un menu para llegar a Mis Destinos o Mis Viajes, y ahi veria por destino sus recordatorios adentro al entrar, es una carta de presentacion del destino con el recordatorio, una card para ello

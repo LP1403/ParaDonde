@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IonPage, IonContent } from '@ionic/react';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { preguntasAventura } from '../data/aventura';
 
 const STORAGE_KEY = 'paradonde_aventura_respuestas';
@@ -20,6 +21,7 @@ export function setRespuestasInStorage(r: Record<string, string>) {
 }
 
 export default function Aventura() {
+  const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const navigate = useNavigate();
   const [respuestas, setRespuestas] = useState<Record<string, string>>(getRespuestasFromStorage);
   const [pasoActual, setPasoActual] = useState(0);
@@ -53,8 +55,8 @@ export default function Aventura() {
 
   return (
     <IonPage>
-      <PdSubpageChrome onBack={handleAtras} />
-      <IonContent className="ion-padding">
+      <PdSubpageChrome onBack={handleAtras} chromeVisible={chromeVisible} />
+      <IonContent className="ion-padding" {...ionScrollProps}>
         <div className="pd-content pd-subpage-inner">
         <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '0.25rem', fontSize: '1.35rem' }}>
           Elige tu aventura

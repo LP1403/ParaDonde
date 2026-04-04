@@ -3,16 +3,18 @@ import { useEffect } from 'react';
 import { IonPage, IonContent, IonList, IonItem, IonLabel } from '@ionic/react';
 import { guiasTematicas } from '../data/guias';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 
 export default function GuiasTematicas() {
+  const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const navigate = useNavigate();
   useEffect(() => {
     document.title = 'Guías prácticas – Para Dónde?';
   }, []);
   return (
     <IonPage>
-      <PdSubpageChrome onBack={() => navigate('/')} />
-      <IonContent className="ion-padding">
+      <PdSubpageChrome onBack={() => navigate('/')} chromeVisible={chromeVisible} />
+      <IonContent className="ion-padding" {...ionScrollProps}>
         <div className="pd-content pd-subpage-inner">
         <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '0.35rem', fontSize: '1.35rem' }}>
           Guías prácticas

@@ -1,19 +1,15 @@
 import { useEffect, useRef } from 'react';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { IonPage, IonContent, IonButton } from '@ionic/react';
+import { IonPage, IonContent } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
 import { shieldCheckmarkOutline } from 'ionicons/icons';
 import { destinos } from '../data/destinos';
 import { filtrarDestinosPorRespuestas } from '../logic/motorAventura';
-import { generarFeedback } from '../logic/motorAventuraDinamico';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { DestinoResultadoBlock } from '../components/DestinoResultadoBlock';
 import { scrollElementToTopInScrollParent } from '../utils/scrollIntoScrollParent';
 import type { Destino } from '../data/destinos';
-import {
-  infoDocumentacionParaOrigen,
-  labelPaisOrigen,
-} from '../data/origenViajero';
 
 /* ─────────────────────────────────────────── Seguro Block ── */
 
@@ -173,6 +169,7 @@ function PorQueBlock({ destino, respuestas }: { destino: Destino; respuestas: Re
 /* ─────────────────────────────────────────── Page ── */
 
 export default function ResultadoAventura() {
+  const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const respuestas: Record<string, string> = {};
@@ -181,7 +178,6 @@ export default function ResultadoAventura() {
   });
 
   const sugeridos = filtrarDestinosPorRespuestas(destinos, respuestas);
-  const feedbackIntro = generarFeedback(respuestas, sugeridos);
 
   const diasSeleccionados = respuestas['dias'];
   const temporadaSel = respuestas['temporada'];
@@ -206,12 +202,6 @@ export default function ResultadoAventura() {
 
   const haySugeridos = sugeridos.length > 0;
   const hayInternacional = sugeridos.some((d) => d.region !== 'argentina');
-  const soloArgentinaEnResultados =
-    haySugeridos && sugeridos.every((d) => d.region === 'argentina');
-  const origenPaisId = respuestas.origen_pais?.trim();
-  const infoDocOrigen =
-    origenPaisId &&
-    infoDocumentacionParaOrigen(origenPaisId, { soloArgentinaEnResultados });
 
   const primerDestinoWrapRef = useRef<HTMLDivElement>(null);
 
@@ -225,8 +215,8 @@ export default function ResultadoAventura() {
 
   return (
     <IonPage className="pd-destino-page">
-      <PdSubpageChrome onBack={() => navigate('/')} />
-      <IonContent fullscreen className="pd-resultado-ion-content">
+      <PdSubpageChrome onBack={() => navigate('/')} chromeVisible={chromeVisible} />
+      <IonContent fullscreen className="pd-resultado-ion-content" {...ionScrollProps}>
         {/* Hero inicial: sin spoilers (sin nombres ni fotos de destinos) */}
         <section className="pd-resultado-list-hero" aria-labelledby="pd-resultado-list-hero-title">
           <div className="pd-resultado-list-hero-bg" aria-hidden="true" />
@@ -272,118 +262,6 @@ export default function ResultadoAventura() {
           </div>
         </section>
 
-        <div className="pd-resultado-page-intro pd-subpage-inner">
-          <h2
-            style={{
-              marginBottom: '0.35rem',
-              color: 'var(--pd-color-text)',
-              fontSize: '1.35rem',
-            }}
-          >
-            Tu resultado
-          </h2>
-          <p
-            style={{
-              marginBottom: '0.75rem',
-              color: 'var(--pd-color-text-muted)',
-              fontSize: '0.9rem',
-              lineHeight: 1.45,
-            }}
-          >
-            <strong style={{ color: 'var(--pd-color-text)' }}>Destinos sugeridos para vos.</strong>{' '}
-            Pensando en {descripcionDuracion}, estos lugares encajan con tu forma de viajar.
-          </p>
-          {feedbackIntro && (
-            <p
-              style={{
-                marginBottom: '0.5rem',
-                color: 'var(--pd-color-text)',
-                fontSize: '0.95rem',
-                lineHeight: 1.45,
-                fontWeight: 500,
-              }}
-            >
-              {feedbackIntro}
-            </p>
-          )}
-
-          {infoDocOrigen && (
-            <div
-              className="pd-resultado-origen-doc"
-              style={{
-                marginTop: '1rem',
-                padding: '1rem 1.1rem',
-                borderRadius: 12,
-                border: '1px solid var(--pd-border)',
-                background: 'var(--pd-color-surface-alt, rgba(25, 118, 210, 0.06))',
-              }}
-            >
-              <p
-                style={{
-                  margin: '0 0 0.35rem',
-                  fontSize: '0.8rem',
-                  color: 'var(--pd-color-text-muted)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                Tu punto de partida
-              </p>
-              <h3
-                style={{
-                  margin: '0 0 0.5rem',
-                  fontSize: '1.05rem',
-                  color: 'var(--pd-color-text)',
-                }}
-              >
-                {infoDocOrigen.titulo}{' '}
-                <span style={{ fontWeight: 400, color: 'var(--pd-color-text-muted)' }}>
-                  ({labelPaisOrigen(origenPaisId!)})
-                </span>
-              </h3>
-              {infoDocOrigen.parrafos.map((t) => (
-                <p
-                  key={t.slice(0, 48)}
-                  style={{
-                    margin: '0 0 0.5rem',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.5,
-                    color: 'var(--pd-color-text-muted)',
-                  }}
-                >
-                  {t}
-                </p>
-              ))}
-              <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.2rem', fontSize: '0.9rem' }}>
-                {infoDocOrigen.linksOficiales.map((l) => (
-                  <li key={l.url} style={{ marginBottom: '0.35rem' }}>
-                    {l.url.startsWith('/') ? (
-                      <Link to={l.url}>{l.label}</Link>
-                    ) : (
-                      <a href={l.url} target="_blank" rel="noopener noreferrer">
-                        {l.label}
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <Link
-                  to="/guias/documentacion-viajar"
-                  style={{ fontSize: '0.88rem', fontWeight: 600 }}
-                >
-                  Guía: documentación →
-                </Link>
-                {infoDocOrigen.guiaEquipajeTo && (
-                  <Link to={infoDocOrigen.guiaEquipajeTo} style={{ fontSize: '0.88rem', fontWeight: 600 }}>
-                    Guía: equipaje →
-                  </Link>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
         {haySugeridos ? (
           sugeridos.map((d, idx) => (
             <div key={d.id} ref={idx === 0 ? primerDestinoWrapRef : undefined} className="pd-resultado-primer-destino-anchor">
@@ -404,11 +282,6 @@ export default function ResultadoAventura() {
         {sugeridos.length > 0 && (
           <div className="pd-resultado-footer-wrap">
             <SeguroBlock forDestino={hayInternacional ? sugeridos[0] : undefined} />
-            <Link to="/" style={{ display: 'block', marginTop: '1rem' }}>
-              <IonButton fill="outline" expand="block">
-                ← Volver a elegir destino
-              </IonButton>
-            </Link>
           </div>
         )}
       </IonContent>

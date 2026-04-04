@@ -6,6 +6,8 @@ import { preguntasAventura } from '../data/aventura';
 import { recomendarDestinos, type TemporadaId } from '../logic/motorAventura';
 import { armarInputDesdeRespuestasUrl } from '../logic/motorAventuraDinamico';
 import { usePdTheme } from '../hooks/usePdTheme';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
+import { PdUserMenu } from '../components/PdUserMenu';
 
 /* ---------- Constants ---------- */
 
@@ -81,6 +83,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   const { isDark, toggleTheme } = usePdTheme();
+  const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
 
   /* Adventure flow */
   const [paso, setPaso] = useState(0);
@@ -197,10 +200,14 @@ export default function Home() {
 
   return (
     <IonPage>
-      <IonContent fullscreen className="pd-home-v2">
+      <IonContent fullscreen className="pd-home-v2" {...ionScrollProps}>
 
-        {/* ── Dark/light toggle (fixed) ── */}
-        <div className="pd-toggle-wrapper" slot="fixed">
+        {/* ── Cuenta + tema (fixed, se oculta al bajar) ── */}
+        <div
+          className={`pd-home-top-actions${chromeVisible ? '' : ' pd-floating-chrome--hidden'}`}
+          slot="fixed"
+        >
+          <PdUserMenu variant="home" />
           <button
             className="pd-toggle-btn"
             onClick={toggleTheme}

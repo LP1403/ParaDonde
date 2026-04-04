@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { IonPage } from '@ionic/react';
+import { IonPage, IonContent } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
 import { arrowBack, locationOutline } from 'ionicons/icons';
 import { getDestinoBySlug } from '../data/destinos';
@@ -8,15 +8,25 @@ import type { DocumentacionDestino } from '../data/destinos';
 import { SeguroBlock } from './ResultadoAventura';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { PdThemeToggle } from '../components/PdThemeToggle';
+import { PdUserMenu } from '../components/PdUserMenu';
 import { useWikipediaImages } from '../hooks/useWikipediaImages';
 import { wikiImages as localWikiImages } from '../data/wikiImages';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
+import { SCROLL_EXTRA_PAST_CONTENT_TOP_PX } from '../utils/scrollIntoScrollParent';
 
 function scrollContentBelowHero(
   scrollRoot: HTMLDivElement | null,
   contentEl: HTMLDivElement | null,
 ) {
   if (!scrollRoot || !contentEl) return;
-  scrollRoot.scrollTo({ top: contentEl.offsetTop, behavior: 'smooth' });
+  const top =
+    scrollRoot.scrollTop +
+    contentEl.getBoundingClientRect().top -
+    scrollRoot.getBoundingClientRect().top;
+  scrollRoot.scrollTo({
+    top: Math.max(0, top + SCROLL_EXTRA_PAST_CONTENT_TOP_PX),
+    behavior: 'smooth',
+  });
 }
 
 /* ─────────────────────────────── Doc cards ── */
@@ -88,6 +98,7 @@ function DocumentacionSection({ doc }: { doc: DocumentacionDestino }) {
 /* ─────────────────────────────── Page ── */
 
 export default function Destino() {
+  const { chromeVisible, ionScrollProps, notifyScrollTop } = useFloatingChromeScroll();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
@@ -144,8 +155,12 @@ export default function Destino() {
 
   /* Scroll tracking */
   const handleScroll = useCallback(() => {
-    if (scrollRef.current) setScrollY(scrollRef.current.scrollTop);
-  }, []);
+    if (scrollRef.current) {
+      const t = scrollRef.current.scrollTop;
+      setScrollY(t);
+      notifyScrollTop(t);
+    }
+  }, [notifyScrollTop]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -162,10 +177,12 @@ export default function Destino() {
   if (!destino) {
     return (
       <IonPage>
-        <PdSubpageChrome onBack={() => navigate(-1)} />
-        <div className="pd-content pd-subpage-inner" style={{ padding: '1rem', color: 'var(--pd-color-text)' }}>
-          <p>No encontramos ese destino.</p>
-        </div>
+        <PdSubpageChrome onBack={() => navigate(-1)} chromeVisible={chromeVisible} />
+        <IonContent className="ion-padding" {...ionScrollProps}>
+          <div className="pd-content pd-subpage-inner" style={{ color: 'var(--pd-color-text)' }}>
+            <p>No encontramos ese destino.</p>
+          </div>
+        </IonContent>
       </IonPage>
     );
   }
@@ -176,6 +193,7 @@ export default function Destino() {
   const scrollHintOpacity  = Math.max(0, 1 - scrollY / (vh * 0.18));
   /* bg veil: subtle darkening as content scrolls in */
   const bgVeilOpacity      = Math.min(0.55, scrollY / (vh * 1.1));
+  const chromeHidden = !chromeVisible;
 
   const ta   = destino.reseñasExternas?.tripadvisor;
   const book = destino.reseñasExternas?.booking;
@@ -212,30 +230,40 @@ export default function Destino() {
         <div className="pd-destino-bg-veil" style={{ opacity: bgVeilOpacity }} />
       </div>
 
-      {/* ── Floating back button ── */}
-      <button
-        className="pd-destino-floating-btn pd-destino-floating-back"
-        onClick={() => navigate(-1)}
-        aria-label="Volver"
+      {/* ── Volver (oculto al bajar el scroll) ── */}
+      <div
+        className={`pd-floating-chrome pd-floating-chrome--dest-back${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}
       >
-        <IonIcon icon={arrowBack} />
-        <span>Volver</span>
-      </button>
+        <button
+          type="button"
+          className="pd-destino-floating-btn"
+          onClick={() => navigate(-1)}
+          aria-label="Volver"
+        >
+          <IonIcon icon={arrowBack} />
+          <span>Volver</span>
+        </button>
+      </div>
 
-      {/* ── Mapa + tema (derecha), mismo estilo que subpáginas ── */}
-      <div className="pd-destino-floating-right">
+      {/* ── Mapa + cuenta + tema ── */}
+      <div
+        className={`pd-floating-chrome pd-floating-chrome--dest-trailing${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}
+      >
         <a
           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
             destino.nombre + (destino.pais ? ', ' + destino.pais : ', Argentina'),
           )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="pd-destino-floating-btn pd-destino-floating-map"
-          aria-label="Ver mapa"
+          className="pd-destino-floating-btn pd-destino-floating-map pd-destino-floating-btn--icon-only"
+          aria-label={`Mapa: ${destino.nombre}`}
         >
           <IonIcon icon={locationOutline} />
-          <span>Mapa</span>
+          <span className="pd-destino-floating-text">Mapa</span>
         </a>
+        <div className="pd-destino-trailing-user">
+          <PdUserMenu variant="subpage" />
+        </div>
         <PdThemeToggle />
       </div>
 
@@ -365,7 +393,7 @@ export default function Destino() {
             )}
 
             {/* Documentación */}
-            <div className="pd-destino-glass-section">
+            <div className="pd-destino-glass-section pd-destino-glass-section--documentacion">
               <h2 className="pd-destino-glass-title">📋 Documentación necesaria</h2>
               <DocumentacionSection doc={destino.documentacion} />
             </div>

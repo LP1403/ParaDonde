@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { IonPage, IonContent } from '@ionic/react';
 import { getGuiaBySlug } from '../data/guias';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 
 const sectionHeadingStyle: React.CSSProperties = {
   color: 'var(--pd-color-primary)',
@@ -43,6 +44,7 @@ function renderContenidoConTitulos(contenido: string): React.ReactNode[] {
 }
 
 export default function GuiaTematica() {
+  const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const guia = slug ? getGuiaBySlug(slug) : undefined;
@@ -54,8 +56,8 @@ export default function GuiaTematica() {
   if (!guia) {
     return (
       <IonPage>
-        <PdSubpageChrome onBack={() => navigate('/guias')} />
-        <IonContent className="ion-padding">
+        <PdSubpageChrome onBack={() => navigate('/guias')} chromeVisible={chromeVisible} />
+        <IonContent className="ion-padding" {...ionScrollProps}>
           <div className="pd-content pd-subpage-inner">
             <p>No encontramos esa guía.</p>
           </div>
@@ -68,8 +70,8 @@ export default function GuiaTematica() {
 
   return (
     <IonPage>
-      <PdSubpageChrome onBack={() => navigate(-1)} />
-      <IonContent className="ion-padding">
+      <PdSubpageChrome onBack={() => navigate(-1)} chromeVisible={chromeVisible} />
+      <IonContent className="ion-padding" {...ionScrollProps}>
         <div className="pd-content pd-guia-content pd-subpage-inner">
           <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '1rem' }}>
             {guia.titulo}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IonPage, IonContent, IonInput, IonItem, IonLabel } from '@ionic/react';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
+import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 
 const PAGE_TITLE = 'Calculadora dólar tarjeta – Para Dónde?';
 
@@ -13,6 +14,7 @@ interface DolarTarjeta {
 }
 
 export default function CalculadoraDolar() {
+  const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const navigate = useNavigate();
   const [usd, setUsd] = useState<string>('');
   const [cotizacion, setCotizacion] = useState<DolarTarjeta | null>(null);
@@ -47,8 +49,8 @@ export default function CalculadoraDolar() {
 
   return (
     <IonPage>
-      <PdSubpageChrome onBack={() => navigate('/')} />
-      <IonContent className="ion-padding">
+      <PdSubpageChrome onBack={() => navigate('/')} chromeVisible={chromeVisible} />
+      <IonContent className="ion-padding" {...ionScrollProps}>
         <div className="pd-content pd-subpage-inner">
         <h1 style={{ color: 'var(--pd-color-text)', marginBottom: '0.5rem' }}>
           ¿Cuánto me llega en pesos?
