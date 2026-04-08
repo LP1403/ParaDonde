@@ -4,6 +4,8 @@
  * (Migraciones Argentina, consulados, aerolíneas) antes de viajar.
  */
 
+import { getOrigenPaisOpcionById } from '../logic/origenPaisResolve';
+
 export interface PaisOrigenOpcion {
   id: string;
   label: string;
@@ -32,12 +34,13 @@ export const OPCIONES_ORIGEN_PAIS: PaisOrigenOpcion[] = [
 
 export function labelPaisOrigen(id: string): string {
   if (id === 'europa_otros') return 'Europa (otro país)';
-  const o = OPCIONES_ORIGEN_PAIS.find((p) => p.id === id);
+  const o = getOrigenPaisOpcionById(id) ?? OPCIONES_ORIGEN_PAIS.find((p) => p.id === id);
   return o?.label ?? id;
 }
 
 /** Normaliza ids del wizard /aventura hacia ids de ayuda (p. ej. europa_otros → otros). */
 export function normalizarOrigenParaAyuda(id: string): string {
+  if (id.startsWith('iso_')) return id.slice(4).toLowerCase();
   if (id === 'europa_otros') return 'es';
   if (id === 'us') return 'us';
   return id;

@@ -9,5 +9,13 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
+    /** Aviationstack no expone CORS al navegador en plan gratuito: proxy solo en desarrollo */
+    proxy: {
+      '/api/aviationstack': {
+        target: 'https://api.aviationstack.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/aviationstack/, ''),
+      },
+    },
   },
 });

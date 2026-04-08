@@ -1,24 +1,33 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useReducer, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { IonIcon } from '@ionic/react';
+import { menuOutline } from 'ionicons/icons';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-type Variant = 'home' | 'subpage';
-
-type Props = {
-  variant?: Variant;
-};
+import { favoriteDestinoCount } from '../logic/destinosFavoritosStorage';
+import { PdThemeToggle } from './PdThemeToggle';
 
 function lockBody(lock: boolean) {
   if (typeof document === 'undefined') return;
   document.body.style.overflow = lock ? 'hidden' : '';
 }
 
-export function PdUserMenu({ variant = 'home' }: Props) {
+export function PdUserMenu() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const location = useLocation();
+  const [, bumpFavs] = useReducer((n: number) => n + 1, 0);
+
+  useEffect(() => {
+    const bump = () => bumpFavs();
+    window.addEventListener('pd-favoritos-changed', bump);
+    return () => {
+      window.removeEventListener('pd-favoritos-changed', bump);
+    };
+  }, []);
+
+  const nViajes = favoriteDestinoCount();
 
   useEffect(() => {
     lockBody(open);
@@ -35,16 +44,15 @@ export function PdUserMenu({ variant = 'home' }: Props) {
     <>
       <button
         type="button"
-        className={`pd-user-menu-trigger${variant === 'subpage' ? ' pd-user-menu-trigger--subpage' : ''}`}
+        className="pd-destino-floating-btn pd-destino-floating-menu pd-destino-floating-btn--icon-only"
         onClick={() => setOpen(true)}
+        aria-label="Abrir menú"
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-controls={open ? 'pd-user-menu-panel' : undefined}
       >
-        <span className="pd-user-menu-trigger-icon" aria-hidden>
-          {user ? '✓' : '👤'}
-        </span>
-        <span className="pd-user-menu-trigger-label">Cuenta</span>
+        <IonIcon icon={menuOutline} />
+        <span className="pd-destino-floating-text">Menú</span>
       </button>
 
       {open &&
@@ -66,7 +74,7 @@ export function PdUserMenu({ variant = 'home' }: Props) {
             >
               <div className="pd-user-menu-handle" aria-hidden />
               <p id={titleId} className="pd-user-menu-title">
-                Tu cuenta
+                Menú
               </p>
               {user && (
                 <p className="pd-user-menu-sub">
@@ -76,7 +84,18 @@ export function PdUserMenu({ variant = 'home' }: Props) {
                 </p>
               )}
 
-              <nav className="pd-user-menu-links" aria-label="Cuenta y legal">
+              <nav className="pd-user-menu-links" aria-label="Opciones del menú">
+                <Link to="/" className="pd-user-menu-link" onClick={close}>
+                  Inicio
+                </Link>
+                <Link to="/viajes" className="pd-user-menu-link pd-user-menu-link--viajes" onClick={close}>
+                  Mis viajes
+                  {nViajes > 0 ? (
+                    <span className="pd-user-menu-link-badge" aria-hidden>
+                      {nViajes > 99 ? '99+' : nViajes}
+                    </span>
+                  ) : null}
+                </Link>
                 {user ? (
                   <>
                     <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
@@ -103,6 +122,10 @@ export function PdUserMenu({ variant = 'home' }: Props) {
                     </Link>
                   </>
                 )}
+                <div className="pd-user-menu-theme-row" role="group" aria-label="Tema de la app">
+                  <span className="pd-user-menu-theme-label">Modo claro u oscuro</span>
+                  <PdThemeToggle className="pd-user-menu-theme-toggle" />
+                </div>
                 <Link to="/terminos" className="pd-user-menu-link" onClick={close}>
                   Términos y condiciones
                 </Link>

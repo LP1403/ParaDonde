@@ -83,7 +83,10 @@ export function getPersistedOrigenPaisId(): string | null {
 
 export function setPersistedOrigenPaisId(id: string): void {
   try {
-    if (id?.trim()) localStorage.setItem(ORIGEN_PAIS_PREFERIDO_KEY, id.trim());
+    if (id?.trim()) {
+      localStorage.setItem(ORIGEN_PAIS_PREFERIDO_KEY, id.trim());
+      window.dispatchEvent(new CustomEvent('pd-origen-pais-changed'));
+    }
   } catch {
     /* ignore */
   }

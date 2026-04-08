@@ -10,6 +10,7 @@ import { useWikipediaImages } from '../hooks/useWikipediaImages';
 import { wikiImages as localWikiImages } from '../data/wikiImages';
 import { IonIcon } from '@ionic/react';
 import { locationOutline } from 'ionicons/icons';
+import { PdFavoritoDestinoButton } from './PdFavoritoDestinoButton';
 
 function truncar(s: string, max: number): string {
   const t = s.trim();
@@ -266,8 +267,9 @@ export function DestinoResultadoBlock({ destino: d, children }: Props) {
           )}
 
           <div className="pd-resultado-cta-row">
+            <PdFavoritoDestinoButton slug={d.slug} variant="compact" className="pd-resultado-fav-btn" />
             <Link to={`/destino/${d.slug}`} className="pd-resultado-cta pd-resultado-cta--primary">
-              Guía completa
+              Guía completa →
             </Link>
           </div>
         </div>

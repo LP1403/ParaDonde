@@ -1,4 +1,5 @@
-import { preguntasAventura } from '../data/aventura';
+import { getOrigenPaisOpcionById } from '../logic/origenPaisResolve';
+import { OrigenPaisFlagMedia } from './OrigenPaisFlagMedia';
 
 type Props = {
   opcionId: string;
@@ -7,8 +8,7 @@ type Props = {
 };
 
 export function AventuraOrigenPaisResumen({ opcionId, onContinuar, onCambiar }: Props) {
-  const p = preguntasAventura[0];
-  const op = p?.id === 'origen_pais' ? p.opciones.find((o) => o.id === opcionId) : undefined;
+  const op = getOrigenPaisOpcionById(opcionId);
   if (!op) return null;
 
   return (
@@ -19,9 +19,7 @@ export function AventuraOrigenPaisResumen({ opcionId, onContinuar, onCambiar }: 
         Lo usamos para tips de documentación y equipaje. Si vivís en otro país, podés cambiarlo.
       </p>
       <div className="pd-origen-pais-resumen-card">
-        <span className="pd-origen-pais-resumen-flag" aria-hidden>
-          {op.bandera ?? '🏳️'}
-        </span>
+        <OrigenPaisFlagMedia opcionId={opcionId} className="pd-origen-pais-resumen-flag" />
         <span className="pd-origen-pais-resumen-nombre">{op.label}</span>
       </div>
       <div className="pd-origen-pais-resumen-actions">

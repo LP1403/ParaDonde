@@ -1,6 +1,5 @@
 import { IonIcon } from '@ionic/react';
 import { arrowBack } from 'ionicons/icons';
-import { PdThemeToggle } from './PdThemeToggle';
 import { PdUserMenu } from './PdUserMenu';
 
 type Props = {
@@ -13,7 +12,7 @@ type Props = {
 };
 
 /**
- * Barra flotante: volver (izq) + cuenta + tema (der), sin IonToolbar.
+ * Barra flotante: volver (izq), menú centrado (tema dentro del menú), sin IonToolbar.
  */
 export function PdSubpageChrome({
   onBack,
@@ -23,10 +22,8 @@ export function PdSubpageChrome({
 }: Props) {
   const hid = !chromeVisible;
   return (
-    <>
-      <div
-        className={`pd-floating-chrome pd-floating-chrome--sub-back${hid ? ' pd-floating-chrome--hidden' : ''}`}
-      >
+    <div className={`pd-floating-chrome pd-floating-chrome--sub-top${hid ? ' pd-floating-chrome--hidden' : ''}`}>
+      <div className="pd-subpage-chrome-left">
         <button
           type="button"
           className="pd-destino-floating-btn"
@@ -37,14 +34,9 @@ export function PdSubpageChrome({
           <span>{backLabel}</span>
         </button>
       </div>
-      <div
-        className={`pd-floating-chrome pd-floating-chrome--sub-trailing${hid ? ' pd-floating-chrome--hidden' : ''}`}
-      >
-        <div className="pd-subpage-theme-fixed pd-subpage-top-actions">
-          <PdUserMenu variant="subpage" />
-          <PdThemeToggle />
-        </div>
+      <div className="pd-subpage-chrome-center">
+        <PdUserMenu />
       </div>
-    </>
+    </div>
   );
 }

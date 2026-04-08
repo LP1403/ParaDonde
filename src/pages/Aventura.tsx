@@ -13,7 +13,10 @@ import {
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { preguntasAventura } from '../data/aventura';
+import { OrigenPaisFlagMedia } from '../components/OrigenPaisFlagMedia';
 import { AventuraOrigenPaisResumen } from '../components/AventuraOrigenPaisResumen';
+import { OrigenPaisMundoPicker } from '../components/OrigenPaisMundoPicker';
+import { isValidOrigenPaisId, makeOrigenPaisIsoId } from '../logic/origenPaisResolve';
 
 function buildInitialAventuraState(): {
   respuestas: Record<string, string>;
@@ -21,11 +24,9 @@ function buildInitialAventuraState(): {
 } {
   const progress = getAventuraProgress();
   let respuestas: Record<string, string> = { ...(progress?.respuestas ?? {}) };
-  const p0 = preguntasAventura[0];
   const persisted = getPersistedOrigenPaisId();
-  if (!respuestas.origen_pais && persisted && p0?.id === 'origen_pais') {
-    const valid = p0.opciones.some((o) => o.id === persisted);
-    if (valid) respuestas = { ...respuestas, origen_pais: persisted };
+  if (!respuestas.origen_pais && persisted && isValidOrigenPaisId(persisted)) {
+    respuestas = { ...respuestas, origen_pais: persisted };
   }
   return {
     respuestas,
@@ -43,17 +44,17 @@ export default function Aventura() {
   }));
   const [pasoActual, setPasoActual] = useState(() => initial.pasoActual);
   const [editandoOrigenPais, setEditandoOrigenPais] = useState(false);
+  const [pickerPaisMundoOpen, setPickerPaisMundoOpen] = useState(false);
 
   const pregunta = preguntasAventura[pasoActual];
   const esUltima = pasoActual === preguntasAventura.length - 1;
   const esPasoOrigenPais = pasoActual === 0 && pregunta?.id === 'origen_pais';
   const origenId = respuestas.origen_pais;
-  const origenOpcionValida =
-    Boolean(origenId) &&
-    preguntasAventura[0]?.id === 'origen_pais' &&
-    Boolean(preguntasAventura[0].opciones.some((o) => o.id === origenId));
-  const mostrarResumenOrigen = esPasoOrigenPais && origenOpcionValida && !editandoOrigenPais;
-  const mostrarGridOrigen = esPasoOrigenPais && (!origenOpcionValida || editandoOrigenPais);
+  const origenOpcionValida = Boolean(origenId) && isValidOrigenPaisId(origenId);
+  const mostrarResumenOrigen =
+    esPasoOrigenPais && origenOpcionValida && !editandoOrigenPais && !pickerPaisMundoOpen;
+  const mostrarGridOrigen =
+    esPasoOrigenPais && (!origenOpcionValida || editandoOrigenPais) && !pickerPaisMundoOpen;
 
   const handleContinuarDesdeResumenPais = () => {
     const id = respuestas.origen_pais;
@@ -71,6 +72,11 @@ export default function Aventura() {
     if (!pregunta) return;
 
     if (pregunta.id === 'origen_pais') {
+      if (opcionId === 'otros') {
+        setPickerPaisMundoOpen(true);
+        return;
+      }
+
       setPersistedOrigenPaisId(opcionId);
       const prev = respuestas.origen_pais;
       let nuevasRespuestas: Record<string, string> = { ...respuestas, origen_pais: opcionId };
@@ -121,7 +127,32 @@ export default function Aventura() {
     }
   };
 
+  const aplicarOrigenDesdeMundoLista = (iso2: string) => {
+    const nuevoId = makeOrigenPaisIsoId(iso2);
+    setPickerPaisMundoOpen(false);
+    setPersistedOrigenPaisId(nuevoId);
+    const prev = respuestas.origen_pais;
+    let nuevasRespuestas: Record<string, string> = { ...respuestas, origen_pais: nuevoId };
+    if (prev && prev !== nuevoId) {
+      for (const q of preguntasAventura.slice(1)) {
+        delete nuevasRespuestas[q.id];
+      }
+    }
+    setRespuestas(nuevasRespuestas);
+    setEditandoOrigenPais(false);
+    setPasoActual(1);
+    setAventuraProgress({
+      respuestas: nuevasRespuestas,
+      pasoActual: 1,
+      lastCoverUrl: lastCoverFromRespuestas(nuevasRespuestas),
+    });
+  };
+
   const handleAtras = () => {
+    if (pickerPaisMundoOpen) {
+      setPickerPaisMundoOpen(false);
+      return;
+    }
     if (pasoActual > 0) {
       const next = pasoActual - 1;
       setPasoActual(next);
@@ -161,7 +192,12 @@ export default function Aventura() {
                 Pregunta {pasoActual + 1} de {preguntasAventura.length}
               </p>
 
-              {mostrarResumenOrigen && respuestas.origen_pais ? (
+              {esPasoOrigenPais && pickerPaisMundoOpen ? (
+                <OrigenPaisMundoPicker
+                  onCancel={() => setPickerPaisMundoOpen(false)}
+                  onPick={(iso) => aplicarOrigenDesdeMundoLista(iso)}
+                />
+              ) : mostrarResumenOrigen && respuestas.origen_pais ? (
                 <AventuraOrigenPaisResumen
                   opcionId={respuestas.origen_pais}
                   onContinuar={handleContinuarDesdeResumenPais}
@@ -195,9 +231,7 @@ export default function Aventura() {
                         className={`pd-origen-pais-btn ${valorActual === op.id ? 'pd-origen-pais-btn--selected' : ''}`}
                         onClick={() => handleSeleccionOpcion(op.id, op.imageUrl)}
                       >
-                        <span className="pd-origen-pais-flag" aria-hidden>
-                          {op.bandera ?? '🏳️'}
-                        </span>
+                        <OrigenPaisFlagMedia opcionId={op.id} />
                         <span className="pd-origen-pais-sep" aria-hidden>
                           —
                         </span>

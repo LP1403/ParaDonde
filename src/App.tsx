@@ -13,6 +13,7 @@ import CalculadoraDolar from './pages/CalculadoraDolar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Cuenta from './pages/Cuenta';
+import MisViajes from './pages/MisViajes';
 import Terminos from './pages/Terminos';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path="/calculadora-dolar" element={<CalculadoraDolar />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
+            <Route path="/viajes" element={<MisViajes />} />
             <Route path="/cuenta" element={<Cuenta />} />
             <Route path="/terminos" element={<Terminos />} />
           </Routes>

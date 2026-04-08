@@ -126,8 +126,9 @@ function puntajeEdad(edad: string | undefined, destino: Destino): number {
 
 function puntajeOrigen(origen: string | undefined, destino: Destino): number {
   if (!origen) return 10;
-  if (origen === 'ar' && destino.region === 'argentina') return 18;
-  if (['br', 'uy', 'py', 'bo', 'cl'].includes(origen) && destino.region === 'argentina') return 10;
+  const id = origen.startsWith('iso_') ? origen.slice(4) : origen;
+  if (id === 'ar' && destino.region === 'argentina') return 18;
+  if (['br', 'uy', 'py', 'bo', 'cl'].includes(id) && destino.region === 'argentina') return 10;
   return 12;
 }
 

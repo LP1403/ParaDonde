@@ -9,13 +9,16 @@ import { usePdTheme } from '../hooks/usePdTheme';
 import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { useHomeHubState } from '../hooks/useHomeHubState';
 import { PdUserMenu } from '../components/PdUserMenu';
+import { OrigenPaisFlagMedia } from '../components/OrigenPaisFlagMedia';
+import { OrigenPaisMundoPicker } from '../components/OrigenPaisMundoPicker';
 import { HomeHeroHub } from '../components/home/HomeHeroHub';
 import { HomeActiveAdventureCard } from '../components/home/HomeActiveAdventureCard';
 import { HomeDestinationRail } from '../components/home/HomeDestinationRail';
 import { HomeExploreCategories } from '../components/home/HomeExploreCategories';
 import { HomeAlertsList } from '../components/home/HomeAlertsList';
 import { HomeBottomCta } from '../components/home/HomeBottomCta';
-import { clearAventuraProgress } from '../logic/aventuraStorage';
+import { makeOrigenPaisIsoId } from '../logic/origenPaisResolve';
+import { clearAventuraProgress, setPersistedOrigenPaisId } from '../logic/aventuraStorage';
 
 /* ---------- Constants ---------- */
 
@@ -82,7 +85,10 @@ function presupuestoToCategoria(ars: number): string {
 function randomOpcionId(preguntaId: string): string {
   const p = preguntaPorId(preguntaId);
   if (!p?.opciones.length) return '';
-  return p.opciones[Math.floor(Math.random() * p.opciones.length)].id;
+  const opts =
+    preguntaId === 'origen_pais' ? p.opciones.filter((o) => o.id !== 'otros') : p.opciones;
+  if (!opts.length) return '';
+  return opts[Math.floor(Math.random() * opts.length)].id;
 }
 
 /* ---------- Component ---------- */
@@ -90,7 +96,7 @@ function randomOpcionId(preguntaId: string): string {
 export default function Home() {
   const navigate = useNavigate();
 
-  const { isDark, toggleTheme } = usePdTheme();
+  const { isDark } = usePdTheme();
   const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const hubState = useHomeHubState();
   const isColdHub = hubState.isColdHub;
@@ -102,6 +108,7 @@ export default function Home() {
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
   const [presupuesto, setPresupuesto] = useState(PRESUPUESTO_DEFAULT);
   const [completado, setCompletado] = useState(false);
+  const [origenMundoPickerOpen, setOrigenMundoPickerOpen] = useState(false);
   const [heroLightFallback, setHeroLightFallback] = useState(false);
   const [heroDarkFallback, setHeroDarkFallback] = useState(false);
 
@@ -151,6 +158,11 @@ export default function Home() {
 
   /* Navigate forward (auto-advance) */
   const goNext = (key: string, value: string, imagenFondo?: string) => {
+    if (key === 'origen_pais' && value === 'otros') {
+      setOrigenMundoPickerOpen(true);
+      return;
+    }
+    if (key === 'origen_pais') setPersistedOrigenPaisId(value);
     setRespuestas((prev) => ({ ...prev, [key]: value }));
     if (imagenFondo) changeSectionBg(imagenFondo);
 
@@ -162,7 +174,24 @@ export default function Home() {
     }
   };
 
+  const aplicarOrigenMundoEnHome = (iso2: string) => {
+    const id = makeOrigenPaisIsoId(iso2);
+    setPersistedOrigenPaisId(id);
+    setRespuestas((prev) => ({ ...prev, origen_pais: id }));
+    setOrigenMundoPickerOpen(false);
+    if (paso < totalPasos - 1) {
+      setStepKey((k) => k + 1);
+      setPaso((p) => p + 1);
+    } else {
+      setCompletado(true);
+    }
+  };
+
   const goBack = () => {
+    if (origenMundoPickerOpen) {
+      setOrigenMundoPickerOpen(false);
+      return;
+    }
     if (paso > 0) {
       setStepKey((k) => k + 1);
       setPaso((p) => p - 1);
@@ -223,23 +252,12 @@ export default function Home() {
     <IonPage>
       <IonContent fullscreen className="pd-home-v2" {...ionScrollProps}>
 
-        {/* ── Cuenta + tema (fixed, se oculta al bajar) ── */}
+        {/* ── Menú (tema dentro del panel); se oculta al bajar ── */}
         <div
           className={`pd-home-top-actions${chromeVisible ? '' : ' pd-floating-chrome--hidden'}`}
           slot="fixed"
         >
-          <PdUserMenu variant="home" />
-          <button
-            className="pd-toggle-btn"
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-          >
-            <span className="pd-toggle-icon">{isDark ? '🌙' : '☀️'}</span>
-            <span className={`pd-toggle-track${isDark ? ' pd-toggle-track--dark' : ''}`}>
-              <span className="pd-toggle-thumb" />
-            </span>
-            <span className="pd-toggle-icon">{isDark ? '☀️' : '🌙'}</span>
-          </button>
+          <PdUserMenu />
         </div>
 
         <HomeHeroHub
@@ -354,32 +372,42 @@ export default function Home() {
                     {/* Paso 1: país de residencia */}
                     {paso === 0 && !completado && preguntaPorId('origen_pais') && (
                       <>
-                        <div className="pd-step-header">
-                          <span className="pd-step-emoji">🌎</span>
-                          <div>
-                            <h3 className="pd-step-title">{preguntaPorId('origen_pais')!.label}</h3>
-                            <p className="pd-step-sub">Asumimos que vivís ahí para tips de documentación y equipaje.</p>
-                          </div>
-                        </div>
-                        <div className="pd-origen-pais-grid" role="list">
-                          {preguntaPorId('origen_pais')!.opciones.map((op) => (
-                            <button
-                              key={op.id}
-                              type="button"
-                              role="listitem"
-                              className={`pd-origen-pais-btn${respuestas.origen_pais === op.id ? ' pd-origen-pais-btn--selected' : ''}`}
-                              onClick={() => goNext('origen_pais', op.id)}
-                            >
-                              <span className="pd-origen-pais-flag" aria-hidden>
-                                {op.bandera ?? '🏳️'}
-                              </span>
-                              <span className="pd-origen-pais-sep" aria-hidden>
-                                —
-                              </span>
-                              <span className="pd-origen-pais-nombre">{op.label}</span>
-                            </button>
-                          ))}
-                        </div>
+                        {origenMundoPickerOpen ? (
+                          <OrigenPaisMundoPicker
+                            onCancel={() => setOrigenMundoPickerOpen(false)}
+                            onPick={aplicarOrigenMundoEnHome}
+                          />
+                        ) : (
+                          <>
+                            <div className="pd-step-header">
+                              <span className="pd-step-emoji">🌎</span>
+                              <div>
+                                <h3 className="pd-step-title">{preguntaPorId('origen_pais')!.label}</h3>
+                                <p className="pd-step-sub">
+                                  Asumimos que vivís ahí para tips de documentación y equipaje. En &quot;Otro
+                                  país&quot; podés buscar en el mundo entero.
+                                </p>
+                              </div>
+                            </div>
+                            <div className="pd-origen-pais-grid" role="list">
+                              {preguntaPorId('origen_pais')!.opciones.map((op) => (
+                                <button
+                                  key={op.id}
+                                  type="button"
+                                  role="listitem"
+                                  className={`pd-origen-pais-btn${respuestas.origen_pais === op.id ? ' pd-origen-pais-btn--selected' : ''}`}
+                                  onClick={() => goNext('origen_pais', op.id)}
+                                >
+                                  <OrigenPaisFlagMedia opcionId={op.id} />
+                                  <span className="pd-origen-pais-sep" aria-hidden>
+                                    —
+                                  </span>
+                                  <span className="pd-origen-pais-nombre">{op.label}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
 

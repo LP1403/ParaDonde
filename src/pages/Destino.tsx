@@ -8,12 +8,13 @@ import { recordDestinoVisit } from '../logic/destinosHomeStorage';
 import type { DocumentacionDestino } from '../data/destinos';
 import { SeguroBlock } from './ResultadoAventura';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
-import { PdThemeToggle } from '../components/PdThemeToggle';
 import { PdUserMenu } from '../components/PdUserMenu';
 import { useWikipediaImages } from '../hooks/useWikipediaImages';
 import { wikiImages as localWikiImages } from '../data/wikiImages';
 import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { SCROLL_EXTRA_PAST_CONTENT_TOP_PX } from '../utils/scrollIntoScrollParent';
+import { PdFavoritoDestinoButton } from '../components/PdFavoritoDestinoButton';
+import { PdVueloFavoritoSection } from '../components/PdVueloFavoritoSection';
 
 function scrollContentBelowHero(
   scrollRoot: HTMLDivElement | null,
@@ -203,6 +204,10 @@ export default function Destino() {
   const ta   = destino.reseñasExternas?.tripadvisor;
   const book = destino.reseñasExternas?.booking;
 
+  const mapsSearchHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    destino.nombre + (destino.pais ? `, ${destino.pais}` : ', Argentina'),
+  )}`;
+
   const regionLabel =
     destino.region === 'europa'         ? ' · Europa' :
     destino.region === 'norteamerica'   ? ' · América del Norte' :
@@ -250,14 +255,12 @@ export default function Destino() {
         </button>
       </div>
 
-      {/* ── Mapa + cuenta + tema ── */}
+      {/* ── Mapa + menú (tema dentro del menú) ── */}
       <div
         className={`pd-floating-chrome pd-floating-chrome--dest-trailing${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}
       >
         <a
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-            destino.nombre + (destino.pais ? ', ' + destino.pais : ', Argentina'),
-          )}`}
+          href={mapsSearchHref}
           target="_blank"
           rel="noopener noreferrer"
           className="pd-destino-floating-btn pd-destino-floating-map pd-destino-floating-btn--icon-only"
@@ -266,10 +269,7 @@ export default function Destino() {
           <IonIcon icon={locationOutline} />
           <span className="pd-destino-floating-text">Mapa</span>
         </a>
-        <div className="pd-destino-trailing-user">
-          <PdUserMenu variant="subpage" />
-        </div>
-        <PdThemeToggle />
+        <PdUserMenu />
       </div>
 
       {/* ── Scrollable container ── */}
@@ -399,15 +399,22 @@ export default function Destino() {
 
             {/* Documentación */}
             <div className="pd-destino-glass-section pd-destino-glass-section--documentacion">
-              <h2 className="pd-destino-glass-title">📋 Documentación necesaria</h2>
+              <p className="pd-destino-doc-kicker">Requisitos orientativos</p>
+              <h2 className="pd-destino-glass-title">📋 Documentación</h2>
+              <p className="pd-destino-doc-lead">
+                Resumen para planificar; siempre verificá en Migraciones, consulados y aerolínea antes de viajar.
+              </p>
               <DocumentacionSection doc={destino.documentacion} />
             </div>
 
             {/* Seguro */}
             <SeguroBlock forDestino={destino} />
 
+            {slug ? <PdVueloFavoritoSection destinoSlug={slug} /> : null}
+
             {/* Links */}
             <div className="pd-destino-glass-section pd-destino-links-section">
+              {slug ? <PdFavoritoDestinoButton slug={slug} className="pd-destino-fav-wrap" /> : null}
               <a
                 href="https://www.booking.com"
                 target="_blank"
@@ -419,13 +426,14 @@ export default function Destino() {
               <Link to="/guias/que-llevar" className="pd-destino-link">
                 🧳 Armar mi checklist para este viaje →
               </Link>
-              <button
-                onClick={() => navigate(-1)}
+              <a
+                href={mapsSearchHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="pd-destino-link"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, font: 'inherit' }}
               >
-                ← Volver al destino anterior
-              </button>
+                📍 Ver en mapa →
+              </a>
             </div>
 
           </div>
