@@ -3959,40 +3959,133 @@ html.pd-light .pd-resultado-destino-content .pd-fav-destino-btn--on {
   flex-direction: column;
   gap: 0.85rem;
 }
+/* Card = contenedor con la imagen del destino como background y un overlay
+   gradiente que abarca TODO (título + footer). Sin fondos sólidos internos.
+   La card entera es clickeable (navega a /destino/:slug). */
 .pd-misviajes-card {
+  position: relative;
   border-radius: var(--pd-radius-lg);
   border: 1px solid var(--pd-border);
-  background: var(--pd-card-bg);
-  padding: 1rem 1.05rem;
+  background-color: var(--pd-card-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  isolation: isolate;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
+.pd-misviajes-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pd-shadow-hover);
+  border-color: var(--pd-card-border);
+}
+.pd-misviajes-card:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--pd-color-bg),
+    0 0 0 4px var(--pd-color-primary);
+}
+.pd-misviajes-card[data-has-bg='false'] {
+  background-image: none !important;
+}
+
+/* Overlay gradient = mismo patrón que .pd-destino-hero-grad.
+   Cubre toda la card; el footer queda sobre la franja más oscura. */
+.pd-misviajes-card-bg-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 28%,
+    rgba(2, 6, 23, 0.5) 55%,
+    rgba(2, 6, 23, 0.88) 100%
+  );
+}
+.pd-misviajes-card[data-has-bg='false'] .pd-misviajes-card-bg-overlay {
+  background: transparent;
+}
+html.pd-light .pd-misviajes-card-bg-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 25%,
+    rgba(0, 40, 20, 0.42) 55%,
+    rgba(0, 40, 20, 0.85) 100%
+  );
+}
+
+/* Bloque superior: país + título + descripción. Sin bg propio. */
+.pd-misviajes-card-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 170px;              /* alto mínimo para que se aprecie la imagen */
+  padding: 3rem 1.05rem 0.75rem;  /* padding-top amplio = aire arriba para la foto */
+  justify-content: flex-end;       /* texto anclado al borde inferior del bloque */
+}
+.pd-misviajes-card[data-has-bg='false'] .pd-misviajes-card-main {
+  min-height: 0;
+  padding: 1rem 1.05rem 0.5rem;   /* sin imagen: compacta como antes */
+}
+
+/* ----- Tipografías sobre el hero (mismo patrón que .pd-destino-hero-*) -----
+   Cuando hay bg-image el overlay inferior SIEMPRE es oscuro (en ambos temas),
+   así que el texto siempre va blanco + text-shadow. */
 .pd-misviajes-card-kicker {
-  margin: 0 0 0.2rem;
-  font-size: 0.72rem;
-  font-weight: 800;
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   color: var(--pd-color-text-muted);
 }
+.pd-misviajes-card[data-has-bg='true'] .pd-misviajes-card-kicker {
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
 .pd-misviajes-card-title {
-  margin: 0 0 0.35rem;
-  font-size: 1.12rem;
+  margin: 0 0 0.3rem;
+  font-size: 1.25rem;
   font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
   color: var(--pd-color-text);
 }
+.pd-misviajes-card[data-has-bg='true'] .pd-misviajes-card-title {
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+}
+
 .pd-misviajes-card-desc {
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.5;
   color: var(--pd-color-text-muted);
 }
+.pd-misviajes-card[data-has-bg='true'] .pd-misviajes-card-desc {
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Footer horizontal: Ver ficha completa | Quitar de la lista.
+   Sin background ni border-top: forma parte del fade de la imagen. */
 .pd-misviajes-card-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--pd-border);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.25rem 1.05rem 0.95rem;
 }
 .pd-misviajes-link-primary {
   font-weight: 700;
@@ -4000,23 +4093,35 @@ html.pd-light .pd-resultado-destino-content .pd-fav-destino-btn--on {
   color: var(--pd-color-primary);
   text-decoration: none;
 }
+.pd-misviajes-card[data-has-bg='true'] .pd-misviajes-link-primary {
+  color: var(--pd-color-primary-muted);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
 .pd-misviajes-link-primary:hover {
   text-decoration: underline;
 }
 .pd-misviajes-link-quiet {
-  align-self: flex-start;
+  align-self: center;
+  margin-left: auto;
   padding: 0;
   border: none;
   background: none;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--pd-color-text-muted);
   cursor: pointer;
   text-decoration: underline;
   font-family: inherit;
 }
+.pd-misviajes-card[data-has-bg='true'] .pd-misviajes-link-quiet {
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
 .pd-misviajes-link-quiet:hover {
   color: var(--pd-color-text);
+}
+.pd-misviajes-card[data-has-bg='true'] .pd-misviajes-link-quiet:hover {
+  color: #ffffff;
 }
 .pd-destino-glass-section .pd-doc-notas {
   background: rgba(255, 255, 255, 0.06);

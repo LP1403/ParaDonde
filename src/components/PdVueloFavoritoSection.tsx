@@ -385,8 +385,9 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
 
       <div className="pd-vuelo-fav-form">
         <p className="pd-destino-doc-lead pd-vuelo-fav-lead">
-          Podés sumar varios vuelos (ida, vuelta u otras piernas): consultá con el número y la fecha. Si repetís el
-          mismo vuelo y fecha, se actualiza. Todo queda guardado solo en este dispositivo.
+          Podés sumar varios vuelos (ida, vuelta u otras piernas). El número se repite todos los días: la fecha indica
+          cuál de esos vuelos querés ver (elegimos la fila correcta en la respuesta). Si repetís el mismo número y
+          fecha, se actualiza. Todo queda guardado solo en este dispositivo.
         </p>
         <label className="pd-vuelo-fav-label" htmlFor="pd-vuelo-iata">
           Número de vuelo
