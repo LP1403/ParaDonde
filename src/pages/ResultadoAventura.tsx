@@ -11,6 +11,7 @@ import { DestinoResultadoBlock } from '../components/DestinoResultadoBlock';
 import { scrollElementToTopInScrollParent } from '../utils/scrollIntoScrollParent';
 import type { Destino } from '../data/destinos';
 import { recordDestinoVisit } from '../logic/destinosHomeStorage';
+import { recordAventuraResultadoSnapshot } from '../logic/aventuraResultadoHistorialStorage';
 
 /* ─────────────────────────────────────────── Seguro Block ── */
 
@@ -173,6 +174,7 @@ export default function ResultadoAventura() {
   const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryString = searchParams.toString();
   const respuestas: Record<string, string> = {};
   searchParams.forEach((v, k) => {
     respuestas[k] = v;
@@ -218,6 +220,10 @@ export default function ResultadoAventura() {
   useEffect(() => {
     if (primerSlug) recordDestinoVisit(primerSlug);
   }, [primerSlug]);
+
+  useEffect(() => {
+    if (queryString) recordAventuraResultadoSnapshot(queryString);
+  }, [queryString]);
 
   return (
     <IonPage className="pd-destino-page">

@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
-import { IonPage, IonContent } from '@ionic/react';
+import { useEffect, useState, useMemo, useRef, useCallback, type ComponentRef } from 'react';
+import { IonPage, IonContent, IonIcon } from '@ionic/react';
+import { chevronUpOutline } from 'ionicons/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { destinos } from '../data/destinos';
 import { preguntasAventura } from '../data/aventura';
@@ -113,6 +114,81 @@ export default function Home() {
   const [heroDarkFallback, setHeroDarkFallback] = useState(false);
 
   const aventuraRef = useRef<HTMLElement>(null);
+  const homeContentRef = useRef<ComponentRef<typeof IonContent> | null>(null);
+
+  const [showScrollToHero, setShowScrollToHero] = useState(false);
+
+  const scrollToPreparaTuViaje = useCallback(() => {
+    const el = document.getElementById('prepara-tu-viaje');
+    if (!el) return;
+    void (async () => {
+      const ion = homeContentRef.current;
+      try {
+        const scrollEl = ion && (await ion.getScrollElement());
+        if (scrollEl) {
+          const elRect = el.getBoundingClientRect();
+          const seRect = scrollEl.getBoundingClientRect();
+          const y = elRect.top - seRect.top + scrollEl.scrollTop;
+          scrollEl.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+          return;
+        }
+      } catch {
+        /* fallback: scrollport distinto o SSR */
+      }
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    })();
+  }, []);
+
+  const scrollToHomeHero = useCallback(() => {
+    void (async () => {
+      const ion = homeContentRef.current;
+      try {
+        const scrollEl = ion && (await ion.getScrollElement());
+        if (scrollEl) {
+          scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+      } catch {
+        /* fallback */
+      }
+      document.getElementById('pd-home-hero')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    })();
+  }, []);
+
+  useEffect(() => {
+    let obs: IntersectionObserver | null = null;
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      const ion = homeContentRef.current;
+      if (!ion) return;
+      void (async () => {
+        try {
+          const scrollEl = await ion.getScrollElement();
+          const hero = document.getElementById('pd-home-hero');
+          if (cancelled || !scrollEl || !hero) return;
+          obs = new IntersectionObserver(
+            (entries) => {
+              const e = entries[0];
+              if (!e) return;
+              setShowScrollToHero(e.intersectionRatio < 0.22);
+            },
+            {
+              root: scrollEl,
+              threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.35, 0.5, 0.75, 1],
+            },
+          );
+          obs.observe(hero);
+        } catch {
+          /* */
+        }
+      })();
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+      obs?.disconnect();
+    };
+  }, []);
   const totalPasos = 7;
 
   /* Fondo de la sección aventura: misma foto visible en todos los pasos hasta cambiar de contexto */
@@ -248,16 +324,33 @@ export default function Home() {
 
   const heroImgKey = `${isDark ? 'd' : 'l'}-${tryHubHero ? 'hub' : isDark ? (heroDarkFallback ? 'fb' : '1') : heroLightFallback ? 'fb' : '1'}`;
 
+  const homeTopBarHidden = isColdHub && !chromeVisible;
+
   return (
     <IonPage>
-      <IonContent fullscreen className="pd-home-v2" {...ionScrollProps}>
+      <IonContent ref={homeContentRef} fullscreen className="pd-home-v2" {...ionScrollProps}>
 
-        {/* ── Menú (tema dentro del panel); se oculta al bajar ── */}
+        {/* Menú a la derecha; centro: volver al hero (solo vista hub) */}
         <div
-          className={`pd-home-top-actions${chromeVisible ? '' : ' pd-floating-chrome--hidden'}`}
+          className={`pd-home-top-actions${homeTopBarHidden ? ' pd-floating-chrome--hidden' : ''}`}
           slot="fixed"
         >
-          <PdUserMenu />
+          <div className="pd-home-top-left" aria-hidden="true" />
+          <div className="pd-home-top-center">
+            {!isColdHub && showScrollToHero && (
+              <button
+                type="button"
+                className="pd-destino-floating-btn pd-destino-floating-btn--icon-only"
+                onClick={scrollToHomeHero}
+                aria-label="Volver al inicio (aventura y acciones)"
+              >
+                <IonIcon icon={chevronUpOutline} />
+              </button>
+            )}
+          </div>
+          <div className="pd-home-top-end">
+            <PdUserMenu />
+          </div>
         </div>
 
         <HomeHeroHub
@@ -287,6 +380,7 @@ export default function Home() {
               block: 'start',
             });
           }}
+          onPreparaTuViaje={!isColdHub ? scrollToPreparaTuViaje : undefined}
         />
 
         {!isColdHub && (
@@ -690,9 +784,14 @@ export default function Home() {
         </section>
         )}
 
-        {/* ── Prepará tu viaje ── */}
-        <section className="pd-prep-v2">
-          <div className="pd-content">
+        {/* ── Prepará tu viaje (ancla: scroll 100dvh) ── */}
+        <section
+          id="prepara-tu-viaje"
+          className="pd-prep-v2"
+          role="region"
+          aria-label="Prepará tu viaje"
+        >
+          <div className="pd-content pd-prep-v2-content">
             <h2 className="pd-section-title">Prepará tu viaje</h2>
             <div className="pd-prep-grid-v2">
               {PREP_CARDS.map((card) => (

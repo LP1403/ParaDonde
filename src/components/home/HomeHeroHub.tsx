@@ -13,6 +13,8 @@ type Props = {
   /** Hub: si hay destinos guardados, segundo CTA que scrollea a la sección */
   showMisDestinos?: boolean;
   onMisDestinos?: () => void;
+  /** Hub: scroll a la sección “Prepara tu viaje” (CTA bajo el hub) */
+  onPreparaTuViaje?: () => void;
 };
 
 export function HomeHeroHub({
@@ -27,11 +29,12 @@ export function HomeHeroHub({
   onHubPrimaryCta,
   showMisDestinos = false,
   onMisDestinos,
+  onPreparaTuViaje,
 }: Props) {
   const isCold = variant === 'cold';
 
   return (
-    <section className="pd-hero-v2" aria-labelledby="home-hero-title">
+    <section id="pd-home-hero" className="pd-hero-v2" aria-labelledby="home-hero-title">
       <img
         key={imgKey}
         className="pd-hero-bg-img"
@@ -60,7 +63,7 @@ export function HomeHeroHub({
         ) : (
           <>
             <h1 id="home-hero-title" className="pd-hero-title">
-              Hola, {greetingFirstName} <span aria-hidden>✨</span>
+              Hola, {greetingFirstName}
             </h1>
             <p className="pd-hero-subtitle">¿Listo para tu próxima aventura?</p>
             <div className="pd-hero-cta-stack">
@@ -74,6 +77,15 @@ export function HomeHeroHub({
                   onClick={onMisDestinos}
                 >
                   Mis destinos
+                </button>
+              ) : null}
+              {onPreparaTuViaje ? (
+                <button
+                  type="button"
+                  className="pd-hero-cta pd-hero-cta--secondary"
+                  onClick={onPreparaTuViaje}
+                >
+                  Prepara tu viaje
                 </button>
               ) : null}
             </div>

@@ -1,12 +1,20 @@
+18/04
+
+
+
+
+
 04/03
 
 info de vuelos y demas encima del destino visible pero chico, en la tarjeta del destino. por ej que pueda ver el vuelo con horarios de mas. suponiendo que se registro ya con el mismo mail donde tenga la informacion del vuelo, hospedaje, assistcard etc, si es que podemos o hay algo abierto de algguna api de estos o algo que podamos guardar para llevarlo direccto como link, comof acilitadores
 
+Ver si existe una api gratuita para ver vuelos
 
 labirar la seccion de textos/documentos y enlaces utiles en general, para que corersponda con el resto de la app
 
 
 23/03
+YA HECHO
 
 http://localhost:5173/aventura/resultado?vibra=naturaleza&matiz=nieve&experiencia=montana_naturaleza&compania=solo&temporada=invierno&presupuesto_ars=2000000
 

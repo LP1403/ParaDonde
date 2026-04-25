@@ -99,7 +99,7 @@ export function PdUserMenu() {
                 {user ? (
                   <>
                     <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
-                      Mis datos
+                      Mi cuenta
                     </Link>
                     <button
                       type="button"
@@ -122,9 +122,8 @@ export function PdUserMenu() {
                     </Link>
                   </>
                 )}
-                <div className="pd-user-menu-theme-row" role="group" aria-label="Tema de la app">
-                  <span className="pd-user-menu-theme-label">Modo claro u oscuro</span>
-                  <PdThemeToggle className="pd-user-menu-theme-toggle" />
+                <div className="pd-user-menu-theme-row pd-user-menu-theme-row--minimal" role="group" aria-label="Tema de la app">
+                  <PdThemeToggle className="pd-user-menu-theme-toggle pd-user-menu-theme-toggle--minimal" />
                 </div>
                 <Link to="/terminos" className="pd-user-menu-link" onClick={close}>
                   Términos y condiciones
