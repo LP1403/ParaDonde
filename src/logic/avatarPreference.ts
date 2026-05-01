@@ -1,3 +1,6 @@
+import { getCurrentUid } from './syncRouter';
+import { updateUserProfile } from '../services/firestoreService';
+
 const STORAGE_KEY = 'paradonde_avatar_choice_v1';
 
 export const AVATAR_PRESETS = ['🧭', '🌎', '✈️', '🧳', '🏔️', '🌊', '🗺️', '☀️', '🦙', '🌋'] as const;
@@ -30,6 +33,9 @@ export function setAvatarChoice(choice: AvatarChoice): void {
   } catch {
     /* ignore */
   }
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid) void updateUserProfile(uid, { avatarChoice: choice });
 }
 
 export type MenuTriggerAvatar = { kind: 'photo'; src: string } | { kind: 'emoji'; emoji: string };

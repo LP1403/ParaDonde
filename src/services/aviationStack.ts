@@ -4,7 +4,9 @@
  * En producción estática, si el navegador bloquea CORS, hace falta un proxy (p. ej. Cloud Function).
  */
 
+import type { Destino } from '../data/destinos';
 import type { VueloFavoritoDisplay } from '../logic/vueloFavoritoStorage';
+import { pickFlightRowForDateAndDestino } from '../logic/vueloDestinoCoincidencia';
 
 export type AviationStackFlightRow = {
   flight_date?: string;
@@ -72,19 +74,6 @@ function buildFlightsUrl(
   return u;
 }
 
-function pickRowForDate(rows: AviationStackFlightRow[] | undefined, flightDateYmd: string): AviationStackFlightRow | null {
-  if (!rows?.length) return null;
-  const exact = rows.filter((r) => (r.flight_date ?? '').slice(0, 10) === flightDateYmd);
-  if (exact.length === 1) return exact[0];
-  if (exact.length > 1) return exact[0];
-  const byDep = rows.find((r) => {
-    const s = r.departure?.scheduled;
-    if (!s) return false;
-    return s.slice(0, 10) === flightDateYmd;
-  });
-  return byDep ?? null;
-}
-
 export function normalizeFlightIata(raw: string): string | null {
   const s = raw.replace(/\s+/g, '').toUpperCase();
   if (!s) return null;
@@ -133,6 +122,7 @@ export function rowToDisplay(
 export async function fetchFlightByIata(
   flightIata: string,
   flightDateYmd: string,
+  opts?: { destino?: Destino | null },
 ): Promise<{ row: AviationStackFlightRow | null; errorMessage?: string }> {
   const key = getAviationStackAccessKey();
   if (!key) {
@@ -171,7 +161,7 @@ export async function fetchFlightByIata(
   }
 
   const rows = json.data ?? [];
-  const row = pickRowForDate(rows, flightDateYmd);
+  const row = pickFlightRowForDateAndDestino(rows, flightDateYmd, opts?.destino ?? null);
 
   if (!row) {
     return {

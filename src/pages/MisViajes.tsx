@@ -2,22 +2,13 @@ import { useEffect, useReducer } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IonPage, IonContent } from '@ionic/react';
 import { getDestinoBySlug } from '../data/destinos';
-import { wikiImages as localWikiImages } from '../data/wikiImages';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
 import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import {
   getFavoriteDestinoSlugs,
   removeFavoriteDestino,
 } from '../logic/destinosFavoritosStorage';
-
-/** Devuelve la primera imagen utilizable del destino (local > imageUrl). */
-function getDestinoHeroImage(
-  destino: NonNullable<ReturnType<typeof getDestinoBySlug>>,
-): string | undefined {
-  const local = localWikiImages[destino.id];
-  if (local && local.length > 0) return local[0];
-  return destino.imageUrl;
-}
+import { primeraImagenDestinoLista } from '../utils/destinoImagenes';
 
 export default function MisViajes() {
   const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
@@ -66,7 +57,7 @@ export default function MisViajes() {
           ) : (
             <ul className="pd-misviajes-list" aria-label="Viajes guardados">
               {items.map(({ slug, d }) => {
-                const hero = getDestinoHeroImage(d);
+                const hero = primeraImagenDestinoLista(d);
                 const openDestino = () => navigate(`/destino/${slug}`);
                 return (
                   <li

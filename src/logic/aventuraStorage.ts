@@ -1,4 +1,10 @@
 import { preguntasAventura } from '../data/aventura';
+import { getCurrentUid } from './syncRouter';
+import {
+  saveAventuraProgressFs,
+  clearAventuraProgressFs,
+  updateUserProfile,
+} from '../services/firestoreService';
 
 /** Respuestas completas (flujo legacy en sessionStorage al terminar) */
 export const SESSION_RESPUESTAS_KEY = 'paradonde_aventura_respuestas';
@@ -28,6 +34,9 @@ export function getAventuraProgress(): AventuraProgress | null {
 
 export function setAventuraProgress(p: AventuraProgress): void {
   localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid) void saveAventuraProgressFs(uid, p);
 }
 
 export function clearAventuraProgress(): void {
@@ -37,6 +46,9 @@ export function clearAventuraProgress(): void {
   } catch {
     /* ignore */
   }
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid) void clearAventuraProgressFs(uid);
 }
 
 /** Imagen de la última respuesta con `imageUrl` (para tarjeta del hub). */
@@ -90,4 +102,7 @@ export function setPersistedOrigenPaisId(id: string): void {
   } catch {
     /* ignore */
   }
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid && id?.trim()) void updateUserProfile(uid, { origenPaisId: id.trim() });
 }

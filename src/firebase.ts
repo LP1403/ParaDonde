@@ -1,8 +1,10 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAnalytics, type Analytics } from 'firebase/analytics';
 import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getMessaging, type Messaging } from 'firebase/messaging';
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
   authDomain: 'para-donde.firebaseapp.com',
   projectId: 'para-donde',
@@ -15,6 +17,8 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let analytics: Analytics | null = null;
 let auth: Auth | undefined;
+let db: Firestore | undefined;
+let messaging: Messaging | undefined;
 
 export function getFirebaseApp(): FirebaseApp {
   if (!app) {
@@ -41,4 +45,25 @@ export function getFirebaseAuth(): Auth {
     auth = getAuth(getFirebaseApp());
   }
   return auth;
+}
+
+/** Firestore database. */
+export function getFirebaseDb(): Firestore {
+  if (!db) {
+    db = getFirestore(getFirebaseApp());
+  }
+  return db;
+}
+
+/** Firebase Cloud Messaging. Solo disponible en navegadores con soporte de SW. */
+export function getFirebaseMessaging(): Messaging | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    if (!messaging) {
+      messaging = getMessaging(getFirebaseApp());
+    }
+    return messaging;
+  } catch {
+    return null;
+  }
 }

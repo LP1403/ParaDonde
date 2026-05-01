@@ -8,5 +8,10 @@
         "destination": "/index.html"
       }
     ]
-  }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "_functions_disabled": "Descomentar cuando estés listo: \"functions\": { \"source\": \"functions\" }"
 }

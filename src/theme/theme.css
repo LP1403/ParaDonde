@@ -250,27 +250,31 @@ ion-content.pd-home-v2::part(scroll) {
   }
 }
 
-/* Subpáginas: volver (izq) | menú centrado en el resto */
+/* Subpáginas: solo volver + menú → space-between (misma app: Aventura, Login, etc.) */
 .pd-floating-chrome--sub-top {
   position: fixed;
   top: max(1rem, env(safe-area-inset-top, 0px));
   left: max(1rem, env(safe-area-inset-left, 0px));
   right: max(1rem, env(safe-area-inset-right, 0px));
   z-index: 100;
-  display: grid;
-  grid-template-columns: auto 1fr;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  column-gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.5rem;
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
 }
 .pd-subpage-chrome-left {
-  justify-self: start;
+  flex-shrink: 0;
   min-width: 0;
 }
 .pd-subpage-chrome-center {
   display: flex;
-  justify-content: center;
-  justify-self: stretch;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
   min-width: 0;
 }
 .pd-subpage-chrome-center .pd-destino-floating-btn.pd-destino-floating-menu {
@@ -3451,14 +3455,100 @@ html.pd-light .pd-destino-doc-lead {
   margin-top: 0;
   margin-bottom: 0.65rem;
 }
-.pd-vuelo-fav-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 0.15rem 0 0.85rem;
+.pd-vuelo-fav-add-more {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 0.35rem;
 }
-.pd-vuelo-fav-cards .pd-vuelo-card {
+html.pd-light .pd-vuelo-fav-add-more {
+  color: #1e293b;
+}
+/* ── Carousel de vuelos ── */
+.pd-vuelo-carousel {
+  width: 100%;
+  margin: 0.15rem 0 0.75rem;
+}
+.pd-vuelo-carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.pd-vuelo-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+.pd-vuelo-carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+.pd-vuelo-carousel-slide .pd-vuelo-card {
   margin: 0;
+}
+.pd-vuelo-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.pd-vuelo-carousel-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.pd-vuelo-carousel-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+.pd-vuelo-carousel-btn:disabled {
+  opacity: 0.22;
+  cursor: default;
+}
+html.pd-light .pd-vuelo-carousel-btn {
+  border-color: rgba(0, 0, 0, 0.18);
+  color: #64748b;
+}
+html.pd-light .pd-vuelo-carousel-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.06);
+}
+.pd-vuelo-carousel-dots {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.pd-vuelo-carousel-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.pd-vuelo-carousel-dot--active {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.35);
+}
+html.pd-light .pd-vuelo-carousel-dot {
+  background: rgba(0, 0, 0, 0.18);
+}
+html.pd-light .pd-vuelo-carousel-dot--active {
+  background: var(--pd-color-primary, #1976d2);
 }
 
 .pd-vuelo-card {
@@ -3760,6 +3850,17 @@ html.pd-light .pd-vuelo-card-remove {
 html.pd-light .pd-vuelo-card-remove:hover {
   color: #0f172a;
 }
+.pd-vuelo-card-error {
+  margin: 0.55rem 0 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #fecaca;
+  line-height: 1.45;
+  text-align: center;
+}
+html.pd-light .pd-vuelo-card-error {
+  color: #b91c1c;
+}
 
 .pd-vuelo-fav-status {
   font-size: 0.72rem;
@@ -3919,6 +4020,9 @@ html.pd-light .pd-vuelo-fav-hint a {
   font-weight: 600;
   color: #fecaca;
   line-height: 1.45;
+}
+.pd-vuelo-fav-error--form {
+  margin-top: 0.85rem;
 }
 html.pd-light .pd-vuelo-fav-error {
   color: #b91c1c;
@@ -4353,6 +4457,67 @@ html.pd-light .pd-user-menu-trigger-avatar {
   border-color: rgba(0, 0, 0, 0.12);
 }
 
+/* Cerrar sesión a la izquierda del ícono menú (fuera del panel) */
+.pd-user-menu-cluster {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+.pd-user-menu-logout-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  box-sizing: border-box;
+  min-height: 2.42rem;
+  min-width: 2.42rem;
+  padding: 0.48rem 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+.pd-user-menu-logout-btn ion-icon {
+  display: block;
+  font-size: 1.14rem;
+  width: 1.14rem;
+  height: 1.14rem;
+}
+.pd-user-menu-logout-btn:hover {
+  background: rgba(0, 0, 0, 0.68);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+html.pd-light .pd-user-menu-logout-btn {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(0, 0, 0, 0.14);
+  color: var(--pd-color-primary, #1976d2);
+}
+html.pd-light .pd-user-menu-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+@media (min-width: 520px) {
+  .pd-user-menu-logout-btn {
+    min-height: 2.55rem;
+    min-width: 2.55rem;
+    padding: 0.52rem 0.95rem;
+  }
+}
+.pd-home-top-actions .pd-user-menu-logout-btn {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
 /* Portal en document.body: evita que IonContent slot=fixed recorte position:fixed */
 .pd-user-menu-portal-root {
   position: fixed;
@@ -4622,6 +4787,14 @@ html.pd-light .pd-auth-error {
 }
 .pd-auth-submit:hover {
   background: var(--pd-color-primary-hover);
+}
+a.pd-auth-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 .pd-auth-submit--outline {
   background: transparent;

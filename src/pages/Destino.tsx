@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { IonPage, IonContent } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
@@ -103,6 +103,7 @@ export default function Destino() {
   const { chromeVisible, ionScrollProps, notifyScrollTop } = useFloatingChromeScroll();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -178,6 +179,18 @@ export default function Destino() {
   useEffect(() => {
     if (destino) document.title = `${destino.nombre} – Para Dónde?`;
   }, [destino]);
+
+  /** Desde Mis viajes (#destino-vuelos): bajar a la sección de vuelos tras montar el contenido. */
+  useEffect(() => {
+    if (location.hash !== '#destino-vuelos') return;
+    const run = () => {
+      const el = document.getElementById('destino-vuelos');
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    const t = window.setTimeout(run, 120);
+    return () => window.clearTimeout(t);
+  }, [location.hash, location.pathname, slug, destino?.id]);
 
   /* Not found */
   if (!destino) {
@@ -410,7 +423,11 @@ export default function Destino() {
             {/* Seguro */}
             <SeguroBlock forDestino={destino} />
 
-            {slug ? <PdVueloFavoritoSection destinoSlug={slug} /> : null}
+            {slug ? (
+              <section id="destino-vuelos" className="pd-destino-vuelos-anchor" tabIndex={-1}>
+                <PdVueloFavoritoSection destinoSlug={slug} />
+              </section>
+            ) : null}
 
             {/* Links */}
             <div className="pd-destino-glass-section pd-destino-links-section">

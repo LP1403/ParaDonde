@@ -1,3 +1,9 @@
+import imgAventuraDeporte from '../assets/aventura.jpeg';
+import imgCompaniaFamilia from '../assets/familia.jpeg';
+import imgCompaniaPareja from '../assets/pareja.jpeg';
+import imgExperienciaRelax from '../assets/relax.jpeg';
+import imgCompaniaSolo from '../assets/solitario.jpeg';
+
 export interface OpcionAventura {
   id: string;
   label: string;
@@ -68,14 +74,12 @@ export const preguntasAventura: PreguntaAventura[] = [
       {
         id: 'solo',
         label: 'Solo/a',
-        imageUrl:
-          'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
+        imageUrl: imgCompaniaSolo,
       },
       {
         id: 'pareja',
         label: 'En pareja',
-        imageUrl:
-          'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80',
+        imageUrl: imgCompaniaPareja,
       },
       {
         id: 'amigos',
@@ -86,8 +90,7 @@ export const preguntasAventura: PreguntaAventura[] = [
       {
         id: 'familia',
         label: 'Con familia (con niños)',
-        imageUrl:
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
+        imageUrl: imgCompaniaFamilia,
       },
     ],
   },
@@ -98,8 +101,7 @@ export const preguntasAventura: PreguntaAventura[] = [
       {
         id: 'playa_relax',
         label: 'Playa y relax',
-        imageUrl:
-          'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80',
+        imageUrl: imgExperienciaRelax,
       },
       {
         id: 'montana_naturaleza',
@@ -116,8 +118,7 @@ export const preguntasAventura: PreguntaAventura[] = [
       {
         id: 'aventura_deporte',
         label: 'Aventura y deporte',
-        imageUrl:
-          'https://images.unsplash.com/photo-1500043201641-4f4e6da1cd8e?auto=format&fit=crop&w=800&q=80',
+        imageUrl: imgAventuraDeporte,
       },
       {
         id: 'gastronomia_vino',

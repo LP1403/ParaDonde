@@ -1,7 +1,10 @@
 /**
  * Vuelos guardados por destino (Mis viajes), varios por slug (ida / vuelta, escalas).
- * Persistencia local; en el futuro se puede sincronizar con la cuenta.
+ * Persistencia local + sincronización con Firestore cuando el usuario está logueado.
  */
+
+import { getCurrentUid } from './syncRouter';
+import { upsertVueloFs, removeVueloFs } from '../services/firestoreService';
 
 const STORAGE_KEY_V2 = 'paradonde_vuelo_favorito_por_slug_v2';
 const LEGACY_STORAGE_KEY = 'paradonde_vuelo_favorito_por_slug_v1';
@@ -27,6 +30,8 @@ export type VueloFavoritoDisplay = {
   arrTerminal?: string;
   arrGate?: string;
   arrDelayMin?: number;
+  /** Escalas intermedias (plan pago de AviationStack o futuras fuentes). */
+  stops?: { iata: string; airport?: string }[];
 };
 
 export type VueloFavoritoGuardado = {
@@ -173,6 +178,11 @@ export function upsertVueloFavorito(
   const next = idx === -1 ? [...prev, row] : prev.map((x, i) => (i === idx ? row : x));
   all[key] = next;
   writeAll(all);
+
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid) void upsertVueloFs(uid, key, row);
+
   return row;
 }
 
@@ -190,6 +200,10 @@ export function removeVueloFavorito(slug: string, id: string): void {
   if (next.length === 0) delete all[key];
   else all[key] = next;
   writeAll(all);
+
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid) void removeVueloFs(uid, id);
 }
 
 export function clearVuelosFavoritos(slug: string): void {

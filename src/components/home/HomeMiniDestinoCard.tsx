@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Destino } from '../../data/destinos';
+import { primeraImagenDestinoLista } from '../../utils/destinoImagenes';
 import { duracionChip, presupuestoChip, tripAdvisorChip } from './homeDestinoUtils';
 
 type Props = {
@@ -7,7 +8,7 @@ type Props = {
 };
 
 export function HomeMiniDestinoCard({ destino: d }: Props) {
-  const bg = d.imageUrl ?? '';
+  const bg = primeraImagenDestinoLista(d) ?? '';
   const ta = tripAdvisorChip(d);
   const pres = presupuestoChip(d);
   const dias = duracionChip(d);

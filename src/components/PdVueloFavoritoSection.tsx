@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { isFavoriteDestino } from '../logic/destinosFavoritosStorage';
 import {
   clearVuelosFavoritos,
@@ -99,6 +99,7 @@ function VueloSnapshotCard({
   refreshing,
   refreshDisabled,
   onRemove,
+  refreshError,
 }: {
   d: VueloFavoritoDisplay;
   updatedAt: string;
@@ -106,6 +107,8 @@ function VueloSnapshotCard({
   refreshing?: boolean;
   refreshDisabled?: boolean;
   onRemove?: () => void;
+  /** Error de “Actualizar datos” para esta tarjeta (debajo del footer de la card). */
+  refreshError?: string | null;
 }) {
   const sc = statusCssClass(d.status);
   const statusLabel = STATUS_ES[sc] ?? d.status;
@@ -230,6 +233,11 @@ function VueloSnapshotCard({
           ) : null}
         </div>
       ) : null}
+      {refreshError ? (
+        <p className="pd-vuelo-card-error" role="alert">
+          {refreshError}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -249,19 +257,53 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
   const [dateInput, setDateInput] = useState(initialForm.date);
   const [loading, setLoading] = useState(false);
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
+  /** Errores del formulario “Guardar vuelo”. */
   const [err, setErr] = useState<string | null>(null);
+  /** Error de “Actualizar datos” en una tarjeta concreta. */
+  const [cardRefreshErr, setCardRefreshErr] = useState<{ id: string; message: string } | null>(null);
   const [savedList, setSavedList] = useState<VueloFavoritoGuardado[]>(initialList);
+
+  // Carousel
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  useEffect(() => {
+    setActiveIdx((prev) => (savedList.length === 0 ? 0 : Math.min(prev, savedList.length - 1)));
+  }, [savedList.length]);
+
+  const goTo = useCallback(
+    (idx: number) => {
+      const track = trackRef.current;
+      if (!track) return;
+      const clamped = Math.min(Math.max(idx, 0), savedList.length - 1);
+      const slide = track.children[clamped] as HTMLElement | undefined;
+      if (slide) track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+      setActiveIdx(clamped);
+    },
+    [savedList.length],
+  );
+
+  const handleTrackScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (!track || savedList.length === 0) return;
+    const slideWidth = track.scrollWidth / savedList.length;
+    if (slideWidth === 0) return;
+    const idx = Math.round(track.scrollLeft / slideWidth);
+    setActiveIdx(Math.min(Math.max(idx, 0), savedList.length - 1));
+  }, [savedList.length]);
 
   const persistFetchedFlight = useCallback(
     async (
       iata: string,
       dateYmd: string,
     ): Promise<{ ok: true } | { ok: false; error: string }> => {
-      const { row, errorMessage } = await fetchFlightByIata(iata, dateYmd);
+      const destino = getDestinoBySlug(destinoSlug);
+      const { row, errorMessage } = await fetchFlightByIata(iata, dateYmd, {
+        destino: destino ?? undefined,
+      });
       if (!row) {
         return { ok: false, error: errorMessage ?? 'No se pudo obtener la información.' };
       }
-      const destino = getDestinoBySlug(destinoSlug);
       if (destino && !vueloCoincideConDestino(destino, row)) {
         return {
           ok: false,
@@ -290,6 +332,7 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
     setFlightInput(flight);
     setDateInput(date);
     setErr(null);
+    setCardRefreshErr(null);
   }, [destinoSlug]);
 
   useEffect(() => {
@@ -312,6 +355,7 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
 
   const runFetch = async () => {
     setErr(null);
+    setCardRefreshErr(null);
     const iata = normalizeFlightIata(flightInput);
     if (!iata) {
       setErr('Ingresá el código del vuelo (ej. AR1304, LA800).');
@@ -336,10 +380,11 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
 
   const handleRefreshCard = async (v: VueloFavoritoGuardado) => {
     setErr(null);
+    setCardRefreshErr(null);
     setRefreshingId(v.id);
     try {
       const r = await persistFetchedFlight(v.flightIata, v.flightDate);
-      if (!r.ok) setErr(r.error);
+      if (!r.ok) setCardRefreshErr({ id: v.id, message: r.error });
     } finally {
       setRefreshingId(null);
     }
@@ -353,12 +398,14 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
     setFlightInput(flight);
     setDateInput(date);
     setErr(null);
+    setCardRefreshErr(null);
   };
 
   const handleClearAll = () => {
     clearVuelosFavoritos(destinoSlug);
     setSavedList([]);
     setErr(null);
+    setCardRefreshErr(null);
     setFlightInput('');
     setDateInput(localDateYmd());
   };
@@ -368,27 +415,67 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
       <h2 className="pd-destino-glass-title">✈️ Tus vuelos</h2>
 
       {savedList.length > 0 ? (
-        <div className="pd-vuelo-fav-cards">
-          {savedList.map((v) => (
-            <VueloSnapshotCard
-              key={v.id}
-              d={v.display}
-              updatedAt={v.updatedAt}
-              onRefresh={hasKey ? () => void handleRefreshCard(v) : undefined}
-              refreshing={refreshingId === v.id}
-              refreshDisabled={loading}
-              onRemove={() => handleRemoveOne(v.id)}
-            />
-          ))}
+        <div className="pd-vuelo-carousel">
+          <div
+            className="pd-vuelo-carousel-track"
+            ref={trackRef}
+            onScroll={handleTrackScroll}
+          >
+            {savedList.map((v) => (
+              <div key={v.id} className="pd-vuelo-carousel-slide">
+                <VueloSnapshotCard
+                  d={v.display}
+                  updatedAt={v.updatedAt}
+                  onRefresh={hasKey ? () => void handleRefreshCard(v) : undefined}
+                  refreshing={refreshingId === v.id}
+                  refreshDisabled={loading}
+                  onRemove={() => handleRemoveOne(v.id)}
+                  refreshError={cardRefreshErr?.id === v.id ? cardRefreshErr.message : null}
+                />
+              </div>
+            ))}
+          </div>
+          {savedList.length > 1 ? (
+            <div className="pd-vuelo-carousel-controls">
+              <button
+                type="button"
+                className="pd-vuelo-carousel-btn"
+                onClick={() => goTo(activeIdx - 1)}
+                disabled={activeIdx === 0}
+                aria-label="Vuelo anterior"
+              >‹</button>
+              <div className="pd-vuelo-carousel-dots">
+                {savedList.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`pd-vuelo-carousel-dot${i === activeIdx ? ' pd-vuelo-carousel-dot--active' : ''}`}
+                    onClick={() => goTo(i)}
+                    aria-label={`Vuelo ${i + 1}`}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                className="pd-vuelo-carousel-btn"
+                onClick={() => goTo(activeIdx + 1)}
+                disabled={activeIdx === savedList.length - 1}
+                aria-label="Vuelo siguiente"
+              >›</button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
       <div className="pd-vuelo-fav-form">
-        <p className="pd-destino-doc-lead pd-vuelo-fav-lead">
-          Podés sumar varios vuelos (ida, vuelta u otras piernas). El número se repite todos los días: la fecha indica
-          cuál de esos vuelos querés ver (elegimos la fila correcta en la respuesta). Si repetís el mismo número y
-          fecha, se actualiza. Todo queda guardado solo en este dispositivo.
-        </p>
+        {savedList.length > 0 ? (
+          <h3 className="pd-vuelo-fav-add-more">Agrega otros vuelos</h3>
+        ) : (
+          <p className="pd-destino-doc-lead pd-vuelo-fav-lead">
+            Podés sumar varios vuelos (ida, vuelta u otras piernas). Si repetís el mismo número y
+            fecha, se actualiza.
+          </p>
+        )}
         <label className="pd-vuelo-fav-label" htmlFor="pd-vuelo-iata">
           Número de vuelo
         </label>
@@ -401,6 +488,7 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
           placeholder="ej. AR1304"
           value={flightInput}
           onChange={(e) => setFlightInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !loading && hasKey) void runFetch(); }}
           disabled={loading || !hasKey}
         />
         <label className="pd-vuelo-fav-label" htmlFor="pd-vuelo-date">
@@ -412,6 +500,7 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
           type="date"
           value={dateInput}
           onChange={(e) => setDateInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !loading && hasKey) void runFetch(); }}
           disabled={loading || !hasKey}
         />
         <div className="pd-vuelo-fav-actions">
@@ -435,14 +524,17 @@ export function PdVueloFavoritoSection({ destinoSlug }: Props) {
               </button>
             </div>
           ) : null}
+          {err ? (
+            <p className="pd-vuelo-fav-error pd-vuelo-fav-error--form" role="alert">
+              {err}
+            </p>
+          ) : null}
         </div>
       </div>
 
       {!hasKey ? (
         <p className="pd-vuelo-fav-hint">La consulta de vuelo no está disponible en este momento.</p>
       ) : null}
-
-      {err ? <p className="pd-vuelo-fav-error">{err}</p> : null}
     </div>
   );
 }

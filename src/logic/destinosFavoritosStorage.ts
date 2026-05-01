@@ -1,3 +1,9 @@
+import { getCurrentUid } from './syncRouter';
+import {
+  addDestinoFavoritoFs,
+  removeDestinoFavoritoFs,
+} from '../services/firestoreService';
+
 const FAVORITES_KEY = 'paradonde_destinos_favoritos_v1';
 const MAX_FAVORITES = 40;
 
@@ -37,6 +43,10 @@ export function addFavoriteDestino(slug: string): void {
   } catch {
     /* ignore */
   }
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  console.log('[favoritos] addFavoriteDestino - uid:', uid, 'slug:', slug);
+  if (uid) void addDestinoFavoritoFs(uid, slug.trim());
 }
 
 export function removeFavoriteDestino(slug: string): void {
@@ -49,6 +59,9 @@ export function removeFavoriteDestino(slug: string): void {
   } catch {
     /* ignore */
   }
+  // Firestore sync (fire and forget)
+  const uid = getCurrentUid();
+  if (uid) void removeDestinoFavoritoFs(uid, slug.trim());
 }
 
 /** Devuelve true si quedó marcado como favorito. */

@@ -19,6 +19,9 @@ import {
 import { getFirebaseAuth } from '../firebase';
 import { consumeFirebaseRedirectResult } from '../logic/authRedirect';
 import { replaceDevLocalhostMissingPort } from '../utils/fixDevLocalhostOrigin';
+import { setCurrentUid } from '../logic/syncRouter';
+import { initUserFirestoreSession, clearUserFirestoreSession } from '../services/firestoreSyncInit';
+import { initFcmForUser } from '../services/fcmService';
 
 export type PdUser = {
   uid: string;
@@ -62,7 +65,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const auth = getFirebaseAuth();
     void consumeFirebaseRedirectResult(auth);
     const unsub = onAuthStateChanged(auth, (fbUser) => {
-      setUser(fbUser ? mapFirebaseUser(fbUser) : null);
+      if (fbUser) {
+        const pdUser = mapFirebaseUser(fbUser);
+        setCurrentUid(fbUser.uid);
+        setUser(pdUser);
+        // Cargar datos de Firestore → localStorage y pedir token FCM
+        void initUserFirestoreSession(fbUser.uid, pdUser).then(() => {
+          void initFcmForUser(fbUser.uid);
+        });
+      } else {
+        setCurrentUid(null);
+        clearUserFirestoreSession();
+        setUser(null);
+      }
       setReady(true);
     });
     return () => unsub();

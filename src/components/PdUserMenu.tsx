@@ -1,7 +1,7 @@
-import { useEffect, useId, useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { IonIcon } from '@ionic/react';
-import { menuOutline } from 'ionicons/icons';
+import { logOutOutline, menuOutline } from 'ionicons/icons';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { favoriteDestinoCount } from '../logic/destinosFavoritosStorage';
@@ -15,7 +15,6 @@ function lockBody(lock: boolean) {
 export function PdUserMenu() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
-  const titleId = useId();
   const location = useLocation();
   const [, bumpFavs] = useReducer((n: number) => n + 1, 0);
 
@@ -42,18 +41,29 @@ export function PdUserMenu() {
 
   return (
     <>
-      <button
-        type="button"
-        className="pd-destino-floating-btn pd-destino-floating-menu pd-destino-floating-btn--icon-only"
-        onClick={() => setOpen(true)}
-        aria-label="Abrir menú"
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        aria-controls={open ? 'pd-user-menu-panel' : undefined}
-      >
-        <IonIcon icon={menuOutline} />
-        <span className="pd-destino-floating-text">Menú</span>
-      </button>
+      <div className="pd-user-menu-cluster">
+        {user ? (
+          <button
+            type="button"
+            className="pd-destino-floating-btn pd-destino-floating-btn--icon-only pd-user-menu-logout-btn"
+            onClick={() => void logout()}
+            aria-label="Cerrar sesión"
+          >
+            <IonIcon icon={logOutOutline} aria-hidden="true" />
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="pd-destino-floating-btn pd-destino-floating-menu pd-destino-floating-btn--icon-only"
+          onClick={() => setOpen(true)}
+          aria-label="Abrir menú"
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          aria-controls={open ? 'pd-user-menu-panel' : undefined}
+        >
+          <IonIcon icon={menuOutline} />
+        </button>
+      </div>
 
       {open &&
         typeof document !== 'undefined' &&
@@ -70,12 +80,9 @@ export function PdUserMenu() {
               className="pd-user-menu-panel"
               role="dialog"
               aria-modal="true"
-              aria-labelledby={titleId}
+              aria-label="Navegación y cuenta"
             >
               <div className="pd-user-menu-handle" aria-hidden />
-              <p id={titleId} className="pd-user-menu-title">
-                Menú
-              </p>
               {user && (
                 <p className="pd-user-menu-sub">
                   <strong>{user.displayName}</strong>
@@ -96,32 +103,9 @@ export function PdUserMenu() {
                     </span>
                   ) : null}
                 </Link>
-                {user ? (
-                  <>
-                    <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
-                      Mi cuenta
-                    </Link>
-                    <button
-                      type="button"
-                      className="pd-user-menu-link pd-user-menu-link--btn"
-                      onClick={() => {
-                        void logout();
-                        close();
-                      }}
-                    >
-                      Cerrar sesión
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/login" className="pd-user-menu-link" onClick={close}>
-                      Iniciar sesión
-                    </Link>
-                    <Link to="/registro" className="pd-user-menu-link" onClick={close}>
-                      Crear cuenta
-                    </Link>
-                  </>
-                )}
+                <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
+                  Mi cuenta
+                </Link>
                 <div className="pd-user-menu-theme-row pd-user-menu-theme-row--minimal" role="group" aria-label="Tema de la app">
                   <PdThemeToggle className="pd-user-menu-theme-toggle pd-user-menu-theme-toggle--minimal" />
                 </div>

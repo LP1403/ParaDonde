@@ -12,7 +12,7 @@ type Props = {
 };
 
 /**
- * Barra flotante: volver (izq), menú centrado (tema dentro del menú), sin IonToolbar.
+ * Barra flotante: volver (izq) y menú (der) con `justify-content: space-between` en theme.
  */
 export function PdSubpageChrome({
   onBack,

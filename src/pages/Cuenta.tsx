@@ -45,10 +45,6 @@ export default function Cuenta() {
   }, []);
 
   useEffect(() => {
-    if (ready && !user) navigate('/login', { replace: true });
-  }, [ready, user, navigate]);
-
-  useEffect(() => {
     if (user) setAvatarPick(getAvatarChoice());
   }, [user]);
 
@@ -66,13 +62,37 @@ export default function Cuenta() {
     return () => window.removeEventListener('keydown', onKey);
   }, [avatarModalOpen]);
 
-  if (!ready || !user) {
+  if (!ready) {
     return (
       <IonPage className="pd-cuenta-page">
         <PdSubpageChrome onBack={() => navigate('/')} chromeVisible={chromeVisible} />
         <IonContent className="ion-padding pd-cuenta-ion-content" {...ionScrollProps}>
           <div className="pd-content pd-subpage-inner">
             <p className="pd-auth-lead">Cargando…</p>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  if (!user) {
+    return (
+      <IonPage className="pd-cuenta-page">
+        <PdSubpageChrome onBack={() => navigate(-1)} chromeVisible={chromeVisible} />
+        <IonContent className="ion-padding pd-cuenta-ion-content" {...ionScrollProps}>
+          <div className="pd-content pd-subpage-inner">
+            <h1 className="pd-auth-page-title">Mi cuenta</h1>
+            <p className="pd-auth-lead">
+              Iniciá sesión o creá una cuenta con Google para guardar tus viajes y preferencias.
+            </p>
+            <div className="pd-auth-form pd-cuenta-auth-choice">
+              <Link to="/login" className="pd-auth-submit">
+                Iniciar sesión
+              </Link>
+              <Link to="/registro" className="pd-auth-submit pd-auth-submit--outline">
+                Crear cuenta
+              </Link>
+            </div>
           </div>
         </IonContent>
       </IonPage>

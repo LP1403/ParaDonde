@@ -17,7 +17,7 @@ export default function Register() {
   }, []);
 
   useEffect(() => {
-    if (ready && user) navigate('/cuenta', { replace: true });
+    if (ready && user) navigate('/', { replace: true });
   }, [ready, user, navigate]);
 
   const configured = Boolean(import.meta.env.VITE_FIREBASE_API_KEY?.trim());
