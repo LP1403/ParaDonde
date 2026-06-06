@@ -11,6 +11,7 @@ export interface MisionDestino {
   dificultad: DificultadMision;
   icono: string;
   lugarHint?: string;
+  imagenUrl?: string;
 }
 
 const misiones: MisionDestino[] = [
@@ -25,6 +26,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🗽',
     lugarHint: 'Av. 9 de Julio y Av. Corrientes',
+    imagenUrl: '/images/destinos/buenos-aires/1.jpg',
   },
   {
     id: 'bsas-boca',
@@ -36,6 +38,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🎨',
     lugarHint: 'Caminito, La Boca',
+    imagenUrl: '/images/destinos/buenos-aires/2.jpg',
   },
   {
     id: 'bsas-feria-san-telmo',
@@ -47,6 +50,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🏺',
     lugarHint: 'Feria de San Telmo, Plaza Dorrego',
+    imagenUrl: '/images/destinos/buenos-aires/3.jpg',
   },
   {
     id: 'bsas-recoleta',
@@ -58,6 +62,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🌹',
     lugarHint: 'Cementerio de la Recoleta, Junín 1760',
+    imagenUrl: '/images/destinos/buenos-aires/4.jpg',
   },
   {
     id: 'bsas-milonga',
@@ -69,6 +74,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '💃',
     lugarHint: 'Cualquier milonga de San Telmo o Palermo',
+    imagenUrl: '/images/destinos/buenos-aires/5.jpg',
   },
 
   // ── Bariloche ─────────────────────────────────────────────────────
@@ -82,6 +88,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🏔️',
     lugarHint: 'Playa Bonita o costanera de Bariloche',
+    imagenUrl: '/images/misiones/bariloche/nahuel_huapi.jpeg',
   },
   {
     id: 'bariloche-chocolate',
@@ -93,6 +100,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🍫',
     lugarHint: 'Centro de Bariloche, Calle Mitre',
+    imagenUrl: '/images/misiones/bariloche/chocolate.jpeg',
   },
   {
     id: 'bariloche-cerro-otto',
@@ -104,6 +112,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '⛰️',
     lugarHint: 'Cerro Otto, 7km del centro',
+    imagenUrl: '/images/misiones/bariloche/cerro_otto.jpeg',
   },
   {
     id: 'bariloche-refugio',
@@ -115,6 +124,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🏕️',
     lugarHint: 'Refugio Frey o Jakob',
+    imagenUrl: '/images/destinos/bariloche/4.jpg',
   },
 
   // ── Mendoza ───────────────────────────────────────────────────────
@@ -128,6 +138,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🍷',
     lugarHint: 'Cualquier bodega en Luján de Cuyo o Maipú',
+    imagenUrl: '/images/destinos/mendoza/1.jpg',
   },
   {
     id: 'mendoza-aconcagua-vista',
@@ -139,6 +150,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🗻',
     lugarHint: 'Parque Provincial Aconcagua, mirador',
+    imagenUrl: '/images/destinos/mendoza/2.jpg',
   },
   {
     id: 'mendoza-vendimia',
@@ -150,6 +162,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🍇',
     lugarHint: 'Bodegas con experiencia de vendimia, Maipú',
+    imagenUrl: '/images/destinos/mendoza/3.jpg',
   },
 
   // ── Puerto Iguazú ─────────────────────────────────────────────────
@@ -163,6 +176,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '💧',
     lugarHint: 'Pasarela superior, Parque Nacional Iguazú',
+    imagenUrl: '/images/destinos/puerto-iguazu/1.jpg',
   },
   {
     id: 'iguazu-tucanes',
@@ -174,6 +188,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🦜',
     lugarHint: 'Senderos del Parque Nacional Iguazú',
+    imagenUrl: '/images/destinos/puerto-iguazu/2.jpg',
   },
   {
     id: 'iguazu-tres-fronteras',
@@ -185,6 +200,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🌐',
     lugarHint: 'Puerto Iguazú, costanera norte',
+    imagenUrl: '/images/destinos/puerto-iguazu/3.jpg',
   },
 
   // ── Salta ─────────────────────────────────────────────────────────
@@ -198,6 +214,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '⛪',
     lugarHint: 'Plaza 9 de Julio, Salta capital',
+    imagenUrl: '/images/destinos/salta/1.jpg',
   },
   {
     id: 'salta-tren-nubes',
@@ -209,6 +226,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🚂',
     lugarHint: 'Estación de trenes de Salta',
+    imagenUrl: '/images/destinos/salta/2.jpg',
   },
 
   // ── El Calafate ───────────────────────────────────────────────────
@@ -222,6 +240,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🧊',
     lugarHint: 'Pasarelas del Glaciar Perito Moreno',
+    imagenUrl: '/images/destinos/el-calafate/1.jpg',
   },
   {
     id: 'calafate-trekking-hielo',
@@ -233,6 +252,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🥾',
     lugarHint: 'Mini trekking, Glaciar Perito Moreno',
+    imagenUrl: '/images/destinos/el-calafate/2.jpg',
   },
 
   // ── Ushuaia ───────────────────────────────────────────────────────
@@ -246,6 +266,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🌎',
     lugarHint: 'Puerto de Ushuaia, costanera',
+    imagenUrl: '/images/destinos/ushuaia/1.jpg',
   },
   {
     id: 'ushuaia-canal-beagle',
@@ -257,6 +278,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '⛵',
     lugarHint: 'Muelle Turístico, Ushuaia',
+    imagenUrl: '/images/destinos/ushuaia/2.jpg',
   },
 
   // ── Río de Janeiro ────────────────────────────────────────────────
@@ -270,6 +292,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '✝️',
     lugarHint: 'Cima del Corcovado, Tijuca',
+    imagenUrl: '/images/destinos/rio-de-janeiro/1.jpg',
   },
   {
     id: 'rio-copacabana',
@@ -281,6 +304,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🌅',
     lugarHint: 'Playa de Copacabana',
+    imagenUrl: '/images/destinos/rio-de-janeiro/2.jpg',
   },
   {
     id: 'rio-pao-acucar',
@@ -292,6 +316,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🗻',
     lugarHint: 'Praia Vermelha, teleférico',
+    imagenUrl: '/images/destinos/rio-de-janeiro/4.jpg',
   },
 
   // ── Cusco ─────────────────────────────────────────────────────────
@@ -305,6 +330,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🏯',
     lugarHint: 'Inti Punku, camino Inca',
+    imagenUrl: '/images/destinos/cusco/2.jpg',
   },
   {
     id: 'cusco-sacsayhuaman',
@@ -316,6 +342,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🪨',
     lugarHint: 'Fortaleza de Sacsayhuamán, Cusco',
+    imagenUrl: '/images/destinos/cusco/3.jpg',
   },
 
   // ── Nueva York ────────────────────────────────────────────────────
@@ -329,6 +356,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🐇',
     lugarHint: 'Central Park, cerca del East 76th St',
+    imagenUrl: '/images/destinos/nueva-york/2.jpg',
   },
   {
     id: 'ny-times-square',
@@ -340,6 +368,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🌃',
     lugarHint: 'Times Square, Midtown Manhattan',
+    imagenUrl: '/images/destinos/nueva-york/3.jpg',
   },
   {
     id: 'ny-brooklyn-bridge',
@@ -351,6 +380,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🌉',
     lugarHint: 'Puente de Brooklyn, entrada desde Manhattan',
+    imagenUrl: '/images/destinos/nueva-york/4.jpg',
   },
   {
     id: 'ny-liberty',
@@ -362,6 +392,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🗽',
     lugarHint: 'Ferry desde Battery Park',
+    imagenUrl: '/images/destinos/nueva-york/5.jpg',
   },
 
   // ── Barcelona ─────────────────────────────────────────────────────
@@ -375,6 +406,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '⛪',
     lugarHint: 'Carrer de Mallorca 401',
+    imagenUrl: '/images/destinos/barcelona/2.jpg',
   },
   {
     id: 'bcn-park-guell',
@@ -386,6 +418,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🎭',
     lugarHint: 'Park Güell, terraza principal',
+    imagenUrl: '/images/destinos/barcelona/3.jpg',
   },
   {
     id: 'bcn-las-ramblas',
@@ -397,6 +430,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '☕',
     lugarHint: 'Las Ramblas, Barcelona',
+    imagenUrl: '/images/destinos/barcelona/4.jpg',
   },
 
   // ── París ─────────────────────────────────────────────────────────
@@ -410,6 +444,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🗼',
     lugarHint: 'Champ de Mars o Trocadéro',
+    imagenUrl: '/images/destinos/paris/2.jpg',
   },
   {
     id: 'paris-louvre-mona-lisa',
@@ -421,6 +456,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🖼️',
     lugarHint: 'Salle des États, Musée du Louvre',
+    imagenUrl: '/images/destinos/paris/3.jpg',
   },
   {
     id: 'paris-montmartre',
@@ -432,6 +468,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🌄',
     lugarHint: 'Basílica del Sacré-Cœur, Montmartre',
+    imagenUrl: '/images/destinos/paris/4.jpg',
   },
 
   // ── Roma ──────────────────────────────────────────────────────────
@@ -445,6 +482,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🏟️',
     lugarHint: 'Piazza del Colosseo, Roma',
+    imagenUrl: '/images/destinos/roma/1.jpg',
   },
   {
     id: 'roma-fontana-trevi',
@@ -456,6 +494,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🪙',
     lugarHint: 'Fontana di Trevi, Rione Trevi',
+    imagenUrl: '/images/destinos/roma/2.jpg',
   },
   {
     id: 'roma-vaticano',
@@ -467,6 +506,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🎨',
     lugarHint: 'Museos Vaticanos, Ciudad del Vaticano',
+    imagenUrl: '/images/destinos/roma/3.jpg',
   },
 
   // ── Madrid ────────────────────────────────────────────────────────
@@ -480,6 +520,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🖼️',
     lugarHint: 'Sala 12, Museo Nacional del Prado',
+    imagenUrl: 'https://picsum.photos/seed/madrid-prado/600/300',
   },
   {
     id: 'madrid-retiro',
@@ -491,6 +532,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🚣',
     lugarHint: 'Estanque grande, Parque del Retiro',
+    imagenUrl: 'https://picsum.photos/seed/madrid-retiro/600/300',
   },
 
   // ── Londres ───────────────────────────────────────────────────────
@@ -504,6 +546,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🌉',
     lugarHint: 'Potters Fields Park, London Bridge',
+    imagenUrl: 'https://picsum.photos/seed/london-tower/600/300',
   },
   {
     id: 'london-guardia-real',
@@ -515,6 +558,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '💂',
     lugarHint: 'Buckingham Palace, St James\'s',
+    imagenUrl: 'https://picsum.photos/seed/london-guard/600/300',
   },
 
   // ── Tokio ─────────────────────────────────────────────────────────
@@ -528,6 +572,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🗻',
     lugarHint: 'Lago Kawaguchi, Fujikawaguchiko',
+    imagenUrl: '/images/destinos/tokio/1.jpg',
   },
   {
     id: 'tokio-shibuya',
@@ -539,6 +584,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🚶',
     lugarHint: 'Shibuya Crossing, Starbucks roof terrace',
+    imagenUrl: '/images/destinos/tokio/2.jpg',
   },
   {
     id: 'tokio-sushi',
@@ -550,6 +596,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🍣',
     lugarHint: 'Mercado Exterior de Tsukiji, Tokyo',
+    imagenUrl: '/images/destinos/tokio/3.jpg',
   },
 
   // ── Bali ──────────────────────────────────────────────────────────
@@ -563,6 +610,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🛕',
     lugarHint: 'Pura Ulun Danu Bratan, Bedugul',
+    imagenUrl: 'https://picsum.photos/seed/bali-templo/600/300',
   },
   {
     id: 'bali-arroz',
@@ -574,6 +622,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🌾',
     lugarHint: 'Tegalalang Rice Terrace, Ubud',
+    imagenUrl: 'https://picsum.photos/seed/bali-arroz/600/300',
   },
 
   // ── Dubai ─────────────────────────────────────────────────────────
@@ -587,6 +636,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'dificil',
     icono: '🏙️',
     lugarHint: 'At the Top, Burj Khalifa, piso 148',
+    imagenUrl: 'https://picsum.photos/seed/dubai-burj/600/300',
   },
   {
     id: 'dubai-desierto',
@@ -598,6 +648,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🐪',
     lugarHint: 'Desierto de Dubái, safari al atardecer',
+    imagenUrl: 'https://picsum.photos/seed/dubai-desert/600/300',
   },
 
   // ── Cancún ────────────────────────────────────────────────────────
@@ -611,6 +662,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '💧',
     lugarHint: 'Cenotes cercanos a Tulum o Valladolid',
+    imagenUrl: 'https://picsum.photos/seed/cancun-cenote/600/300',
   },
   {
     id: 'cancun-ruinas-tulum',
@@ -622,6 +674,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🏛️',
     lugarHint: 'Zona arqueológica de Tulum',
+    imagenUrl: 'https://picsum.photos/seed/cancun-ruinas/600/300',
   },
 
   // ── Tulum ─────────────────────────────────────────────────────────
@@ -635,6 +688,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🤿',
     lugarHint: 'Gran Cenote, km 3 camino Cobá',
+    imagenUrl: 'https://picsum.photos/seed/tulum-cenote/600/300',
   },
   {
     id: 'tulum-playa',
@@ -646,6 +700,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🌅',
     lugarHint: 'Tulum Beach, Zona Hotelera',
+    imagenUrl: 'https://picsum.photos/seed/tulum-playa/600/300',
   },
 
   // ── Punta Cana ────────────────────────────────────────────────────
@@ -659,6 +714,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🏖️',
     lugarHint: 'Playa Bávaro, Punta Cana',
+    imagenUrl: 'https://picsum.photos/seed/puntacana-bavaro/600/300',
   },
 
   // ── Santiago de Chile ─────────────────────────────────────────────
@@ -672,6 +728,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🏔️',
     lugarHint: 'Cerro San Cristóbal, Bellavista',
+    imagenUrl: '/images/destinos/santiago-de-chile/2.jpg',
   },
 
   // ── Miami ─────────────────────────────────────────────────────────
@@ -685,6 +742,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🌴',
     lugarHint: 'Ocean Drive, South Beach',
+    imagenUrl: '/images/destinos/miami/1.jpg',
   },
 
   // ── Cartagena ─────────────────────────────────────────────────────
@@ -698,6 +756,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🏰',
     lugarHint: 'Murallas de Cartagena de Indias',
+    imagenUrl: 'https://picsum.photos/seed/cartagena-murallas/600/300',
   },
 
   // ── Estambul ──────────────────────────────────────────────────────
@@ -711,6 +770,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'facil',
     icono: '🕌',
     lugarHint: 'Sultanahmet, Estambul',
+    imagenUrl: 'https://picsum.photos/seed/estambul-hagia/600/300',
   },
   {
     id: 'estambul-gran-bazar',
@@ -722,6 +782,7 @@ const misiones: MisionDestino[] = [
     dificultad: 'medio',
     icono: '🛍️',
     lugarHint: 'Gran Bazar (Kapalıçarşı), Beyazıt',
+    imagenUrl: 'https://picsum.photos/seed/estambul-bazar/600/300',
   },
 ];
 

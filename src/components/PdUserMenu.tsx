@@ -8,6 +8,7 @@ import { favoriteDestinoCount } from '../logic/destinosFavoritosStorage';
 import { PdThemeToggle } from './PdThemeToggle';
 import { getPuntuacionLocal } from '../logic/puntuacionStorage';
 import { getNivelParaPuntos } from '../data/reputacion';
+import { usePdTheme } from '../hooks/usePdTheme';
 
 function lockBody(lock: boolean) {
   if (typeof document === 'undefined') return;
@@ -48,6 +49,7 @@ function MenuRepSection({ uid, onClose }: { uid: string; onClose: () => void }) 
 
 export function PdUserMenu() {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = usePdTheme();
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const [, bumpFavs] = useReducer((n: number) => n + 1, 0);
@@ -76,6 +78,14 @@ export function PdUserMenu() {
   return (
     <>
       <div className="pd-user-menu-cluster">
+        <button
+          type="button"
+          className="pd-user-menu-theme-btn"
+          onClick={toggleTheme}
+          aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+        >
+          {isDark ? '☀️' : '🌙'}
+        </button>
         {user ? (
           <button
             type="button"
@@ -147,9 +157,6 @@ export function PdUserMenu() {
                 <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
                   Mi cuenta
                 </Link>
-                <div className="pd-user-menu-theme-row pd-user-menu-theme-row--minimal" role="group" aria-label="Tema de la app">
-                  <PdThemeToggle className="pd-user-menu-theme-toggle pd-user-menu-theme-toggle--minimal" />
-                </div>
                 <Link to="/terminos" className="pd-user-menu-link" onClick={close}>
                   Términos y condiciones
                 </Link>

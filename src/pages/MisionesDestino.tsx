@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { IonPage, IonContent } from '@ionic/react';
 import { PdSubpageChrome } from '../components/PdSubpageChrome';
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { MisionCard } from '../components/reputacion/MisionCard';
 import { BeneficioCard } from '../components/reputacion/BeneficioCard';
 import { NivelBadge } from '../components/reputacion/NivelBadge';
+import { CelebracionModal } from '../components/reputacion/CelebracionModal';
 import {
   getPuntuacionLocal,
   getMisionesCompletadasLocal,
@@ -25,6 +26,7 @@ export default function MisionesDestino() {
   const { slug } = useParams<{ slug: string }>();
   const { user, ready } = useAuth();
   const [, bump] = useReducer((n: number) => n + 1, 0);
+  const [celebracion, setCelebracion] = useState<{ puntosGanados: number; totalPuntos: number } | null>(null);
 
   const destino = slug ? getDestinoBySlug(slug) : null;
   const misiones = slug ? getMisionesPorDestino(slug) : [];
@@ -97,6 +99,8 @@ export default function MisionesDestino() {
 
   const handleCompletar = async (misionId: string, puntosGanados: number, fotoThumb?: string) => {
     await completarMision(user.uid, misionId, slug, puntosGanados, fotoThumb);
+    const totalActual = getPuntuacionLocal()?.totalPuntos ?? 0;
+    setCelebracion({ puntosGanados, totalPuntos: totalActual });
     bump();
   };
 
@@ -115,6 +119,14 @@ export default function MisionesDestino() {
   return (
     <IonPage>
       <PdSubpageChrome onBack={() => navigate(-1)} chromeVisible={chromeVisible} />
+      {celebracion && destino && (
+        <CelebracionModal
+          puntosGanados={celebracion.puntosGanados}
+          totalPuntos={celebracion.totalPuntos}
+          destinoNombre={destino.nombre}
+          onClose={() => setCelebracion(null)}
+        />
+      )}
       <IonContent {...ionScrollProps} className="ion-padding">
         <div className="pd-content pd-subpage-inner pd-misiones-page">
 
@@ -155,7 +167,7 @@ export default function MisionesDestino() {
                 {faciles.length > 0 && (
                   <div className="pd-misiones-grupo">
                     <h3 className="pd-misiones-grupo-titulo">
-                      <span className="pd-misiones-dif-dot pd-misiones-dif-dot--facil" aria-hidden /> Fáciles (+50 pts)
+                      <span className="pd-misiones-dif-dot pd-misiones-dif-dot--facil" aria-hidden /> Fáciles (+150 pts)
                     </h3>
                     <div className="pd-misiones-grid">
                       {faciles.map((m) => (
@@ -165,6 +177,7 @@ export default function MisionesDestino() {
                           completada={Boolean(misionesCompletadas[m.id])}
                           fotoThumb={misionesCompletadas[m.id]?.fotoThumb}
                           uid={user.uid}
+
                           onCompletar={(foto) => handleCompletar(m.id, m.puntos, foto)}
                         />
                       ))}
@@ -175,7 +188,7 @@ export default function MisionesDestino() {
                 {medias.length > 0 && (
                   <div className="pd-misiones-grupo">
                     <h3 className="pd-misiones-grupo-titulo">
-                      <span className="pd-misiones-dif-dot pd-misiones-dif-dot--medio" aria-hidden /> Medias (+100 pts)
+                      <span className="pd-misiones-dif-dot pd-misiones-dif-dot--medio" aria-hidden /> Medias (+250 pts)
                     </h3>
                     <div className="pd-misiones-grid">
                       {medias.map((m) => (
@@ -185,6 +198,7 @@ export default function MisionesDestino() {
                           completada={Boolean(misionesCompletadas[m.id])}
                           fotoThumb={misionesCompletadas[m.id]?.fotoThumb}
                           uid={user.uid}
+
                           onCompletar={(foto) => handleCompletar(m.id, m.puntos, foto)}
                         />
                       ))}
@@ -195,7 +209,7 @@ export default function MisionesDestino() {
                 {dificiles.length > 0 && (
                   <div className="pd-misiones-grupo">
                     <h3 className="pd-misiones-grupo-titulo">
-                      <span className="pd-misiones-dif-dot pd-misiones-dif-dot--dificil" aria-hidden /> Difíciles (+200 pts)
+                      <span className="pd-misiones-dif-dot pd-misiones-dif-dot--dificil" aria-hidden /> Difíciles (+400 pts)
                     </h3>
                     <div className="pd-misiones-grid">
                       {dificiles.map((m) => (
@@ -205,6 +219,7 @@ export default function MisionesDestino() {
                           completada={Boolean(misionesCompletadas[m.id])}
                           fotoThumb={misionesCompletadas[m.id]?.fotoThumb}
                           uid={user.uid}
+
                           onCompletar={(foto) => handleCompletar(m.id, m.puntos, foto)}
                         />
                       ))}

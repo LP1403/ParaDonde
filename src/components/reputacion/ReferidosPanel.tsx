@@ -15,10 +15,11 @@ export function ReferidosPanel({ uid, displayName, puntuacion, onPuntuacionChang
   const [codigoInput, setCodigoInput] = useState('');
   const [aplicando, setAplicando] = useState(false);
   const [msg, setMsg] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
-  const [expandido, setExpandido] = useState(false);
+  const [mostrarIngresar, setMostrarIngresar] = useState(false);
 
   const miCodigo = generarCodigoReferido(uid);
   const cantReferidos = puntuacion?.referidosUids?.length ?? 0;
+  const ptsPorReferidos = puntuacion?.porFuente.referidos ?? 0;
   const yaUsoCodigo = Boolean(puntuacion?.referidoPor);
 
   const copiarCodigo = async () => {
@@ -66,62 +67,73 @@ export function ReferidosPanel({ uid, displayName, puntuacion, onPuntuacionChang
   };
 
   return (
-    <div className="pd-referidos-panel">
-      <button
-        type="button"
-        className="pd-referidos-panel-header"
-        onClick={() => setExpandido((v) => !v)}
-        aria-expanded={expandido}
-      >
-        <span className="pd-referidos-panel-header-icon" aria-hidden>🔗</span>
-        <div className="pd-referidos-panel-header-text">
-          <strong>Programa de referidos</strong>
-          <span className="pd-referidos-panel-header-sub">
-            {cantReferidos} {cantReferidos === 1 ? 'amigo' : 'amigos'} referidos · Tu código: {miCodigo}
-          </span>
-        </div>
-        <span className="pd-referidos-panel-chevron" aria-hidden>{expandido ? '▲' : '▼'}</span>
-      </button>
-
-      {expandido && (
-        <div className="pd-referidos-panel-body">
-          <p className="pd-referidos-desc">
-            Compartí tu código y ambos ganan <strong>{PUNTOS_REFERIDO_NUEVO} puntos</strong> cuando
-            se registren. A partir del referido número {UMBRAL_RED_BONUS + 1}, cada nuevo referido
-            te da <strong>{PUNTOS_REFERIDO_EXTRA + PUNTOS_REFERIDO_RED_BONUS} puntos extra</strong>.
+    <div className="pd-ref2-panel">
+      {/* Header */}
+      <div className="pd-ref2-header">
+        <div className="pd-ref2-header-icon" aria-hidden>🔗</div>
+        <div className="pd-ref2-header-text">
+          <h3 className="pd-ref2-titulo">Programa de referidos</h3>
+          <p className="pd-ref2-subtitulo">
+            Invitá amigos y ambos ganan <strong>{PUNTOS_REFERIDO_NUEVO} pts</strong>.
+            Desde el referido {UMBRAL_RED_BONUS + 1}° sumarás <strong>{PUNTOS_REFERIDO_EXTRA + PUNTOS_REFERIDO_RED_BONUS} pts extra</strong>.
           </p>
+        </div>
+      </div>
 
-          <div className="pd-referidos-codigo-row">
-            <div className="pd-referidos-codigo-box">
-              <span className="pd-referidos-codigo-label">Tu código</span>
-              <code className="pd-referidos-codigo-val">{miCodigo}</code>
-            </div>
-            <button type="button" className="pd-referidos-btn-copiar" onClick={copiarCodigo}>
-              {copiado ? '✓ Copiado' : 'Copiar'}
-            </button>
-            <button type="button" className="pd-referidos-btn-compartir" onClick={compartirCodigo}>
-              Compartir
-            </button>
-          </div>
+      {/* Tu código */}
+      <div className="pd-ref2-codigo-section">
+        <p className="pd-ref2-codigo-label">Tu código de invitación</p>
+        <div className="pd-ref2-codigo-display">
+          <code className="pd-ref2-codigo-val">{miCodigo}</code>
+          <button type="button" className="pd-ref2-btn-copy" onClick={copiarCodigo} aria-label="Copiar código">
+            {copiado ? '✓' : '⎘'}
+          </button>
+        </div>
+        <button type="button" className="pd-ref2-btn-invitar" onClick={compartirCodigo}>
+          <span aria-hidden>🚀</span> Invitar amigos
+        </button>
+      </div>
 
-          <div className="pd-referidos-stats">
-            <div className="pd-referidos-stat">
-              <span className="pd-referidos-stat-num">{cantReferidos}</span>
-              <span className="pd-referidos-stat-lbl">amigos referidos</span>
-            </div>
-            <div className="pd-referidos-stat">
-              <span className="pd-referidos-stat-num">{puntuacion?.porFuente.referidos ?? 0}</span>
-              <span className="pd-referidos-stat-lbl">pts por referidos</span>
-            </div>
-          </div>
+      {/* Stats */}
+      <div className="pd-ref2-stats">
+        <div className="pd-ref2-stat">
+          <span className="pd-ref2-stat-num">{cantReferidos}</span>
+          <span className="pd-ref2-stat-lbl">amigos referidos</span>
+        </div>
+        <div className="pd-ref2-stat-div" aria-hidden />
+        <div className="pd-ref2-stat">
+          <span className="pd-ref2-stat-num">{ptsPorReferidos.toLocaleString('es-AR')}</span>
+          <span className="pd-ref2-stat-lbl">pts ganados</span>
+        </div>
+        <div className="pd-ref2-stat-div" aria-hidden />
+        <div className="pd-ref2-stat">
+          <span className="pd-ref2-stat-num">{PUNTOS_REFERIDO_NUEVO}</span>
+          <span className="pd-ref2-stat-lbl">pts por referido</span>
+        </div>
+      </div>
 
-          {!yaUsoCodigo && (
-            <div className="pd-referidos-ingresar">
-              <p className="pd-referidos-ingresar-lbl">¿Alguien te invitó? Ingresá su código:</p>
-              <div className="pd-referidos-ingresar-row">
+      {/* Aplicar código de otro */}
+      {yaUsoCodigo ? (
+        <p className="pd-ref2-ya-usado">
+          ✅ Ya usaste un código de referido. ¡Gracias por sumarte a la red!
+        </p>
+      ) : (
+        <div className="pd-ref2-ingresar">
+          <button
+            type="button"
+            className="pd-ref2-ingresar-toggle"
+            onClick={() => setMostrarIngresar((v) => !v)}
+            aria-expanded={mostrarIngresar}
+          >
+            <span>¿Alguien te invitó? Ingresá su código</span>
+            <span aria-hidden>{mostrarIngresar ? '▲' : '▼'}</span>
+          </button>
+          {mostrarIngresar && (
+            <div className="pd-ref2-ingresar-body">
+              <div className="pd-ref2-ingresar-row">
                 <input
                   type="text"
-                  className="pd-referidos-ingresar-input"
+                  className="pd-ref2-ingresar-input"
                   placeholder="XXXXXXXX"
                   value={codigoInput}
                   onChange={(e) => setCodigoInput(e.target.value.toUpperCase())}
@@ -131,7 +143,7 @@ export function ReferidosPanel({ uid, displayName, puntuacion, onPuntuacionChang
                 />
                 <button
                   type="button"
-                  className="pd-referidos-ingresar-btn"
+                  className="pd-ref2-ingresar-btn"
                   disabled={aplicando || !codigoInput.trim()}
                   onClick={() => void handleAplicar()}
                 >
@@ -139,17 +151,11 @@ export function ReferidosPanel({ uid, displayName, puntuacion, onPuntuacionChang
                 </button>
               </div>
               {msg && (
-                <p className={`pd-referidos-msg pd-referidos-msg--${msg.tipo}`} role="alert">
+                <p className={`pd-ref2-msg pd-ref2-msg--${msg.tipo}`} role="alert">
                   {msg.texto}
                 </p>
               )}
             </div>
-          )}
-
-          {yaUsoCodigo && (
-            <p className="pd-referidos-ya-usado">
-              ✅ Ya usaste un código de referido. ¡Gracias por sumarte a la red!
-            </p>
           )}
         </div>
       )}
