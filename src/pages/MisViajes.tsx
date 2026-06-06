@@ -9,6 +9,25 @@ import {
   removeFavoriteDestino,
 } from '../logic/destinosFavoritosStorage';
 import { primeraImagenDestinoLista } from '../utils/destinoImagenes';
+import { getMisionesPorDestino } from '../data/misiones';
+import { getMisionesCompletadasLocal } from '../logic/puntuacionStorage';
+
+function MisionesLink({ slug }: { slug: string }) {
+  const misiones = getMisionesPorDestino(slug);
+  if (misiones.length === 0) return null;
+  const completadas = getMisionesCompletadasLocal();
+  const completadasCount = misiones.filter((m) => Boolean(completadas[m.id])).length;
+  return (
+    <Link
+      to={`/misiones/${slug}`}
+      className="pd-misviajes-link-misiones"
+      onClick={(e) => e.stopPropagation()}
+      aria-label={`Misiones de este destino: ${completadasCount} de ${misiones.length} completadas`}
+    >
+      🎯 Misiones {completadasCount > 0 ? `${completadasCount}/${misiones.length}` : ''}
+    </Link>
+  );
+}
 
 export default function MisViajes() {
   const { chromeVisible, ionScrollProps } = useFloatingChromeScroll();
@@ -90,6 +109,7 @@ export default function MisViajes() {
                       >
                         Ver
                       </Link>
+                      <MisionesLink slug={slug} />
                       <button
                         type="button"
                         className="pd-misviajes-link-quiet"

@@ -6,10 +6,44 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { favoriteDestinoCount } from '../logic/destinosFavoritosStorage';
 import { PdThemeToggle } from './PdThemeToggle';
+import { getPuntuacionLocal } from '../logic/puntuacionStorage';
+import { getNivelParaPuntos } from '../data/reputacion';
 
 function lockBody(lock: boolean) {
   if (typeof document === 'undefined') return;
   document.body.style.overflow = lock ? 'hidden' : '';
+}
+
+function MenuRepSection({ uid, onClose }: { uid: string; onClose: () => void }) {
+  const [, bump] = useReducer((n: number) => n + 1, 0);
+
+  useEffect(() => {
+    const h = () => bump();
+    window.addEventListener('pd-puntuacion-changed', h);
+    return () => window.removeEventListener('pd-puntuacion-changed', h);
+  }, []);
+
+  const puntuacion = getPuntuacionLocal();
+  const totalPuntos = puntuacion?.totalPuntos ?? 0;
+  const nivel = getNivelParaPuntos(totalPuntos);
+
+  return (
+    <div className="pd-user-menu-rep">
+      <Link to="/reputacion" className="pd-user-menu-rep-nivel" onClick={onClose}>
+        <span className="pd-user-menu-rep-emoji" aria-hidden
+          style={{ filter: `drop-shadow(0 0 4px ${nivel.color})` }}>
+          {nivel.emoji}
+        </span>
+        <div className="pd-user-menu-rep-info">
+          <span className="pd-user-menu-rep-nombre" style={{ color: nivel.color }}>
+            {nivel.nombre}
+          </span>
+          <span className="pd-user-menu-rep-pts">{totalPuntos} pts</span>
+        </div>
+        <span className="pd-user-menu-rep-arrow" aria-hidden>›</span>
+      </Link>
+    </div>
+  );
 }
 
 export function PdUserMenu() {
@@ -91,6 +125,8 @@ export function PdUserMenu() {
                 </p>
               )}
 
+              {user && <MenuRepSection uid={user.uid} onClose={close} />}
+
               <nav className="pd-user-menu-links" aria-label="Opciones del menú">
                 <Link to="/" className="pd-user-menu-link" onClick={close}>
                   Inicio
@@ -103,6 +139,11 @@ export function PdUserMenu() {
                     </span>
                   ) : null}
                 </Link>
+                {user && (
+                  <Link to="/reputacion" className="pd-user-menu-link" onClick={close}>
+                    Mi reputación
+                  </Link>
+                )}
                 <Link to="/cuenta" className="pd-user-menu-link" onClick={close}>
                   Mi cuenta
                 </Link>

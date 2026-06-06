@@ -18,6 +18,31 @@ import {
   type AvatarChoice,
 } from '../logic/avatarPreference';
 import { twemojiCdnPngUrl } from '../utils/twemojiCdnUrl';
+import { getPuntuacionLocal, generarCodigoReferido } from '../logic/puntuacionStorage';
+import { getNivelParaPuntos } from '../data/reputacion';
+
+function ReputacionResumen({ uid }: { uid: string }) {
+  const puntuacion = getPuntuacionLocal();
+  const totalPuntos = puntuacion?.totalPuntos ?? 0;
+  const nivel = getNivelParaPuntos(totalPuntos);
+  const miCodigo = generarCodigoReferido(uid);
+  const cantReferidos = puntuacion?.referidosUids?.length ?? 0;
+
+  return (
+    <Link to="/reputacion" className="pd-cuenta-rep-card" aria-label="Ver mi reputación">
+      <div className="pd-cuenta-rep-card-left"
+        style={{ '--nivel-color': nivel.color } as React.CSSProperties}>
+        <span className="pd-cuenta-rep-card-emoji" aria-hidden>{nivel.emoji}</span>
+        <div className="pd-cuenta-rep-card-text">
+          <strong className="pd-cuenta-rep-card-nivel">{nivel.nombre}</strong>
+          <span className="pd-cuenta-rep-card-puntos">{totalPuntos} puntos · {cantReferidos} referidos</span>
+          <span className="pd-cuenta-rep-card-codigo">Código: {miCodigo}</span>
+        </div>
+      </div>
+      <span className="pd-cuenta-rep-card-arrow" aria-hidden>›</span>
+    </Link>
+  );
+}
 
 function lockBodyScroll(lock: boolean) {
   if (typeof document === 'undefined') return;
@@ -251,6 +276,11 @@ export default function Cuenta() {
           <div className="pd-cuenta-theme-row" role="group" aria-label="Tema de la app">
             <span className="pd-cuenta-theme-label">Modo claro u oscuro</span>
             <PdThemeToggle className="pd-cuenta-theme-toggle" />
+          </div>
+
+          {/* Reputación */}
+          <div className="pd-cuenta-rep-section">
+            <ReputacionResumen uid={user.uid} />
           </div>
 
           <div className="pd-cuenta-below-card">

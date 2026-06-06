@@ -1,3 +1,10 @@
+05/06
+
+queremos desarrollar la funcionalidad de programa de fidelidad o desafios algo asi, para proponerle "Misiones" a los usuarios viajantes sobre los destinos que tienen agregados aa mis vieajes, donde seria por ej: si el destino es nueva york, una mision es ir al central park, a ecnontrar la estatua de alicia (por ej,) y sacarle una foto, subirla y completar la mision. eso le daria puntos que luego canjearia por cosas (por ahora no hay nada para que canjee pero mockealo, por ej desc de un cafe en una cafeteria, que genere un nivel de reputacion en una localidad, se entiende?? entonces tendra beneficios en ese destino). un progrmaa de Reputacion por destino seria, que tenga varios niveles, Inventalos, por ej: Turista, Local, Guia, a modo de leyenda nomas. Asocialo a diamantes o metales preciosos mejor dicho. acumularia puntos para subir el nivel y mejorar beneficios, cada vez mejores cosas, tendria una pantalla donde veria los beneficios, tiene que ser opcional. y para registrados nada mas obvio. que tenga marketing de afiliados, donde uno puede recomendar a alguien la app y ganar puntos ambos, por referidos, que sean significativos como para que motive a hacerlo, a compartir, que se genere red de afiliados, que acumule referidos y cada vez le de mas puntos por ej
+
+otra manera de ganar puntos seria que cargue un vuelo en la seccion de vuelo donde puede ingresar el codigo
+
+
 18/04
 
 

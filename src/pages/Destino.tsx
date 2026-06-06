@@ -15,6 +15,8 @@ import { useFloatingChromeScroll } from '../hooks/useFloatingChromeScroll';
 import { SCROLL_EXTRA_PAST_CONTENT_TOP_PX } from '../utils/scrollIntoScrollParent';
 import { PdFavoritoDestinoButton } from '../components/PdFavoritoDestinoButton';
 import { PdVueloFavoritoSection } from '../components/PdVueloFavoritoSection';
+import { isFavoriteDestino } from '../logic/destinosFavoritosStorage';
+
 
 function scrollContentBelowHero(
   scrollRoot: HTMLDivElement | null,
@@ -106,12 +108,21 @@ export default function Destino() {
   const location = useLocation();
   const destino = slug ? getDestinoBySlug(slug) : undefined;
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  /* ── Favorito state: controla layout compacto vs sábana ── */
+  const [isFav, setIsFav] = useState(() => (slug ? isFavoriteDestino(slug) : false));
+
+  useEffect(() => {
+    const update = () => setIsFav(slug ? isFavoriteDestino(slug) : false);
+    window.addEventListener('pd-favoritos-changed', update);
+    return () => window.removeEventListener('pd-favoritos-changed', update);
+  }, [slug]);
 
   useEffect(() => {
     if (slug && destino) recordDestinoVisit(slug);
   }, [slug, destino]);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(0);
 
   const scrollHeroToContent = useCallback(() => {
     scrollContentBelowHero(scrollRef.current, contentRef.current);
@@ -124,15 +135,12 @@ export default function Destino() {
       3. destino.imageUrl (Unsplash) → final fallback
   */
   const hasLocalImages = Boolean(destino && localWikiImages[destino.id]?.length);
-
-  /* Only hit the Wikipedia API if we have no local images */
   const { images: wikiApiImages, loading: wikiLoading } = useWikipediaImages(
     !hasLocalImages ? destino?.id : undefined,
   );
-
   const images = useMemo(() => {
     if (!destino) return [];
-    if (hasLocalImages)          return localWikiImages[destino.id];
+    if (hasLocalImages)           return localWikiImages[destino.id];
     if (wikiApiImages.length > 0) return wikiApiImages;
     return destino.imageUrl ? [destino.imageUrl] : [];
   }, [destino, hasLocalImages, wikiApiImages]);
@@ -180,13 +188,11 @@ export default function Destino() {
     if (destino) document.title = `${destino.nombre} – Para Dónde?`;
   }, [destino]);
 
-  /** Desde Mis viajes (#destino-vuelos): bajar a la sección de vuelos tras montar el contenido. */
+  /* Desde Mis viajes (#destino-vuelos): bajar al dashboard directamente */
   useEffect(() => {
     if (location.hash !== '#destino-vuelos') return;
     const run = () => {
-      const el = document.getElementById('destino-vuelos');
-      if (!el) return;
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollContentBelowHero(scrollRef.current, contentRef.current);
     };
     const t = window.setTimeout(run, 120);
     return () => window.clearTimeout(t);
@@ -210,8 +216,6 @@ export default function Destino() {
   const vh = typeof window !== 'undefined' ? window.innerHeight : 700;
   const heroContentOpacity = Math.max(0, 1 - scrollY / (vh * 0.52));
   const scrollHintOpacity  = Math.max(0, 1 - scrollY / (vh * 0.18));
-  /* bg veil: subtle darkening as content scrolls in */
-  const bgVeilOpacity      = Math.min(0.55, scrollY / (vh * 1.1));
   const chromeHidden = !chromeVisible;
 
   const ta   = destino.reseñasExternas?.tripadvisor;
@@ -222,13 +226,13 @@ export default function Destino() {
   )}`;
 
   const regionLabel =
-    destino.region === 'europa'         ? ' · Europa' :
-    destino.region === 'norteamerica'   ? ' · América del Norte' :
-    destino.region === 'sudamerica'     ? ' · Sudamérica' :
-    destino.region === 'asia'           ? ' · Asia' :
-    destino.region === 'caribe'         ? ' · Caribe' :
-    destino.region === 'medio_oriente'  ? ' · Medio Oriente' :
-    destino.region === 'africa'         ? ' · África' : '';
+    destino.region === 'europa'        ? ' · Europa' :
+    destino.region === 'norteamerica'  ? ' · América del Norte' :
+    destino.region === 'sudamerica'    ? ' · Sudamérica' :
+    destino.region === 'asia'          ? ' · Asia' :
+    destino.region === 'caribe'        ? ' · Caribe' :
+    destino.region === 'medio_oriente' ? ' · Medio Oriente' :
+    destino.region === 'africa'        ? ' · África' : '';
 
   return (
     <IonPage className="pd-destino-page">
@@ -247,31 +251,19 @@ export default function Destino() {
             style={{ backgroundImage: `url(${images[slotB.idx]})`, opacity: slotB.opacity }}
           />
         )}
-        {/* Static dim for readability */}
         <div className="pd-destino-bg-dim" />
-        {/* Scroll-driven veil */}
-        <div className="pd-destino-bg-veil" style={{ opacity: bgVeilOpacity }} />
       </div>
 
-      {/* ── Volver (oculto al bajar el scroll) ── */}
-      <div
-        className={`pd-floating-chrome pd-floating-chrome--dest-back${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}
-      >
-        <button
-          type="button"
-          className="pd-destino-floating-btn"
-          onClick={() => navigate(-1)}
-          aria-label="Volver"
-        >
+      {/* ── Volver ── */}
+      <div className={`pd-floating-chrome pd-floating-chrome--dest-back${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}>
+        <button type="button" className="pd-destino-floating-btn" onClick={() => navigate(-1)} aria-label="Volver">
           <IonIcon icon={arrowBack} />
           <span>Volver</span>
         </button>
       </div>
 
-      {/* ── Mapa + menú (tema dentro del menú) ── */}
-      <div
-        className={`pd-floating-chrome pd-floating-chrome--dest-trailing${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}
-      >
+      {/* ── Mapa + menú ── */}
+      <div className={`pd-floating-chrome pd-floating-chrome--dest-trailing${chromeHidden ? ' pd-floating-chrome--hidden' : ''}`}>
         <a
           href={mapsSearchHref}
           target="_blank"
@@ -288,33 +280,23 @@ export default function Destino() {
       {/* ── Scrollable container ── */}
       <div ref={scrollRef} className="pd-destino-scroll">
 
-        {/* ── Hero: 100vh ── */}
+        {/* ── Hero: 100dvh ── */}
         <section className="pd-destino-hero">
-          {/* Bottom gradient for text readability */}
-          <div className="pd-destino-hero-grad" />
+          <div className={`pd-destino-hero-grad${isFav ? ' pd-destino-hero-grad--fav' : ''}`} />
 
-          {/* Hero content fades with scroll */}
           <div className="pd-destino-hero-body" style={{ opacity: heroContentOpacity }}>
             {destino.pais && destino.region !== 'argentina' && (
-              <span className="pd-destino-hero-region">
-                {destino.pais}{regionLabel}
-              </span>
+              <span className="pd-destino-hero-region">{destino.pais}{regionLabel}</span>
             )}
             <h1 className="pd-destino-hero-title">{destino.nombre}</h1>
             <p className="pd-destino-hero-desc">{destino.descripcionCorta}</p>
 
-            {/* Quick stats row */}
             <div className="pd-destino-hero-stats">
               {ta && (
-                <a
-                  href={ta.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <a href={ta.url} target="_blank" rel="noopener noreferrer"
                   className="pd-destino-hero-stat pd-destino-hero-stat--link"
-                  aria-label={`Ver opiniones de ${destino.nombre} en TripAdvisor (${ta.puntaje} de 5)`}
-                >
-                  ⭐ {ta.puntaje}
-                  <small>/5 TripAdvisor</small>
+                  aria-label={`Ver opiniones en TripAdvisor (${ta.puntaje} de 5)`}>
+                  ⭐ {ta.puntaje}<small>/5 TripAdvisor</small>
                 </a>
               )}
               {destino.presupuestoEstimado && (
@@ -331,7 +313,6 @@ export default function Destino() {
             </div>
           </div>
 
-          {/* Loading badge — only shown when fetching from API (no local images yet) */}
           {wikiLoading && !hasLocalImages && (
             <div className="pd-destino-wiki-badge" aria-label="Cargando fotos reales del destino">
               <span className="pd-destino-wiki-spinner" />
@@ -339,122 +320,146 @@ export default function Destino() {
             </div>
           )}
 
-          {/* Transición foto → contenido (misma lectura que el scroll con el velo) */}
-          <div className="pd-hero-to-content-fade" aria-hidden="true" />
+          {!isFav && <div className="pd-hero-to-content-fade" aria-hidden="true" />}
 
-          {/* Scroll hint */}
           <div className="pd-destino-hero-scroll-hint-wrap" style={{ opacity: scrollHintOpacity }}>
-            <button
-              type="button"
-              className="pd-destino-hero-scroll-hint-btn"
-              onClick={scrollHeroToContent}
-              aria-label="Ver información del destino"
-            >
+            <button type="button" className="pd-destino-hero-scroll-hint-btn"
+              onClick={scrollHeroToContent} aria-label="Ver información del destino">
               ↓
             </button>
           </div>
         </section>
 
-        {/* ── Glass content sections ── */}
-        <div ref={contentRef} className="pd-destino-content">
-          <div className="pd-destino-content-inner">
+        {/* ══════════════════════════════════════════════
+            LAYOUT COMPACTO — "Mis viajes" (isFav = true)
+            Grilla 3 columnas: Vuelos | Docs | Info
+        ══════════════════════════════════════════════ */}
+        {isFav ? (
+          <div ref={contentRef} className="pd-destino-dashboard">
 
-            {/* Qué ver / Cuándo ir / Tips */}
-            <div className="pd-destino-glass-section">
-              <h2 className="pd-destino-glass-title">🗺️ Qué ver</h2>
-              <p className="pd-destino-glass-text">{destino.guia.queVer}</p>
+            <div className="pd-destino-dash-grid">
 
-              <div className="pd-destino-glass-row">
-                <div>
-                  <h3 className="pd-destino-glass-sub">📅 Cuándo ir</h3>
-                  <p className="pd-destino-glass-text">{destino.guia.cuandoIr}</p>
-                </div>
-                <div>
-                  <h3 className="pd-destino-glass-sub">⏱️ Cuántos días</h3>
-                  <p className="pd-destino-glass-text">{destino.guia.cuantosDias}</p>
-                </div>
+              {/* Col 1 — Vuelos */}
+              <div className="pd-destino-dash-card">
+                <p className="pd-destino-dash-card-title">✈ Vuelos</p>
+                {slug && <PdVueloFavoritoSection destinoSlug={slug} />}
               </div>
 
-              <h3 className="pd-destino-glass-sub" style={{ marginTop: '1rem' }}>💡 Tips</h3>
-              <p className="pd-destino-glass-text">{destino.guia.tips}</p>
-            </div>
+              {/* Col 2 — Documentación */}
+              <div className="pd-destino-dash-card">
+                <p className="pd-destino-dash-card-title">📋 Docs</p>
+                <p className="pd-destino-dash-card-hint">Verificá en Migraciones antes de viajar.</p>
+                <DocumentacionSection doc={destino.documentacion} />
+              </div>
 
-            {/* Reseñas */}
-            {(ta || book) && (
-              <div className="pd-destino-glass-section">
-                <h2 className="pd-destino-glass-title">⭐ Reseñas</h2>
-                {ta && (
-                  <div className="pd-destino-review-row">
-                    <div className="pd-destino-review-info">
-                      <span className="pd-destino-review-score">{ta.puntaje}/5</span>
-                      <span className="pd-destino-review-label">TripAdvisor</span>
-                    </div>
-                    <span className="pd-destino-review-count">{ta.cantidad.toLocaleString()} opiniones</span>
-                    <a href={ta.url} target="_blank" rel="noopener noreferrer" className="pd-destino-review-link">
-                      Ver →
-                    </a>
-                  </div>
-                )}
-                {book && (
-                  <div className="pd-destino-review-row" style={{ marginTop: '0.65rem' }}>
-                    <div className="pd-destino-review-info">
-                      <span className="pd-destino-review-score">{book.puntaje}/5</span>
-                      <span className="pd-destino-review-label">Booking</span>
-                    </div>
-                    <span className="pd-destino-review-count">{book.cantidad.toLocaleString()} opiniones</span>
-                    <a href={book.url} target="_blank" rel="noopener noreferrer" className="pd-destino-review-link">
-                      Alojamientos →
-                    </a>
+              {/* Col 3 — Info rápida */}
+              <div className="pd-destino-dash-card">
+                <p className="pd-destino-dash-card-title">🗺 Info</p>
+                <p className="pd-destino-dash-info-label">📅 Cuándo ir</p>
+                <p className="pd-destino-dash-info-text">{destino.guia.cuandoIr}</p>
+                <p className="pd-destino-dash-info-label">⏱ Cuántos días</p>
+                <p className="pd-destino-dash-info-text">{destino.guia.cuantosDias}</p>
+                {(ta || book) && (
+                  <div className="pd-destino-dash-ratings">
+                    {ta   && <span className="pd-destino-dash-rating"><a href={ta.url}   target="_blank" rel="noopener noreferrer">⭐ {ta.puntaje}/5 <small>TripAdvisor</small></a></span>}
+                    {book && <span className="pd-destino-dash-rating"><a href={book.url} target="_blank" rel="noopener noreferrer">⭐ {book.puntaje}/5 <small>Booking</small></a></span>}
                   </div>
                 )}
               </div>
-            )}
 
-            {/* Documentación */}
-            <div className="pd-destino-glass-section pd-destino-glass-section--documentacion">
-              <p className="pd-destino-doc-kicker">Requisitos orientativos</p>
-              <h2 className="pd-destino-glass-title">📋 Documentación</h2>
-              <p className="pd-destino-doc-lead">
-                Resumen para planificar; siempre verificá en Migraciones, consulados y aerolínea antes de viajar.
-              </p>
-              <DocumentacionSection doc={destino.documentacion} />
             </div>
 
-            {/* Seguro */}
-            <SeguroBlock forDestino={destino} />
-
-            {slug ? (
-              <section id="destino-vuelos" className="pd-destino-vuelos-anchor" tabIndex={-1}>
-                <PdVueloFavoritoSection destinoSlug={slug} />
-              </section>
-            ) : null}
-
-            {/* Links */}
-            <div className="pd-destino-glass-section pd-destino-links-section">
-              {slug ? <PdFavoritoDestinoButton slug={slug} className="pd-destino-fav-wrap" /> : null}
-              <a
-                href="https://www.booking.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pd-destino-link"
-              >
-                🏨 Ver alojamientos en Booking.com →
-              </a>
-              <Link to="/guias/que-llevar" className="pd-destino-link">
-                🧳 Armar mi checklist para este viaje →
-              </Link>
-              <a
-                href={mapsSearchHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pd-destino-link"
-              >
-                📍 Ver en mapa →
-              </a>
+            {/* Footer: botón fav + acciones rápidas */}
+            <div className="pd-destino-dash-footer">
+              {slug && <PdFavoritoDestinoButton slug={slug} className="pd-destino-fav-wrap" />}
+              <a href="https://www.booking.com" target="_blank" rel="noopener noreferrer"
+                className="pd-destino-dash-footer-link">🏨 Booking</a>
+              <Link to="/guias/que-llevar" className="pd-destino-dash-footer-link">🧳 Checklist</Link>
+              <a href={mapsSearchHref} target="_blank" rel="noopener noreferrer"
+                className="pd-destino-dash-footer-link">📍 Mapa</a>
             </div>
 
           </div>
-        </div>
+
+        ) : (
+
+        /* ══════════════════════════════════════════════
+            LAYOUT COMPLETO — explorar destino (isFav = false)
+        ══════════════════════════════════════════════ */
+          <div ref={contentRef} className="pd-destino-content">
+            <div className="pd-destino-content-inner">
+
+              <div className="pd-destino-glass-section">
+                <h2 className="pd-destino-glass-title">🗺️ Qué ver</h2>
+                <p className="pd-destino-glass-text">{destino.guia.queVer}</p>
+                <div className="pd-destino-glass-row">
+                  <div>
+                    <h3 className="pd-destino-glass-sub">📅 Cuándo ir</h3>
+                    <p className="pd-destino-glass-text">{destino.guia.cuandoIr}</p>
+                  </div>
+                  <div>
+                    <h3 className="pd-destino-glass-sub">⏱️ Cuántos días</h3>
+                    <p className="pd-destino-glass-text">{destino.guia.cuantosDias}</p>
+                  </div>
+                </div>
+                <h3 className="pd-destino-glass-sub" style={{ marginTop: '1rem' }}>💡 Tips</h3>
+                <p className="pd-destino-glass-text">{destino.guia.tips}</p>
+              </div>
+
+              {(ta || book) && (
+                <div className="pd-destino-glass-section">
+                  <h2 className="pd-destino-glass-title">⭐ Reseñas</h2>
+                  {ta && (
+                    <div className="pd-destino-review-row">
+                      <div className="pd-destino-review-info">
+                        <span className="pd-destino-review-score">{ta.puntaje}/5</span>
+                        <span className="pd-destino-review-label">TripAdvisor</span>
+                      </div>
+                      <span className="pd-destino-review-count">{ta.cantidad.toLocaleString()} opiniones</span>
+                      <a href={ta.url} target="_blank" rel="noopener noreferrer" className="pd-destino-review-link">Ver →</a>
+                    </div>
+                  )}
+                  {book && (
+                    <div className="pd-destino-review-row" style={{ marginTop: '0.65rem' }}>
+                      <div className="pd-destino-review-info">
+                        <span className="pd-destino-review-score">{book.puntaje}/5</span>
+                        <span className="pd-destino-review-label">Booking</span>
+                      </div>
+                      <span className="pd-destino-review-count">{book.cantidad.toLocaleString()} opiniones</span>
+                      <a href={book.url} target="_blank" rel="noopener noreferrer" className="pd-destino-review-link">Alojamientos →</a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="pd-destino-glass-section pd-destino-glass-section--documentacion">
+                <p className="pd-destino-doc-kicker">Requisitos orientativos</p>
+                <h2 className="pd-destino-glass-title">📋 Documentación</h2>
+                <p className="pd-destino-doc-lead">
+                  Resumen para planificar; siempre verificá en Migraciones, consulados y aerolínea antes de viajar.
+                </p>
+                <DocumentacionSection doc={destino.documentacion} />
+              </div>
+
+              <SeguroBlock forDestino={destino} />
+
+              <div className="pd-destino-glass-section pd-destino-links-section">
+                {slug ? <PdFavoritoDestinoButton slug={slug} className="pd-destino-fav-wrap" /> : null}
+                <a href="https://www.booking.com" target="_blank" rel="noopener noreferrer" className="pd-destino-link">
+                  🏨 Ver alojamientos en Booking.com →
+                </a>
+                <Link to="/guias/que-llevar" className="pd-destino-link">
+                  🧳 Armar mi checklist para este viaje →
+                </Link>
+                <a href={mapsSearchHref} target="_blank" rel="noopener noreferrer" className="pd-destino-link">
+                  📍 Ver en mapa →
+                </a>
+              </div>
+
+            </div>
+          </div>
+        )}
+
       </div>
     </IonPage>
   );

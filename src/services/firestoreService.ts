@@ -3,11 +3,14 @@
  * Todas las funciones son puras (sin estado) y reciben uid explícito.
  *
  * Estructura:
- *   users/{uid}                         → perfil
- *   users/{uid}/destinosFavoritos/{slug} → destinos favoritos
- *   users/{uid}/vuelos/{flightId}        → vuelos por destino
- *   users/{uid}/aventuraProgress/current → progreso del quiz
- *   users/{uid}/fcmTokens/{token}        → tokens de notificación
+ *   users/{uid}                              → perfil
+ *   users/{uid}/destinosFavoritos/{slug}     → destinos favoritos
+ *   users/{uid}/vuelos/{flightId}            → vuelos por destino
+ *   users/{uid}/aventuraProgress/current     → progreso del quiz
+ *   users/{uid}/fcmTokens/{token}            → tokens de notificación
+ *   users/{uid}/puntuacion/global            → puntos acumulados y referidos
+ *   users/{uid}/misionesCompletadas/{id}     → misiones completadas
+ *   referidos/{codigo}                       → lookup público código → uid
  */
 
 import {
@@ -19,6 +22,8 @@ import {
   deleteDoc,
   serverTimestamp,
   Timestamp,
+  increment,
+  arrayUnion,
 } from 'firebase/firestore';
 import { getFirebaseDb } from '../firebase';
 import type { AvatarChoice } from '../logic/avatarPreference';
@@ -245,5 +250,201 @@ export async function saveFcmTokenFs(
     });
   } catch (e) {
     console.error('[Firestore] saveFcmToken error:', e);
+  }
+}
+
+// ─── Puntuación & Referidos ──────────────────────────────────────
+
+export interface PuntuacionGlobal {
+  totalPuntos: number;
+  porFuente: {
+    misiones: number;
+    vuelos: number;
+    referidos: number;
+  };
+  codigoReferido: string;
+  referidoPor?: string;
+  referidosUids: string[];
+  codigosUsados: string[];
+  updatedAt?: Timestamp;
+}
+
+export interface MisionCompletadaFs {
+  misionId: string;
+  destinoSlug: string;
+  puntosGanados: number;
+  fotoThumb?: string;
+  completadaAt: Timestamp;
+}
+
+export interface ReferidoEntry {
+  uid: string;
+  displayName: string;
+  createdAt: Timestamp;
+}
+
+function puntuacionRef(uid: string) {
+  return doc(getFirebaseDb(), 'users', uid, 'puntuacion', 'global');
+}
+
+function misionesCol(uid: string) {
+  return collection(getFirebaseDb(), 'users', uid, 'misionesCompletadas');
+}
+
+function misionCompletadaRef(uid: string, misionId: string) {
+  return doc(getFirebaseDb(), 'users', uid, 'misionesCompletadas', misionId);
+}
+
+function referidoRef(codigo: string) {
+  return doc(getFirebaseDb(), 'referidos', codigo);
+}
+
+export async function getPuntuacionGlobalFs(uid: string): Promise<PuntuacionGlobal | null> {
+  try {
+    const snap = await getDoc(puntuacionRef(uid));
+    if (!snap.exists()) return null;
+    return snap.data() as PuntuacionGlobal;
+  } catch (e) {
+    console.error('[Firestore] getPuntuacion error:', e);
+    return null;
+  }
+}
+
+export async function initPuntuacionFs(uid: string, codigo: string): Promise<void> {
+  try {
+    const snap = await getDoc(puntuacionRef(uid));
+    if (snap.exists()) return;
+    await setDoc(puntuacionRef(uid), {
+      totalPuntos: 0,
+      porFuente: { misiones: 0, vuelos: 0, referidos: 0 },
+      codigoReferido: codigo,
+      referidosUids: [],
+      codigosUsados: [],
+      updatedAt: serverTimestamp(),
+    });
+    // Registrar el código en la colección pública
+    await setDoc(referidoRef(codigo), {
+      uid,
+      createdAt: serverTimestamp(),
+    });
+  } catch (e) {
+    console.error('[Firestore] initPuntuacion error:', e);
+  }
+}
+
+export async function sumarPuntosVueloFs(uid: string, puntos: number): Promise<void> {
+  try {
+    await setDoc(
+      puntuacionRef(uid),
+      {
+        totalPuntos: increment(puntos),
+        porFuente: { vuelos: increment(puntos) },
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  } catch (e) {
+    console.error('[Firestore] sumarPuntosVuelo error:', e);
+  }
+}
+
+export async function completarMisionFs(
+  uid: string,
+  mision: Omit<MisionCompletadaFs, 'completadaAt'>,
+): Promise<void> {
+  try {
+    await setDoc(misionCompletadaRef(uid, mision.misionId), {
+      ...mision,
+      completadaAt: serverTimestamp(),
+    });
+    await setDoc(
+      puntuacionRef(uid),
+      {
+        totalPuntos: increment(mision.puntosGanados),
+        porFuente: { misiones: increment(mision.puntosGanados) },
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  } catch (e) {
+    console.error('[Firestore] completarMision error:', e);
+  }
+}
+
+export async function getMisionesCompletadasFs(uid: string): Promise<MisionCompletadaFs[]> {
+  try {
+    const snap = await getDocs(misionesCol(uid));
+    return snap.docs.map((d) => d.data() as MisionCompletadaFs);
+  } catch (e) {
+    console.error('[Firestore] getMisionesCompletadas error:', e);
+    return [];
+  }
+}
+
+export async function buscarReferidoFs(codigo: string): Promise<ReferidoEntry | null> {
+  try {
+    const snap = await getDoc(referidoRef(codigo));
+    if (!snap.exists()) return null;
+    return snap.data() as ReferidoEntry;
+  } catch (e) {
+    console.error('[Firestore] buscarReferido error:', e);
+    return null;
+  }
+}
+
+export async function aplicarCodigoReferidoFs(
+  uid: string,
+  displayName: string,
+  codigoIngresado: string,
+  uidReferente: string,
+  puntosAmbos: number,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const mySnap = await getDoc(puntuacionRef(uid));
+    const myData = mySnap.exists() ? (mySnap.data() as PuntuacionGlobal) : null;
+
+    if (myData?.referidoPor) return { ok: false, error: 'Ya usaste un código de referido.' };
+    if (myData?.codigosUsados?.includes(codigoIngresado))
+      return { ok: false, error: 'Este código ya fue aplicado.' };
+    if (uidReferente === uid) return { ok: false, error: 'No podés usar tu propio código.' };
+
+    // Sumar puntos al nuevo usuario
+    await setDoc(
+      puntuacionRef(uid),
+      {
+        totalPuntos: increment(puntosAmbos),
+        porFuente: { referidos: increment(puntosAmbos) },
+        referidoPor: uidReferente,
+        codigosUsados: arrayUnion(codigoIngresado),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    // Sumar puntos al referente y agregar uid al listado
+    const referenteSnap = await getDoc(puntuacionRef(uidReferente));
+    const referenteData = referenteSnap.exists()
+      ? (referenteSnap.data() as PuntuacionGlobal)
+      : null;
+    const cantReferidos = referenteData?.referidosUids?.length ?? 0;
+    const bonusExtra = cantReferidos >= 5 ? 100 : 0;
+
+    await setDoc(
+      puntuacionRef(uidReferente),
+      {
+        totalPuntos: increment(puntosAmbos + bonusExtra),
+        porFuente: { referidos: increment(puntosAmbos + bonusExtra) },
+        referidosUids: arrayUnion(uid),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    void displayName; // para uso futuro en notificaciones
+
+    return { ok: true };
+  } catch (e) {
+    console.error('[Firestore] aplicarCodigoReferido error:', e);
+    return { ok: false, error: 'Error al aplicar el código. Intentá de nuevo.' };
   }
 }

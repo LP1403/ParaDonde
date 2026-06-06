@@ -16,6 +16,8 @@ import Register from './pages/Register';
 import Cuenta from './pages/Cuenta';
 import MisViajes from './pages/MisViajes';
 import Terminos from './pages/Terminos';
+import Reputacion from './pages/Reputacion';
+import MisionesDestino from './pages/MisionesDestino';
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
               <Route path="/viajes" element={<MisViajes />} />
               <Route path="/cuenta" element={<Cuenta />} />
               <Route path="/terminos" element={<Terminos />} />
+              <Route path="/reputacion" element={<Reputacion />} />
+              <Route path="/misiones/:slug" element={<MisionesDestino />} />
             </Routes>
           </BrowserRouter>
         </IonApp>

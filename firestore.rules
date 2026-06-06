@@ -10,6 +10,16 @@ service cloud.firestore {
                          && request.auth.uid == userId;
     }
 
+    // Tabla pública de códigos de referido.
+    // Lectura libre (para validar un código al registrarse).
+    // Escritura solo del propio usuario (el uid del doc debe coincidir).
+    match /referidos/{codigo} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     // Cualquier otra colección en la raíz está bloqueada por defecto.
     match /{document=**} {
       allow read, write: if false;
