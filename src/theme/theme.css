@@ -91,6 +91,46 @@ ion-content {
   --background: var(--pd-color-bg);
   transition: --background 0.3s;
 }
+/* Barras de scroll invisibles en toda la app (touch / rueda / trackpad sin cambios) */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+ion-content::part(scroll) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+ion-content::part(scroll)::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+ion-content {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+ion-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+  background: transparent;
+}
+
 ion-toolbar {
   --background: var(--pd-color-bg-elevated);
   --color: var(--pd-color-text);
@@ -684,7 +724,14 @@ html.pd-light .pd-home-hub-below {
   padding-bottom: 0.35rem;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-x;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pd-home-hub-rail:active {
+  cursor: grabbing;
 }
 .pd-home-hub-rail-item {
   flex: 0 0 auto;
